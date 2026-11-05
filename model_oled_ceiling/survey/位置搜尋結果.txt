@@ -1,0 +1,113 @@
+# 位置搜尋結果（survey/3_search.py）
+顯示區中心離路口的最短距離；PCB 中心；rot 為搜尋用的旋轉代碼
+
+== 嚴格（不切溝、排針朝上＋杜邦）
+0.96 (-99, 99) NO FIT
+0.96 (0, 99) NO FIT
+0.96 (99, 99) NO FIT
+0.96 (-99, 0) NO FIT
+0.96 (0, 0) NO FIT
+0.96 (99, 0) NO FIT
+0.96 (-99, -99) NO FIT
+0.96 (0, -99) NO FIT
+0.96 (99, -99) NO FIT
+0.91 (-99, 99) NO FIT
+0.91 (0, 99) NO FIT
+0.91 (99, 99) NO FIT
+0.91 (-99, 0) NO FIT
+0.91 (0, 0) NO FIT
+0.91 (99, 0) NO FIT
+0.91 (-99, -99) NO FIT
+0.91 (0, -99) NO FIT
+0.91 (99, -99) NO FIT
+
+== 切溝＋排針朝上
+0.96 (-99, 99) n=24 best AA-offset 3.5  PCB (-101.5,95.5) rot 90 AA (-99.1,95.5) hdr (-113.7,95.5)
+0.96 (0, 99) NO FIT
+0.96 (99, 99) n=32 best AA-offset 4.9  PCB (95.5,100.0) rot 180 AA (95.5,102.4) hdr (95.5,87.8)
+0.96 (-99, 0) NO FIT
+0.96 (0, 0) NO FIT
+0.96 (99, 0) NO FIT
+0.96 (-99, -99) NO FIT
+0.96 (0, -99) NO FIT
+0.96 (99, -99) n=24 best AA-offset 3.5  PCB (95.5,-101.5) rot 180 AA (95.5,-99.1) hdr (95.5,-113.7)
+0.91 (-99, 99) NO FIT
+0.91 (0, 99) NO FIT
+0.91 (99, 99) NO FIT
+0.91 (-99, 0) NO FIT
+0.91 (0, 0) NO FIT
+0.91 (99, 0) NO FIT
+0.91 (-99, -99) NO FIT
+0.91 (0, -99) NO FIT
+0.91 (99, -99) NO FIT
+
+== 不切溝＋焊線
+0.96 (-99, 99) NO FIT
+0.96 (0, 99) n=68 best AA-offset 31.2  PCB (-6.0,66.0) rot 180 AA (-6.0,68.4) hdr (-6.0,53.8)
+0.96 (99, 99) NO FIT
+0.96 (-99, 0) n=68 best AA-offset 31.2  PCB (-66.0,-6.0) rot 270 AA (-68.4,-6.0) hdr (-53.8,-6.0)
+0.96 (0, 0) NO FIT
+0.96 (99, 0) n=68 best AA-offset 31.2  PCB (66.0,-6.0) rot 90 AA (68.4,-6.0) hdr (53.8,-6.0)
+0.96 (-99, -99) NO FIT
+0.96 (0, -99) n=68 best AA-offset 31.2  PCB (-6.0,-66.0) rot 0 AA (-6.0,-68.4) hdr (-6.0,-53.8)
+0.96 (99, -99) NO FIT
+0.91 (-99, 99) NO FIT
+0.91 (0, 99) NO FIT
+0.91 (99, 99) NO FIT
+0.91 (-99, 0) NO FIT
+0.91 (0, 0) NO FIT
+0.91 (99, 0) NO FIT
+0.91 (-99, -99) NO FIT
+0.91 (0, -99) NO FIT
+0.91 (99, -99) NO FIT
+
+== 切溝＋焊線（採用）
+0.96 (-99, 99) n=128 best AA-offset 1.2  PCB (-99.5,95.5) rot 180 AA (-99.5,97.9) hdr (-99.5,83.3)
+0.96 (0, 99) n=1700 best AA-offset 30.6  PCB (0.0,66.0) rot 180 AA (0.0,68.4) hdr (0.0,53.8)
+0.96 (99, 99) n=256 best AA-offset 1.2  PCB (95.5,99.5) rot 90 AA (97.9,99.5) hdr (83.3,99.5)
+0.96 (-99, 0) n=1700 best AA-offset 30.6  PCB (-66.0,0.0) rot 270 AA (-68.4,0.0) hdr (-53.8,0.0)
+0.96 (0, 0) NO FIT
+0.96 (99, 0) n=1700 best AA-offset 30.6  PCB (66.0,0.0) rot 90 AA (68.4,0.0) hdr (53.8,0.0)
+0.96 (-99, -99) NO FIT
+0.96 (0, -99) n=1700 best AA-offset 30.6  PCB (0.0,-66.0) rot 0 AA (0.0,-68.4) hdr (0.0,-53.8)
+0.96 (99, -99) n=128 best AA-offset 1.2  PCB (95.5,-99.5) rot 90 AA (97.9,-99.5) hdr (83.3,-99.5)
+0.91 (-99, 99) n=676 best AA-offset 8.5  PCB (-93.0,90.5) rot 90 AA (-93.0,93.0) hdr (-93.0,73.2)
+0.91 (0, 99) n=908 best AA-offset 25.0  PCB (-1.0,74.0) rot 0 AA (1.5,74.0) hdr (-18.3,74.0)
+0.91 (99, 99) n=4 best AA-offset 13.4  PCB (90.5,111.0) rot 0 AA (93.0,111.0) hdr (73.2,111.0)
+0.91 (-99, 0) n=2140 best AA-offset 25.0  PCB (-74.0,-1.0) rot 90 AA (-74.0,1.5) hdr (-74.0,-18.3)
+0.91 (0, 0) n=2244 best AA-offset 30.8  PCB (-32.0,9.0) rot 0 AA (-29.5,9.0) hdr (-49.3,9.0)
+0.91 (99, 0) n=908 best AA-offset 25.0  PCB (74.0,-1.0) rot 90 AA (74.0,1.5) hdr (74.0,-18.3)
+0.91 (-99, -99) n=648 best AA-offset 28.6  PCB (-93.0,-68.5) rot 270 AA (-93.0,-71.0) hdr (-93.0,-51.2)
+0.91 (0, -99) n=2140 best AA-offset 25.0  PCB (-1.0,-74.0) rot 0 AA (1.5,-74.0) hdr (-18.3,-74.0)
+0.91 (99, -99) n=676 best AA-offset 8.5  PCB (90.5,-93.0) rot 0 AA (93.0,-93.0) hdr (73.2,-93.0)
+
+== 2026-11-05 重新評估：W 改 0.96、中心 0.91 換位置、SW 0.96（固定其他 7 塊凹槽為禁區）
+s5.log:RES C 0.91 (W=0.96) 2056
+s5.log:   off 92.7 PCB (-88.0,-31.5) rot 90 AA (-88.0,-29.0)
+s5.log:   off 92.7 PCB (-88.0,31.5) rot 270 AA (-88.0,29.0)
+s5.log:   off 92.7 PCB (-31.5,-88.0) rot 0 AA (-29.0,-88.0)
+s5.log:   off 92.7 PCB (31.5,-88.0) rot 180 AA (29.0,-88.0)
+s5.log:   off 94.7 PCB (-88.0,-37.5) rot 90 AA (-88.0,-35.0)
+s5.log:   off 94.7 PCB (-88.0,32.5) rot 90 AA (-88.0,35.0)
+s5.log:RES C 0.96 (W=0.96) 0
+s5.log:RES SW 0.96 0
+s5.log:RES W 0.96 alone 1700
+s5.log:   off 30.6 PCB (-66.0,0.0) rot 270 AA (-68.4,0.0)
+s5.log:   off 31.1 PCB (-66.0,-5.5) rot 270 AA (-68.4,-5.5)
+s5.log:   off 31.1 PCB (-66.0,5.5) rot 270 AA (-68.4,5.5)
+s5.log:   off 34.0 PCB (-65.0,-2.5) rot 180 AA (-65.0,-0.1)
+s5.log:   off 34.4 PCB (-65.0,-3.0) rot 0 AA (-65.0,-5.4)
+s5.log:   off 34.4 PCB (-65.0,3.0) rot 180 AA (-65.0,5.4)
+s6.log:RES C091 wall 1.2 0 
+s6.log:RES C091 wall 1.0 44 best off 30.8 PCB (-32.0,9.0) rot 0 AA (-29.5,9.0)
+s6.log:RES C091 wall 0.8 44 best off 30.8 PCB (-32.0,9.0) rot 0 AA (-29.5,9.0)
+s6.log:RES C091 wall 0.5 88 best off 30.8 PCB (-32.0,9.0) rot 0 AA (-29.5,9.0)
+s6.log:RES C091 wall 0.0 132 best off 30.8 PCB (-32.0,9.0) rot 0 AA (-29.5,9.0)
+s6.log:RES SW096 nofix 3400
+s6.log:   off 96.4 PCB (-66.0,-6.0) rot 0 AA (-66.0,-8.4)
+s6.log:   off 96.4 PCB (-6.0,-66.0) rot 270 AA (-8.4,-66.0)
+s6.log:   off 96.6 PCB (-65.5,-6.0) rot 0 AA (-65.5,-8.4)
+s7.log:RES holeOK 0.96 (-99, -99) 960
+s7.log:   off 0.1 PCB (-101.5,-99.0) rot 90 AA (-99.1,-99.0)
+s7.log:   off 0.1 PCB (-99.0,-101.5) rot 180 AA (-99.0,-99.1)
+s7.log:RES holeOK 0.96 (0, 0) 0

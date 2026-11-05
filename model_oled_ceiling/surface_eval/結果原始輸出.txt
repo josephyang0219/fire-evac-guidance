@@ -1,0 +1,43 @@
+RES 外殼31.5x31.5 h 5.5 (-99, 99) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 5.5 (0, 99) n 135 nearest 35.0 (0.0,64.0) seen {'1FN': 37} | first hidden None
+RES 外殼31.5x31.5 h 5.5 (99, 99) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 5.5 (-99, 0) n 135 nearest 35.0 (-64.0,0.0) seen {'1FW': 37} | first hidden None
+RES 外殼31.5x31.5 h 5.5 (0, 0) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 5.5 (99, 0) n 135 nearest 35.0 (64.0,0.0) seen {'1FE': 37} | first hidden None
+RES 外殼31.5x31.5 h 5.5 (-99, -99) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 5.5 (0, -99) n 135 nearest 35.0 (0.0,-64.0) seen {'1FS': 37} | first hidden None
+RES 外殼31.5x31.5 h 5.5 (99, -99) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 7.5 (-99, 99) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 7.5 (0, 99) n 135 nearest 35.0 (0.0,64.0) seen {'1FN': 31} | first hidden None
+RES 外殼31.5x31.5 h 7.5 (99, 99) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 7.5 (-99, 0) n 135 nearest 35.0 (-64.0,0.0) seen {'1FW': 31} | first hidden None
+RES 外殼31.5x31.5 h 7.5 (0, 0) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 7.5 (99, 0) n 135 nearest 35.0 (64.0,0.0) seen {'1FE': 31} | first hidden None
+RES 外殼31.5x31.5 h 7.5 (-99, -99) n 0 nearest None | first hidden None
+RES 外殼31.5x31.5 h 7.5 (0, -99) n 135 nearest 35.0 (0.0,-64.0) seen {'1FS': 31} | first hidden None
+RES 外殼31.5x31.5 h 7.5 (99, -99) n 0 nearest None | first hidden None
+RES 裸模組28.1x28.6 h 5.5 (-99, 99) n 145 nearest 1.0 (-100.0,99.0) seen {} | first hidden 1.0 (-100.0,99.0)
+RES 裸模組28.1x28.6 h 5.5 (0, 99) n 345 nearest 33.5 (0.0,65.5) seen {'1FN': 37} | first hidden None
+RES 裸模組28.1x28.6 h 5.5 (99, 99) n 145 nearest 1.0 (100.0,99.0) seen {} | first hidden 1.0 (100.0,99.0)
+RES 裸模組28.1x28.6 h 5.5 (-99, 0) n 357 nearest 33.0 (-66.0,0.0) seen {'1FW': 37} | first hidden None
+RES 裸模組28.1x28.6 h 5.5 (0, 0) n 0 nearest None | first hidden None
+RES 裸模組28.1x28.6 h 5.5 (99, 0) n 357 nearest 33.0 (66.0,0.0) seen {'1FE': 37} | first hidden None
+RES 裸模組28.1x28.6 h 5.5 (-99, -99) n 145 nearest 1.0 (-100.0,-99.0) seen {} | first hidden 1.0 (-100.0,-99.0)
+RES 裸模組28.1x28.6 h 5.5 (0, -99) n 345 nearest 33.5 (0.0,-65.5) seen {'1FS': 37} | first hidden None
+RES 裸模組28.1x28.6 h 5.5 (99, -99) n 145 nearest 1.0 (100.0,-99.0) seen {} | first hidden 1.0 (100.0,-99.0)
+RES 裸模組28.1x28.6 h 7.5 (-99, 99) n 145 nearest 1.0 (-100.0,99.0) seen {} | first hidden 1.0 (-100.0,99.0)
+RES 裸模組28.1x28.6 h 7.5 (0, 99) n 345 nearest 33.5 (0.0,65.5) seen {'1FN': 31} | first hidden None
+RES 裸模組28.1x28.6 h 7.5 (99, 99) n 145 nearest 1.0 (100.0,99.0) seen {} | first hidden 1.0 (100.0,99.0)
+RES 裸模組28.1x28.6 h 7.5 (-99, 0) n 357 nearest 33.0 (-66.0,0.0) seen {'1FW': 31} | first hidden None
+RES 裸模組28.1x28.6 h 7.5 (0, 0) n 0 nearest None | first hidden None
+RES 裸模組28.1x28.6 h 7.5 (99, 0) n 357 nearest 33.0 (66.0,0.0) seen {'1FE': 31} | first hidden None
+RES 裸模組28.1x28.6 h 7.5 (-99, -99) n 145 nearest 1.0 (-100.0,-99.0) seen {} | first hidden 1.0 (-100.0,-99.0)
+RES 裸模組28.1x28.6 h 7.5 (0, -99) n 345 nearest 33.5 (0.0,-65.5) seen {'1FS': 31} | first hidden None
+RES 裸模組28.1x28.6 h 7.5 (99, -99) n 145 nearest 1.0 (100.0,-99.0) seen {} | first hidden 1.0 (100.0,-99.0)
+RES2 (0, 0) nearest (58.0, -58.0, 0.0, {'1FW': 49}) hidden (137.93114224133723, -100.0, -95.0) tested 71
+RES2 (0, 99) nearest (34.0, 0.0, 65.0, {'1FN': 38}) hidden (94.02127418834527, -94.0, 101.0) tested 16
+RES2 (99, 0) nearest (33.0, 66.0, 0.0, {'1FE': 37}) hidden (95.00526301210897, 100.0, -95.0) tested 21
+RES3 corner (-99, 99) max square 31.0
+RES3 corner (99, 99) max square 31.0
+RES3 corner (-99, -99) max square 31.0
+RES3 corner (99, -99) max square 31.0
