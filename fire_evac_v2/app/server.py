@@ -4,7 +4,9 @@ Boards -> POST /api/dev/{mac}/detections   one sketch for all boards; the consol
        -> POST /api/dev/{mac}/frame        JPEG snapshot, only when the server asks (preview / cover-the-lens wizard)
 HUBs   -> POST /api/hub/{hub}/detections   (legacy, fixed position in the sketch) YOLO boxes from the on-board NPU
        -> POST /api/hub/{hub}/frame        a JPEG snapshot (for the live-view button)
-       <- GET  /api/hub/{hub}/leds         directions for the 2-3 LEDs this HUB drives
+       <- GET  /api/hub/{hub}/leds         directions for the 2-3 LEDs this HUB drives (legacy)
+Any    <- GET  /api/junctions              1F: one direction per junction, [{"id":"J(-1,1)","dir":"N"}, ...]
+Every detections reply carries both "junctions" (new, for the ceiling OLEDs) and "leds" (old, kept for compatibility).
 Phones <-> WS /ws                          state broadcast, position / role updates, developer commands
 
 python server.py                      live mode (HUBs on the same Wi-Fi hotspot)
@@ -19,7 +21,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "sim"))
 import evac as E, states as ST
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# which junction LEDs each camera HUB drives (9 per floor, 2-3 per HUB)
+# legacy: which junction LEDs each camera HUB drives (9 per floor, 2-3 per HUB); only used for the old "leds" field.
+# The new "junctions" field lists all 9 1F junctions; each board picks its own from its OLED table (hub_node.ino).
 HUB_LEDS = {"N": [(0, 1), (-1, 1)], "W": [(-1, 0), (-1, -1)], "S": [(0, -1), (1, -1)], "E": [(1, 0), (1, 1), (0, 0)]}
 
 app = FastAPI()
@@ -116,7 +119,7 @@ def compute():
         if tool == "gate": s.update(gate=True, rate=1.0); s["items"].append(("gate", 1.0))
         if tool == "smoke": s["smoke"] = max(s["smoke"], 0.7)
     stairs = tuple(k for k, v in S["stairs"].items() if v)
-    leds, dist = E.plan(st, stairs_open=stairs)
+    leds, dist = E.plan(st, stairs_open=stairs, fire=ST.fire_estimate(st))
     people = []
     for pid, p in list(S["people"].items()):
         fl = p["floor"]; c = E.FLOORS[fl]["ringc"]
@@ -126,7 +129,7 @@ def compute():
     step = dict(t=time.strftime("%M:%S", time.gmtime(time.time() - S["t0"])) if not S["sim"] else S["sim"][S["step"]]["t"], note=S["note"])
     js = ST.to_json(step, st, leds, online, people=people, net=net_stats())
     js["dets"] = {f"{k[0]}{k[1]}": v for k, v in S["dets"].items()}
-    js["devices"] = dev_list(); js["wizard"] = wiz_state()
+    js["devices"] = dev_list(); js["wizard"] = wiz_state(); js["junctions"] = E.junctions(leds)
     S["state"], S["leds"] = js, leds
     return js
 
@@ -188,7 +191,7 @@ async def dev_dets(mac: str, req: Request):
     if WIZ and WIZ.get("cool") and now > WIZ["cool"]:
         WIZ["cool"] = None; wiz_begin_step()
     await broadcast()
-    out = hub_leds(slot) if slot else {"leds": []}
+    out = hub_leds(slot) if slot else {"leds": [], "junctions": E.junctions(S.get("leds") or {})}
     out.update(slot=slot or "", node=slot[1] if slot else "", blink=int(d.get("blink_until", 0) > now),
                snap=int(bool(WIZ) or d.get("snap_until", 0) > now))
     return JSONResponse(out)
@@ -223,7 +226,12 @@ async def dev_jpg(mac: str):
 def hub_leds(hub):
     fl, c = int(hub[0]), hub[1]
     leds = S.get("leds") or {}
-    return {"leds": [leds.get((fl,) + ij, ("X", None))[0] for ij in HUB_LEDS[c]]}
+    return {"leds": [leds.get((fl,) + ij, ("X", None))[0] for ij in HUB_LEDS[c]], "junctions": E.junctions(leds)}
+
+
+@app.get("/api/junctions")
+async def get_junctions():
+    return JSONResponse({"junctions": E.junctions(S.get("leds") or {})})
 
 
 @app.get("/api/hub/{hub}/leds")

@@ -240,6 +240,20 @@ def plan(state, stairs_open=("W", "E"), fire=None):
     return leds, dist
 
 
+# ---------------- per-junction output (one OLED per 1F junction) ----------------
+JUNCTION_ORDER = [(i, j) for j in (1, 0, -1) for i in (-1, 0, 1)]   # NW N NE / W C E / SW S SE
+DIRS = ("N", "S", "E", "W", "UP", "DOWN", "X")
+
+
+def junction_id(ij):
+    return f"J({ij[0]},{ij[1]})"
+
+
+def junctions(leds, floor=1):
+    """[{id:"J(-1,1)", dir:"N|S|E|W|UP|DOWN|X"}, ...] for the 9 junctions of one floor, NW..SE"""
+    return [dict(id=junction_id(ij), dir=leds.get((floor,) + ij, ("X", None))[0]) for ij in JUNCTION_ORDER]
+
+
 def direction(a, b):
     dx, dy = b[0] - a[0], b[1] - a[1]
     return {(1, 0): "E", (-1, 0): "W", (0, 1): "N", (0, -1): "S"}[(dx, dy)]
