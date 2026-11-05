@@ -1,0 +1,11 @@
+# 大型輸出不進 git：渲染結果、資料集、權重都放在 ASCII 工作資料夾（預設 %USERPROFILE%\fire_retrain）
+work/
+output/
+datasets/
+*.pt
+*.nb
+*.zip
+*.exr
+
+# 根目錄的 .gitignore 忽略 tools/（本機工具），這裡的 tools/ 是腳本，要進 git
+!tools/
