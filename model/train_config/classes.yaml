@@ -1,0 +1,3 @@
+nc: 6
+names: ['cabinet','boxes','furniture','rubble','gate','smoke']
+# 0 櫃子 1 紙箱 2 桌椅 3 瓦礫 4 閘門 5 煙

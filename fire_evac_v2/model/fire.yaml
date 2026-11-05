@@ -1,0 +1,4 @@
+train: /tmp/claude-0/-home-claude/864ac11e-cc7b-56b0-b783-94d888562689/scratchpad/train/ds/train/images
+val: /tmp/claude-0/-home-claude/864ac11e-cc7b-56b0-b783-94d888562689/scratchpad/train/ds/val/images
+nc: 6
+names: ['cabinet','boxes','furniture','rubble','gate','smoke']

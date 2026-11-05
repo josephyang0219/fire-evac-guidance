@@ -1,0 +1,728 @@
+<title>避難指引中控台</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: control-room console. Header strip, two floor plans as the main instrument, a narrow column of situation panels, developer console underneath. */
+:root{
+  --bg:#eceff1; --panel:#ffffff; --panel2:#f5f7f8; --ink:#14212a; --muted:#5a6873; --line:#d3dadf;
+  --wall:#26333d; --room:#d5dce1; --corr:#fbfcfc; --corr-edge:#b9c3ca;
+  --exit:#0a8a4b; --exit-l:#38d985; --fire:#d4241c; --smoke:#6f8296; --caution:#e08e00; --stair:#1d6bd0; --stair-l:#86bcff; --route:#1d6bd0;
+  --h1:#f2d64b; --h2:#f08a3c; --h3:#d4241c;
+  --ff:#d4241c; --ev:#e08e00; --by:#6c7a85; --sign:#10201a;
+  --display:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif;
+  --body:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1317; --panel:#161d23; --panel2:#1c242b; --ink:#e6ecf0; --muted:#94a2ac; --line:#29343d;
+  --wall:#8c9ca8; --room:#1b232a; --corr:#3a4651; --corr-edge:#56646f;
+  --exit:#23c06f; --exit-l:#4be79a; --fire:#ff4a3d; --smoke:#a9b8c8; --caution:#ffb020; --stair:#4b93f0; --stair-l:#9dc8ff; --route:#5aa2ff;
+  --h1:#c9b23a; --h2:#d97a33; --h3:#ff4a3d;
+  --ff:#ff4a3d; --ev:#ffb020; --by:#95a3ad; --sign:#0a1510; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1317; --panel:#161d23; --panel2:#1c242b; --ink:#e6ecf0; --muted:#94a2ac; --line:#29343d;
+  --wall:#8c9ca8; --room:#1b232a; --corr:#3a4651; --corr-edge:#56646f;
+  --exit:#23c06f; --exit-l:#4be79a; --fire:#ff4a3d; --smoke:#a9b8c8; --caution:#ffb020; --stair:#4b93f0; --stair-l:#9dc8ff; --route:#5aa2ff;
+  --h1:#c9b23a; --h2:#d97a33; --h3:#ff4a3d;
+  --ff:#ff4a3d; --ev:#ffb020; --by:#95a3ad; --sign:#0a1510; color-scheme:dark}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.02em;margin:0;text-wrap:balance}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand h1{font-size:26px}
+.brand .sub{color:var(--muted);font-size:13px}
+.clock{font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.note{font-weight:500;color:var(--caution)}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.dot.ok{background:var(--exit)} .dot.warn{background:var(--caution)} .dot.bad{background:var(--fire)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{font:inherit;border:0;background:transparent;color:var(--ink);padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--stair);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;margin-top:14px}
+@media (max-width:1020px){.grid{grid-template-columns:minmax(0,1fr)}}
+.maps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:660px){.maps{grid-template-columns:minmax(0,1fr)}}
+.map{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.map header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px}
+.map h2{font-size:24px}
+.map svg{width:100%;height:auto;display:block;touch-action:manipulation;cursor:crosshair}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.toolbar .lbl{font-size:12px;color:var(--muted)}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 12px;margin-top:12px;color:var(--muted);font-size:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.legend span{display:flex;align-items:center;gap:8px;min-width:0}
+.legend svg{width:26px;height:26px;flex:none}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.card h3{font-size:19px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h3 small{font-family:var(--body);font-weight:400;font-size:12px;color:var(--muted)}
+.guide{display:flex;gap:14px;align-items:center}
+.guide .big{width:76px;height:76px;border-radius:14px;background:var(--exit);display:grid;place-items:center;flex:none}
+.guide .big.bad{background:var(--fire)} .guide .big.stair{background:var(--stair)} .guide .big.idle{background:var(--muted)}
+.guide .big svg{width:52px;height:52px}
+.guide p{margin:0}
+.guide .what{font-size:20px;font-weight:700}
+.steps{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.steps li{display:flex;gap:8px;align-items:center}
+.stepn{width:20px;height:20px;border-radius:50%;background:var(--route);color:#fff;display:grid;place-items:center;font-size:11px;font-family:var(--mono);flex:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-variant-numeric:tabular-nums}
+.list{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.list li button{all:unset;display:flex;align-items:center;gap:8px;font-size:13px;width:100%;padding:3px 4px;border-radius:6px;cursor:pointer;box-sizing:border-box}
+.list li button:hover{background:var(--panel2)}
+.list li button:focus-visible{outline:2px solid var(--stair)}
+.list svg{width:20px;height:20px;flex:none}
+.tag{font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.bad{border-color:var(--fire);color:var(--fire)} .tag.ok{border-color:var(--exit);color:var(--exit)}
+.counts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.cams{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.cams button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:6px 0;cursor:pointer}
+.cams button.off{color:var(--fire);border-color:var(--fire)}
+.dev{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.dev summary{cursor:pointer;font-family:var(--display);font-size:22px;font-weight:600}
+.devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row + .row{margin-top:8px}
+.row label{font-size:13px}
+.btn{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:5px 10px;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.slider{display:grid;grid-template-columns:96px minmax(0,1fr) 44px;gap:8px;align-items:center;font-size:13px}
+.slider + .slider{margin-top:6px}
+.slider output{font-family:var(--mono);font-size:12px;text-align:right}
+input[type=range]{width:100%;min-width:0}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500}
+.tw{overflow-x:auto}
+.mono{font-family:var(--mono)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:20;padding:16px}
+.modal .box{background:var(--panel);border-radius:10px;padding:12px;max-width:760px;width:100%}
+.modal img{width:100%;border-radius:6px;display:block;background:#000;aspect-ratio:16/9;object-fit:cover}
+.hint{color:var(--muted);font-size:12px;margin:6px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:30}
+/* map animation */
+.flow{stroke:var(--exit);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:1.5 5.5;fill:none;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-14}}
+.chev{fill:none;stroke:var(--exit);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.myroute-bg{fill:none;stroke:var(--panel);stroke-width:8;stroke-linejoin:round;stroke-linecap:round}
+.myroute{fill:none;stroke:var(--route);stroke-width:4.2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:9 6;animation:flow .8s linear infinite}
+.maplbl{font:600 7px var(--body);fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:2.4px;stroke-linejoin:round}
+.maplbl.inv{fill:#fff;stroke:none}
+@keyframes pulse{0%{opacity:.8;transform:scale(.6)}100%{opacity:0;transform:scale(2.2)}}
+.pulse{animation:pulse 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes flash{0%,100%{opacity:0}50%{opacity:1}}
+.flash{animation:flash .5s ease-in-out 4}
+@media (prefers-reduced-motion:reduce){.flow,.myroute,.pulse,.flash{animation:none}}
+</style>
+
+<div class="top">
+  <div class="brand"><h1>避難指引中控台</h1><span class="sub">火災障礙物辨識系統</span></div>
+  <span class="clock" id="clock">00:00</span>
+  <span class="note" id="note"></span>
+  <span class="spacer"></span>
+  <span class="pill"><span class="dot" id="linkdot"></span><span id="linktxt">回放模式</span></span>
+  <div class="seg" role="group" aria-label="我的身分" id="roles">
+    <button data-role="evacuee" aria-pressed="true">避難人員</button>
+    <button data-role="firefighter" aria-pressed="false">消防員</button>
+    <button data-role="bystander" aria-pressed="false" hidden>無關人員</button>
+  </div>
+</div>
+
+<div class="grid">
+  <section style="min-width:0">
+    <div class="toolbar">
+      <span class="lbl">點地圖時：</span>
+      <div class="seg" role="group" aria-label="點地圖工具" id="tools"></div>
+    </div>
+    <div class="maps">
+      <div class="map"><header><h2>2F</h2><small class="hint" id="f2sum"></small></header><svg id="map2" viewBox="-135 -135 270 270" aria-label="二樓平面圖"></svg></div>
+      <div class="map"><header><h2>1F</h2><small class="hint" id="f1sum"></small></header><svg id="map1" viewBox="-135 -135 270 270" aria-label="一樓平面圖"></svg></div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <aside class="side">
+    <div class="card" id="guideCard">
+      <h3>我的逃生指引 <small id="mypos">尚未設定位置</small></h3>
+      <div class="guide"><div class="big idle" id="bigArrow"></div><div><p class="what" id="guideWhat">點地圖設定位置</p><p class="hint" id="guideDetail">系統會依目前火場與煙霧預測算出最安全的路線。</p></div></div>
+      <ol class="steps" id="steps"></ol>
+    </div>
+    <div class="card">
+      <h3>火場狀況 <small id="sitTime"></small></h3>
+      <dl class="kv" id="sit"></dl>
+    </div>
+    <div class="card" id="pplCard">
+      <h3>人員位置 <small>點名字可在地圖上標出</small></h3>
+      <div class="counts" id="counts"></div>
+      <ul class="list" id="ppl"></ul>
+    </div>
+    <div class="card">
+      <h3>攝影機 <small>點選看畫面</small></h3>
+      <div class="cams" id="cams"></div>
+    </div>
+  </aside>
+</div>
+
+<details class="dev" id="dev">
+  <summary>開發者控制台</summary>
+  <div class="devgrid">
+    <div class="card" id="devCard" style="grid-column:1/-1">
+      <h3>裝置配置 <span class="hint" style="font-weight:400">所有板子燒同一份程式，連上後出現在這裡；位置改這裡就好，不用重燒</span></h3>
+      <div id="wizBox" class="row" hidden style="background:var(--panel2);border-radius:8px;padding:8px 10px;justify-content:space-between"></div>
+      <div class="tw"><table><thead><tr><th>板子</th><th>狀態</th><th>位置</th><th>韌體</th><th>畫面亮度</th><th>操作</th></tr></thead><tbody id="devTbl"><tr><td colspan="6" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr></tbody></table></div>
+      <div class="row" style="margin-top:8px;flex-wrap:wrap;gap:8px">
+        <button class="btn primary" id="wizStart">遮鏡頭自動指認</button>
+        <label for="wizFloor">指認</label><select id="wizFloor"><option value="1">一樓 4 個位置</option><option value="2">二樓 4 個位置</option><option value="all">全部 8 個位置</option></select>
+        <span class="hint">依序用手遮住提示位置的鏡頭約 2 秒，畫面變暗的那片板子就會被指派到該位置。</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>情境回放</h3>
+      <div class="row"><button class="btn primary" id="play">播放</button><input type="range" id="step" min="0" max="0" value="0" aria-label="時間點" style="flex:1"><span class="mono" id="stepLbl">0/0</span></div>
+      <div class="row"><label for="speed">每個時間點</label><select id="speed"><option value="4000">4 秒</option><option value="2500" selected>2.5 秒</option><option value="1200">1.2 秒</option></select></div>
+      <p class="hint">回放模擬世界的辨識結果。你在地圖上的修改會疊加在辨識結果上。</p>
+    </div>
+    <div class="card">
+      <h3>工具參數</h3>
+      <div class="slider"><label for="pRate">障礙率</label><input type="range" id="pRate" min="0.1" max="1" step="0.05" value="0.6"><output id="oRate">60%</output></div>
+      <div class="slider"><label for="pSmoke">煙濃度</label><input type="range" id="pSmoke" min="0.1" max="1" step="0.05" value="0.7"><output id="oSmoke">70%</output></div>
+      <div class="row"><label for="pRole">新增人員身分</label><select id="pRole"><option value="evacuee">避難人員</option><option value="firefighter">消防員</option></select></div>
+      <div class="row"><button class="btn" id="randPeople">隨機加入 5 位避難人員</button><button class="btn" id="clearVirtual">移除手動加入的人</button></div>
+      <div class="row"><button class="btn" id="resetEdits">還原所有修改</button><button class="btn" id="copyState">複製目前狀態 JSON</button></div>
+    </div>
+    <div class="card">
+      <h3>人員移動模擬</h3>
+      <div class="row"><button class="btn primary" id="walk">開始移動</button><button class="btn" id="resetWalk">回到起點</button></div>
+      <div class="slider"><label for="walkSpd">速度</label><input type="range" id="walkSpd" min="10" max="80" step="5" value="30"><output id="oWalk">3.0 m/s</output></div>
+      <p class="hint">避難人員會照各自的路線走，路況改變時即時改道；走到出口算撤離。</p>
+    </div>
+    <div class="card">
+      <h3>建築設定</h3>
+      <div class="checks">
+        <label><input type="checkbox" id="exE" checked> 東出口開放</label>
+        <label><input type="checkbox" id="exW" checked> 西出口開放</label>
+        <label><input type="checkbox" id="stW" checked> 西側樓梯開放</label>
+        <label><input type="checkbox" id="stE" checked> 東側樓梯開放</label>
+      </div>
+      <div class="row"><label for="layout">一樓路線圖</label><select id="layout"><option value="new">新一樓（小房間、寬走廊）</option><option value="old">標準田字（同二樓）</option></select></div>
+    </div>
+    <div class="card">
+      <h3>尋路參數</h3>
+      <div class="slider"><label for="wBlock">不可通行</label><input type="range" id="wBlock" min="0.3" max="1" step="0.05" value="0.55"><output id="oBlock"></output></div>
+      <div class="slider"><label for="wObs">障礙權重</label><input type="range" id="wObs" min="0" max="6" step="0.5" value="2.5"><output id="oObs"></output></div>
+      <div class="slider"><label for="wSmoke">煙霧權重</label><input type="range" id="wSmoke" min="0" max="15" step="0.5" value="8"><output id="oSmokeW"></output></div>
+      <div class="slider"><label for="wPred">預測權重</label><input type="range" id="wPred" min="0" max="10" step="0.5" value="4"><output id="oPred"></output></div>
+      <div class="slider"><label for="wFire">火源權重</label><input type="range" id="wFire" min="0" max="10" step="0.5" value="5"><output id="oFire"></output></div>
+      <div class="row"><label><input type="checkbox" id="predict" checked> 啟用煙霧擴散預測</label></div>
+    </div>
+    <div class="card">
+      <h3>圖層</h3>
+      <div class="checks" id="layers"></div>
+    </div>
+    <div class="card">
+      <h3>攝影機開關</h3>
+      <div class="cams" id="camToggles"></div>
+      <p class="hint">關閉的鏡頭模擬故障；它負責的走廊沿用最後一次的資訊並以虛線框標示「未確認」。</p>
+    </div>
+    <div class="card">
+      <h3>資料傳輸品質</h3>
+      <div class="tw"><table><thead><tr><th>節點</th><th>延遲</th><th>掉包</th><th>推論</th><th>最後更新</th></tr></thead><tbody id="net"></tbody></table></div>
+      <div class="slider" style="margin-top:8px"><label for="netLag">模擬延遲</label><input type="range" id="netLag" min="0" max="400" step="20" value="0"><output id="oLag">+0 ms</output></div>
+    </div>
+  </div>
+</details>
+
+<div class="modal" id="modal" hidden><div class="box"><div class="row" style="justify-content:space-between"><h3 id="modalT">鏡頭</h3><button class="btn" id="modalX">關閉</button></div><img id="modalImg" alt="攝影機即時影像"><p class="hint" id="modalD"></p></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const EMBED = window.__EMBED__ || null;
+const NS = "http://www.w3.org/2000/svg";
+const ROLE_NAME = {evacuee:"避難人員", firefighter:"消防員", bystander:"無關人員"};
+const DIR_NAME = {N:"往北", S:"往南", E:"往東", W:"往西", DOWN:"下樓", UP:"上樓", X:"無安全路線", HERE:"就在這裡"};
+const DET_NAME = ["櫃子","箱子","桌椅","瓦礫","閘門","煙"];
+const GEOM = {new:{ringc:99, ring_hw:18, cross_hw:21}, old:{ringc:102, ring_hw:15, cross_hw:15}};
+const JN = {"-1,1":"西北角","0,1":"北口","1,1":"東北角","-1,0":"西口","0,0":"中央","1,0":"東口","-1,-1":"西南角","0,-1":"南口","1,-1":"東南角"};
+const TOOLS = [["me","設定我的位置"],["obs","放障礙物"],["smoke","加煙霧"],["gate","閘門"],["clear","清除路段"],["fire","設定起火點"],["add","新增人員"],["del","移除人員"]];
+const LAYERS = [["heat","風險熱點"],["pred","煙霧預測"],["smoke","煙霧"],["flow","撤離方向動畫"],["route","我的路線"],["fov","鏡頭視野"],["people","人員"],["labels","人員名字"]];
+const S = {seq:[], base:null, cur:null, step:0, role:"evacuee", me:null, tool:"me", images:{}, ws:null, live:false,
+  ov:{seg:{}, fire:null, exits:{EXIT_E:true, EXIT_W:true}, stairs:{W:true, E:true}, camsOff:new Set(), layout1:"new"},
+  W:{block:.55, obs:2.5, smoke:8, pred:4, fire:5, predict:true},
+  L:{heat:true, pred:true, smoke:true, flow:true, route:true, fov:false, people:true, labels:true},
+  people:new Map(), walking:false, walkSpd:30, focus:null, lag:0, vid:0};
+
+// ---------- geometry ----------
+function F(st, fl){ return st.floors[String(fl)]; }
+function jpos(st, fl, i, j){ const c = F(st, fl).ringc; return [i*c, j*c]; }
+function segHw(st, s){ const f = F(st, s.floor); const horiz = s.a[1] === s.b[1]; const ring = horiz ? Math.abs(s.a[1]) === 1 : Math.abs(s.a[0]) === 1; return ring ? f.ring_hw : f.cross_hw; }
+function segGeom(st, s){ const [ax, ay] = jpos(st, s.floor, ...s.a), [bx, by] = jpos(st, s.floor, ...s.b); return {ax, ay, bx, by, hw:segHw(st, s), L:Math.hypot(bx-ax, by-ay), mx:(ax+bx)/2, my:(ay+by)/2, horiz:ay === by}; }
+function locate(st, fl, x, y, pad = 6){
+  let best = null, bd = 1e9;
+  for (const s of st.segments){ if (s.floor !== fl) continue; const q = segGeom(st, s);
+    const vx = q.bx-q.ax, vy = q.by-q.ay; const t = Math.max(0, Math.min(1, ((x-q.ax)*vx+(y-q.ay)*vy)/(q.L*q.L)));
+    const d = Math.hypot(x-(q.ax+t*vx), y-(q.ay+t*vy)); if (d <= q.hw+pad && d < bd){ best = s; bd = d; } }
+  return best;
+}
+function nearestJ(st, fl, x, y){ let best = null, bd = 1e9; for (const i of [-1,0,1]) for (const j of [-1,0,1]){ const [px, py] = jpos(st, fl, i, j); const d = Math.hypot(x-px, y-py); if (d < bd){ bd = d; best = [i, j]; } } return best; }
+function exitDoor(st, e){ const [ax, ay] = jpos(st, e.floor, ...e.a), [bx, by] = jpos(st, e.floor, ...e.b); return [Math.sign(ax+bx)*117, (ay+by)/2]; }
+function stairDoor(st, fl, t){ const [x, y] = jpos(st, fl, ...st.stairs[t]); return [Math.sign(x)*117, y]; }
+function segLabel(s){ return `${s.floor}F ${JN[s.a+""]}–${JN[s.b+""]}`; }
+function dirOf(a, b){ const dx = b[0]-a[0], dy = b[1]-a[1]; return dx > 0 ? "E" : dx < 0 ? "W" : dy > 0 ? "N" : "S"; }
+function dirTo(a, b){ const dx = b[0]-a[0], dy = b[1]-a[1]; if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return "HERE"; return Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "E" : "W") : (dy > 0 ? "N" : "S"); }
+function isExitSeg(st, s){ return Object.entries(st.exits).find(([k, e]) => e.floor === s.floor && ((e.a+"" === s.a+"" && e.b+"" === s.b+"") || (e.a+"" === s.b+"" && e.b+"" === s.a+""))); }
+const blocked = s => s.gate || s.rate >= S.W.block;
+
+// ---------- hazard model: smoke now + predicted spread + fire proximity ----------
+function hazards(st){
+  const bySeg = new Map(st.segments.map(s => [s.id, s]));
+  const nb = s => st.segments.filter(o => o !== s && o.floor === s.floor && [o.a+"", o.b+""].some(k => k === s.a+"" || k === s.b+""));
+  const prev = S.seq[S.step-1];
+  for (const s of st.segments){
+    let p = s.smoke;
+    if (S.W.predict){
+      for (const o of nb(s)) p = Math.max(p, o.smoke*(blocked(o) ? .45 : .65));
+      if (prev){ const ps = prev.segments.find(x => x.id === s.id); if (ps && s.smoke > ps.smoke+.05) p = Math.min(1, p+.15); }
+    }
+    s.pred = Math.min(1, p);
+    const q = segGeom(st, s);
+    s.fireNear = st.fire && st.fire.floor === s.floor ? Math.max(0, 1-Math.hypot(q.mx-st.fire.x, q.my-st.fire.y)/90) : 0;
+    s.risk = Math.min(1, .55*s.smoke + .3*Math.max(0, s.pred-s.smoke) + .45*s.rate + .35*s.fireNear + (s.gate ? .4 : 0));
+  }
+}
+
+// ---------- routing ----------
+function segCost(st, s){ const q = segGeom(st, s);
+  let m = (1+S.W.obs*s.rate)*(1+S.W.smoke*s.smoke+S.W.pred*Math.max(0, s.pred-s.smoke)+S.W.fire*s.fireNear);
+  if (s.smoke >= .85) m *= 3; return q.L*m; }
+function plan(st){
+  const G = new Map(); const link = (a, b, w) => (G.get(a) || G.set(a, []).get(a)).push([b, w]);
+  const add = (a, b, w) => { link(a, b, w); link(b, a, w); };
+  const key = (fl, i, j) => `${fl},${i},${j}`;
+  for (const s of st.segments){ if (blocked(s)) continue;
+    const w = segCost(st, s), a = key(s.floor, ...s.a), b = key(s.floor, ...s.b); const ex = isExitSeg(st, s);
+    if (ex && S.ov.exits[ex[0]]){ add(a, ex[0], w/2); add(b, ex[0], w/2); } else add(a, b, w); }
+  for (const [t, ij] of Object.entries(st.stairs)) if (S.ov.stairs[t]){ link(key(1, ...ij), key(2, ...ij), 60); link(key(2, ...ij), key(1, ...ij), 600); }
+  const dist = new Map(), nxt = new Map(); const pq = Object.keys(st.exits).filter(e => S.ov.exits[e]).map(e => [0, e, null]);
+  while (pq.length){ pq.sort((p, q) => p[0]-q[0]); const [d, u, via] = pq.shift(); if (dist.has(u)) continue; dist.set(u, d); nxt.set(u, via);
+    for (const [v, w] of (G.get(u) || [])) if (!dist.has(v)) pq.push([d+w, v, u]); }
+  const leds = {};
+  for (const fl of [1, 2]) for (const i of [-1,0,1]) for (const j of [-1,0,1]){
+    const n = key(fl, i, j), h = nxt.get(n);
+    if (h == null){ leds[n] = "X"; continue; }
+    if (st.exits[h]){ const e = st.exits[h]; leds[n] = dirOf([i, j], (e.a[0] === i && e.a[1] === j) ? e.b : e.a); continue; }
+    const [hf, hi, hj] = h.split(",").map(Number); leds[n] = hf !== fl ? (hf < fl ? "DOWN" : "UP") : dirOf([i, j], [hi, hj]);
+  }
+  return {leds, dist, nxt};
+}
+
+// a person's own route: leave the corridor they stand in by the cheaper end, then follow next hops to an exit
+function personRoute(st, fl, x, y){
+  const key = (f, i, j) => `${f},${i},${j}`;
+  const seg = locate(st, fl, x, y, 10); let start = null, best = Infinity, viaExit = null;
+  if (seg){ const q = segGeom(st, seg); const vx = q.bx-q.ax, vy = q.by-q.ay; const t = Math.max(0, Math.min(1, ((x-q.ax)*vx+(y-q.ay)*vy)/(q.L*q.L)));
+    const per = segCost(st, {...seg, rate:Math.min(seg.rate, S.W.block-.01)})/q.L;
+    for (const [end, frac] of [[seg.a, t], [seg.b, 1-t]]){ const dn = st.dist.get(key(fl, ...end)); if (dn != null && dn+frac*q.L*per < best){ best = dn+frac*q.L*per; start = end; } }
+    const ex = isExitSeg(st, seg);
+    if (ex && S.ov.exits[ex[0]] && !blocked(seg) && Math.abs(t-.5)*q.L*per < best){ best = Math.abs(t-.5)*q.L*per; viaExit = ex[0]; start = null; } }
+  else { const [i, j] = nearestJ(st, fl, x, y); start = [i, j]; best = st.dist.get(key(fl, i, j)) ?? Infinity; }
+  if (best === Infinity) return {ok:false, parts:[{floor:fl, pts:[[x, y]], len:0}], steps:[], first:"X"};
+  const parts = [{floor:fl, pts:[[x, y]]}], steps = []; let cur = parts[0]; const push = p => cur.pts.push(p);
+  if (viaExit){ const p = exitDoor(st, st.exits[viaExit]); steps.push({d:dirTo([x, y], p), to:"出口"}); push(p); }
+  else { let n = key(fl, ...start); const jp = jpos(st, fl, ...start); steps.push({d:dirTo([x, y], jp), to:JN[start+""]}); push(jp);
+    for (let k = 0; k < 24; k++){ const h = st.nxt.get(n); if (h == null) break; const [nf, ni, nj] = n.split(",").map(Number);
+      if (st.exits[h]){ const p = exitDoor(st, st.exits[h]); steps.push({d:dirTo(jpos(st, nf, ni, nj), p), to:"出口"}); push(p); break; }
+      const [hf, hi, hj] = h.split(",").map(Number);
+      if (hf !== nf){ const t = Object.keys(st.stairs).find(s => st.stairs[s][0] === ni && st.stairs[s][1] === nj);
+        push(stairDoor(st, nf, t)); steps.push({d:hf < nf ? "DOWN" : "UP", to:`${hf}F`}); cur = {floor:hf, pts:[stairDoor(st, hf, t), jpos(st, hf, hi, hj)]}; parts.push(cur); }
+      else { push(jpos(st, hf, hi, hj)); steps.push({d:dirOf([ni, nj], [hi, hj]), to:JN[[hi, hj]+""]}); }
+      n = h; } }
+  for (const p of parts){ let L = 0; for (let k = 1; k < p.pts.length; k++) L += Math.hypot(p.pts[k][0]-p.pts[k-1][0], p.pts[k][1]-p.pts[k-1][1]); p.len = L; }
+  const merged = []; for (const s of steps){ if (s.d === "HERE") continue; if (merged.length && merged[merged.length-1].d === s.d && !["DOWN","UP"].includes(s.d)) merged[merged.length-1].to = s.to; else merged.push({...s}); }
+  return {ok:true, parts, steps:merged, first:merged[0] ? merged[0].d : "HERE", cost:best};
+}
+
+// ---------- state assembly ----------
+function current(){
+  const st = JSON.parse(JSON.stringify(S.base));
+  if (S.ov.layout1 !== "new") st.floors["1"] = {...GEOM[S.ov.layout1]};
+  for (const s of st.segments){ const e = S.ov.seg[s.id]; if (!e) continue;
+    if (e.clear){ s.rate = 0; s.gate = false; s.smoke = 0; s.items = []; }
+    if (e.rate != null){ s.rate = Math.max(s.rate, e.rate); s.items = [...s.items, ["手動障礙", e.rate]]; }
+    if (e.gate){ s.gate = true; s.rate = 1; }
+    if (e.smoke != null) s.smoke = Math.max(s.smoke, e.smoke);
+    s.edited = true; }
+  if (S.ov.fire) st.fire = {...S.ov.fire, conf:1, manual:true};
+  for (const c of st.cams) if (S.ov.camsOff.has(c.id)) c.online = false;
+  hazards(st);
+  const r = plan(st); st.leds = r.leds; st.dist = r.dist; st.nxt = r.nxt;
+  return st;
+}
+function syncPeopleFromStep(){
+  for (const [id, p] of S.people) if (!p.virtual) S.people.delete(id);
+  for (const p of (S.base.people || [])){ const off = {p1:[6, 5], p2:[-6, 6], p3:[6, -6], p4:[-6, -5], f1:[7, 7], b1:[-7, -7]}[p.id] || [5, 5];
+    S.people.set(p.id, {id:p.id, name:p.name, role:p.role, floor:p.floor, x:p.x+off[0], y:p.y+off[1], out:false}); }
+}
+
+// ---------- drawing ----------
+function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+const UP = "scale(1,-1)";
+const heatColor = r => r < .3 ? "var(--h1)" : r < .6 ? "var(--h2)" : "var(--h3)";
+// glyphs are drawn in screen orientation (y down) around 0,0 so the legend and the map share them
+const G = {
+  sign(p, d){ const g = el("g", {}, p);
+    el("rect", {x:-7.5, y:-7.5, width:15, height:15, rx:3.5, fill:"var(--sign)", stroke:d === "X" ? "#3a4048" : (d === "DOWN" || d === "UP") ? "var(--stair-l)" : "var(--exit-l)", "stroke-width":1.3}, g);
+    if (d === "X"){}
+    else if (d === "DOWN" || d === "UP") el("path", {d:d === "DOWN" ? "M-4.5,-4h3v3h3v3h3" : "M-4.5,4h3v-3h3v-3h3", fill:"none", stroke:"var(--stair-l)", "stroke-width":1.9}, g);
+    else el("path", {transform:`rotate(${{N:0, E:90, S:180, W:270}[d]})`, d:"M0,-5.5L4.6,-0.5H1.6V5H-1.6V-0.5H-4.6Z", fill:"var(--exit-l)"}, g);
+    return g; },
+  obstacle(p, rate, bad){ const g = el("g", {}, p);
+    el("rect", {x:-5.5, y:-5.5, width:11, height:11, rx:2, fill:bad ? "var(--fire)" : "var(--caution)", stroke:"var(--panel)", "stroke-width":1.2, transform:"rotate(45)"}, g);
+    el("rect", {x:-0.9, y:-4, width:1.8, height:4.6, rx:.9, fill:"#fff"}, g); el("circle", {cx:0, cy:2.6, r:1, fill:"#fff"}, g); return g; },
+  gate(p){ const g = el("g", {}, p); el("rect", {x:-3, y:-9, width:6, height:18, rx:1.5, fill:"var(--fire)", stroke:"var(--panel)", "stroke-width":1}, g);
+    for (const y of [-5, 0, 5]) el("line", {x1:-2, y1:y-1.5, x2:2, y2:y+1.5, stroke:"#fff", "stroke-width":1.1}, g); return g; },
+  exit(p, ok = true){ const g = el("g", {}, p); el("rect", {x:-6, y:-9, width:12, height:18, rx:2, fill:ok ? "var(--exit)" : "var(--muted)"}, g);
+    el("path", {d:"M-2.5,5L0,0.5L2.5,3.5M0,0.5L0.6,-3M0.6,-3L3,-1M0.6,-3L-2,-1.5", stroke:"#fff", "stroke-width":1.3, fill:"none", "stroke-linecap":"round"}, g);
+    el("circle", {cx:1.2, cy:-5.4, r:1.3, fill:"#fff"}, g); return g; },
+  stair(p, ok = true){ const g = el("g", {}, p); el("rect", {x:-7, y:-9, width:14, height:18, rx:2.5, fill:ok ? "var(--stair)" : "var(--muted)"}, g);
+    el("path", {d:"M-4.5,5.5h3v-3h3v-3h3v-3", fill:"none", stroke:"#fff", "stroke-width":1.5}, g); return g; },
+  fire(p){ const g = el("g", {}, p); el("circle", {r:7, fill:"var(--fire)", opacity:.35, class:"pulse"}, g);
+    el("path", {d:"M0,-8C3,-4 5,-2 5,2A5,5 0 0,1 -5,2C-5,-1 -3,-2 -2,-5C-1,-2 0,-1 1,-1C1,-3 0,-5 0,-8Z", fill:"var(--fire)", stroke:"var(--panel)", "stroke-width":1}, g); return g; },
+  cam(p, on = true){ const g = el("g", {}, p); el("rect", {x:-5, y:-3.8, width:8, height:7.6, rx:1.8, fill:on ? "var(--ink)" : "var(--fire)"}, g);
+    el("path", {d:"M3,-2.4L6.5,-4.2V4.2L3,2.4Z", fill:on ? "var(--ink)" : "var(--fire)"}, g); return g; },
+  person(p, role, trapped){ const g = el("g", {}, p); const col = {firefighter:"var(--ff)", evacuee:"var(--ev)", bystander:"var(--by)"}[role];
+    if (trapped) el("circle", {r:7, fill:"var(--fire)", class:"pulse"}, g);
+    el("circle", {r:6.2, fill:col, stroke:trapped ? "var(--fire)" : "var(--panel)", "stroke-width":trapped ? 2.2 : 1.6}, g);
+    const d = {evacuee:"M0,-4.4a1.4,1.4 0 1,1 -0.01,0M-2,-1.6h4l-.8,3l1.1,3h-1.4l-.9,-2.3l-.9,2.3h-1.4l1.1,-3Z",
+      firefighter:"M-3.8,1.4a3.8,3.8 0 0,1 7.6,0h1.2v1.4h-10v-1.4ZM-0.7,-3.6h1.4v1.8h-1.4Z",
+      bystander:"M0,-3.8a1.4,1.4 0 1,1 -0.01,0M-1.7,-1.3h3.4v4.6h-3.4Z"}[role];
+    el("path", {d, fill:"#fff"}, g); return g; },
+  me(p){ const g = el("g", {}, p); el("circle", {r:7, fill:"var(--route)", opacity:.4, class:"pulse"}, g);
+    el("path", {d:"M0,4C-3.5,0 -6,-2.6 -6,-6A6,6 0 0,1 6,-6C6,-2.6 3.5,0 0,4Z", fill:"var(--route)", stroke:"var(--panel)", "stroke-width":1.6, transform:"translate(0,-1)"}, g);
+    el("circle", {cx:0, cy:-7, r:2.2, fill:"#fff"}, g); return g; }
+};
+function place(parent, x, y, extra = ""){ return el("g", {transform:`translate(${x},${y}) ${UP} ${extra}`}, parent); }
+
+function drawFloor(st, fl){
+  const svg = document.getElementById("map"+fl); svg.innerHTML = "";
+  const defs = el("defs", {}, svg);
+  el("feGaussianBlur", {stdDeviation:4.5}, el("filter", {id:`blur${fl}`, x:"-60%", y:"-60%", width:"220%", height:"220%"}, defs));
+  const hp = el("pattern", {id:`hatch${fl}`, width:6, height:6, patternUnits:"userSpaceOnUse", patternTransform:"rotate(45)"}, defs);
+  el("rect", {width:6, height:6, fill:"var(--h3)", opacity:.35}, hp); el("rect", {width:3, height:6, fill:"var(--h3)"}, hp);
+  const pp = el("pattern", {id:`pred${fl}`, width:5, height:5, patternUnits:"userSpaceOnUse", patternTransform:"rotate(-45)"}, defs);
+  el("rect", {width:1.6, height:5, fill:"var(--smoke)"}, pp);
+  const root = el("g", {transform:"scale(1,-1)"}, svg);
+  const Lr = {}; for (const n of ["base","heat","pred","smoke","flow","route","hazard","fixture","sign","fire","cam","people","me"]) Lr[n] = el("g", {"data-layer":n}, root);
+  S.layer = S.layer || {}; S.layer[fl] = Lr;
+  // building and corridors
+  el("rect", {x:-122, y:-122, width:244, height:244, rx:4, fill:"var(--wall)"}, Lr.base);
+  el("rect", {x:-117, y:-117, width:234, height:234, fill:"var(--room)"}, Lr.base);
+  const segs = st.segments.filter(s => s.floor === fl);
+  for (const s of segs){ const q = segGeom(st, s);
+    const r = el("rect", {x:Math.min(q.ax, q.bx)-q.hw, y:Math.min(q.ay, q.by)-q.hw, width:Math.abs(q.bx-q.ax)+2*q.hw, height:Math.abs(q.by-q.ay)+2*q.hw, fill:"var(--corr)"}, Lr.base);
+    el("title", {}, r).textContent = `${segLabel(s)}：障礙 ${Math.round(s.rate*100)}%、煙 ${Math.round(s.smoke*100)}%、預測 ${Math.round(s.pred*100)}%、風險 ${Math.round(s.risk*100)}%${s.gate ? "、已封鎖" : ""}${s.unknown ? "（未確認）" : ""}`; }
+  // risk heat
+  if (S.L.heat) for (const s of segs){ const q = segGeom(st, s); const box = {x:Math.min(q.ax, q.bx)-q.hw+1, y:Math.min(q.ay, q.by)-q.hw+1, width:Math.abs(q.bx-q.ax)+2*q.hw-2, height:Math.abs(q.by-q.ay)+2*q.hw-2, rx:3, "pointer-events":"none"};
+    if (blocked(s)) el("rect", {...box, fill:`url(#hatch${fl})`}, Lr.heat);
+    else if (s.risk >= .08) el("rect", {...box, fill:heatColor(s.risk), opacity:(.25+.5*s.risk).toFixed(2)}, Lr.heat); }
+  // predicted smoke spread (hatched)
+  if (S.L.pred) for (const s of segs){ if (s.pred-s.smoke < .2) continue; const q = segGeom(st, s);
+    el("rect", {x:Math.min(q.ax, q.bx)-q.hw+2, y:Math.min(q.ay, q.by)-q.hw+2, width:Math.abs(q.bx-q.ax)+2*q.hw-4, height:Math.abs(q.by-q.ay)+2*q.hw-4, rx:4, fill:`url(#pred${fl})`, opacity:(.2+.5*(s.pred-s.smoke)).toFixed(2), "pointer-events":"none"}, Lr.pred); }
+  // smoke clouds
+  if (S.L.smoke){ const sg = el("g", {filter:`url(#blur${fl})`, "pointer-events":"none"}, Lr.smoke);
+    for (const s of segs){ if (s.smoke < .05) continue; const q = segGeom(st, s); const n = Math.max(3, Math.round(q.L/13));
+      for (let k = 0; k <= n; k++){ const t = k/n, jit = ((k*37+fl*11)%7-3)*.9;
+        el("circle", {cx:q.ax+(q.bx-q.ax)*t+(q.horiz ? 0 : jit), cy:q.ay+(q.by-q.ay)*t+(q.horiz ? jit : 0), r:q.hw*(.75+.55*s.smoke), fill:"var(--smoke)", opacity:(.22+.55*s.smoke).toFixed(2)}, sg); } } }
+  // evacuation flow on every passable corridor, from the costlier end toward the cheaper one
+  if (S.L.flow){ const key = (i, j) => `${fl},${i},${j}`;
+    const flowLine = (x0, y0, x1, y1) => { const L = Math.hypot(x1-x0, y1-y0); if (L < 4) return;
+      const d = `M${x0},${y0}L${x1},${y1}`; el("path", {d, class:"flow"}, Lr.flow);
+      const n = Math.max(1, Math.round(L/38)); for (let k = 0; k < n; k++){ const c = el("path", {d:"M-2.6,-2.6L0,0L-2.6,2.6", class:"chev"}, Lr.flow);
+        el("animateMotion", {dur:`${(L/26).toFixed(2)}s`, begin:`${(-k*L/26/n).toFixed(2)}s`, repeatCount:"indefinite", rotate:"auto", path:d}, c); } };
+    for (const s of segs){ if (blocked(s)) continue; const q = segGeom(st, s); const da = st.dist.get(key(...s.a)), db = st.dist.get(key(...s.b)); const ex = isExitSeg(st, s);
+      if (ex && S.ov.exits[ex[0]]){ const [dx, dy] = exitDoor(st, st.exits[ex[0]]); const ix = q.horiz ? q.mx : dx*0.93, iy = q.horiz ? dy*0.93 : q.my;
+        flowLine(q.ax, q.ay, q.mx, q.my); flowLine(q.bx, q.by, q.mx, q.my); flowLine(q.mx, q.my, dx, dy); continue; }
+      if (da == null && db == null) continue;
+      if ((da ?? Infinity) > (db ?? Infinity)) flowLine(q.ax, q.ay, q.bx, q.by); else flowLine(q.bx, q.by, q.ax, q.ay); }
+    for (const t of Object.keys(st.stairs)){ if (!S.ov.stairs[t]) continue; const ij = st.stairs[t]; const [jx, jy] = jpos(st, fl, ...ij); const [sx, sy] = stairDoor(st, fl, t);
+      const h = st.nxt.get(key(...ij)); if (fl === 2 && h && h.startsWith("1,")) flowLine(jx, jy, sx, sy);
+      if (fl === 1){ const up = st.nxt.get(`2,${ij[0]},${ij[1]}`); if (up && up.startsWith("1,")) flowLine(sx, sy, jx, jy); } } }
+  // my route
+  if (S.L.route && S.myRoute) for (const part of S.myRoute.parts) if (part.floor === fl && part.pts.length > 1){
+    const d = "M" + part.pts.map(p => p.join(",")).join("L"); el("path", {d, class:"myroute-bg"}, Lr.route); el("path", {d, class:"myroute"}, Lr.route);
+    const dot = el("circle", {r:3.4, fill:"var(--route)", stroke:"var(--panel)", "stroke-width":1.3}, Lr.route);
+    el("animateMotion", {dur:`${Math.max(1.8, part.len/40).toFixed(1)}s`, repeatCount:"indefinite", path:d}, dot); }
+  // hazards on the corridors
+  for (const s of segs){ const q = segGeom(st, s);
+    if (s.gate) G.gate(place(Lr.hazard, q.mx, q.my, q.horiz ? "" : "rotate(90)"));
+    else if (s.rate > .05){ G.obstacle(place(Lr.hazard, q.mx, q.my), s.rate, blocked(s));
+      el("text", {x:0, y:15, "text-anchor":"middle", class:"maplbl"}, place(Lr.hazard, q.mx, q.my)).textContent = `${Math.round(s.rate*100)}%`; }
+    if (s.unknown) el("rect", {x:Math.min(q.ax, q.bx)-q.hw+2, y:Math.min(q.ay, q.by)-q.hw+2, width:Math.abs(q.bx-q.ax)+2*q.hw-4, height:Math.abs(q.by-q.ay)+2*q.hw-4, fill:"none", stroke:"var(--ink)", "stroke-dasharray":"4 3", "stroke-width":1.3, opacity:.6, "pointer-events":"none"}, Lr.hazard); }
+  // exits and stairs on the outer wall
+  for (const [k, e] of Object.entries(st.exits)){ if (e.floor !== fl) continue; const [dx, dy] = exitDoor(st, e); G.exit(place(Lr.fixture, dx+Math.sign(dx)*6, dy), S.ov.exits[k] && st.dist.has(k)); }
+  for (const t of Object.keys(st.stairs)){ const [dx, dy] = stairDoor(st, fl, t); G.stair(place(Lr.fixture, dx+Math.sign(dx)*8, dy), S.ov.stairs[t]); }
+  // LED signs
+  for (const i of [-1,0,1]) for (const j of [-1,0,1]){ const [x, y] = jpos(st, fl, i, j); G.sign(place(Lr.sign, x, y), st.leds[`${fl},${i},${j}`]); }
+  if (st.fire && st.fire.floor === fl) G.fire(place(Lr.fire, st.fire.x, st.fire.y));
+  // cameras: only the small body is clickable
+  for (const cm of st.cams){ if (cm.floor !== fl) continue; const ang = Math.atan2(cm.y, -cm.x)*180/Math.PI;
+    const g = place(Lr.cam, cm.x, cm.y, `rotate(${ang})`);
+    if (S.L.fov && cm.online) el("path", {d:"M0,0L40,-60A72,72 0 0,1 40,60Z", fill:"var(--ink)", opacity:.07, "pointer-events":"none"}, g);
+    const body = G.cam(g, cm.online); body.style.cursor = "pointer"; body.setAttribute("role", "button"); body.setAttribute("tabindex", "0"); body.setAttribute("aria-label", `${cm.floor}F 鏡頭 ${cm.id.slice(1)}`);
+    el("title", {}, body).textContent = `${cm.floor}F 鏡頭 ${cm.id.slice(1)}${cm.online ? "" : "（離線）"}`;
+    body.addEventListener("click", ev => { if (S.tool !== "me") return; ev.stopPropagation(); openCam(cm.id); });
+    body.addEventListener("keydown", ev => { if (ev.key === "Enter") openCam(cm.id); }); }
+  drawPeople(st, fl);
+  svg.onclick = ev => onMapClick(ev, svg, fl, st);
+  document.getElementById(`f${fl}sum`).textContent = `堵塞 ${segs.filter(blocked).length} 段・有煙 ${segs.filter(s => s.smoke > .2).length} 段・預測擴散 ${segs.filter(s => s.pred-s.smoke >= .2).length} 段`;
+}
+function drawPeople(st, fl){
+  const Lr = S.layer[fl]; Lr.people.innerHTML = ""; Lr.me.innerHTML = "";
+  const pos = layoutPeople(st, fl);
+  if (S.L.people) for (const p of S.people.values()){ if (p.floor !== fl || p.out) continue;
+    const [px, py] = pos.get(p.id); if (Math.hypot(px-p.x, py-p.y) > 3) el("line", {x1:p.x, y1:p.y, x2:px, y2:py, stroke:"var(--ink)", "stroke-width":.8, opacity:.5}, Lr.people);
+    const g = place(Lr.people, px, py); G.person(g, p.role, p.trapped);
+    if (S.focus === p.id) el("circle", {r:11, fill:"none", stroke:"var(--route)", "stroke-width":2.2, class:"flash"}, g);
+    if (S.L.labels) el("text", {x:0, y:14, "text-anchor":"middle", class:"maplbl"}, g).textContent = p.name;
+    el("title", {}, g).textContent = `${p.name}（${ROLE_NAME[p.role]}）${p.trapped ? "：受困" : ""}`; }
+  if (S.me && S.me.floor === fl){ const g = place(Lr.me, S.me.x, S.me.y); G.me(g); el("text", {x:0, y:12, "text-anchor":"middle", class:"maplbl"}, g).textContent = "我"; }
+}
+
+// display positions: pins near a junction are pushed off the LED sign, pins close together fan out
+function layoutPeople(st, fl){
+  const list = [...S.people.values()].filter(p => p.floor === fl && !p.out); const pos = new Map();
+  for (const p of list){ let x = p.x, y = p.y; const [i, j] = nearestJ(st, fl, x, y); const [jx, jy] = jpos(st, fl, i, j);
+    const d = Math.hypot(x-jx, y-jy); if (d < 13){ const ux = d > .5 ? (x-jx)/d : .7, uy = d > .5 ? (y-jy)/d : -.7; x = jx+ux*14; y = jy+uy*14; }
+    pos.set(p.id, [x, y]); }
+  const done = new Set();
+  for (const p of list){ if (done.has(p.id)) continue; const [x0, y0] = pos.get(p.id);
+    const grp = list.filter(q => !done.has(q.id) && Math.hypot(pos.get(q.id)[0]-x0, pos.get(q.id)[1]-y0) < 13);
+    grp.forEach(q => done.add(q.id)); if (grp.length < 2) continue;
+    const cx = grp.reduce((a, q) => a+pos.get(q.id)[0], 0)/grp.length, cy = grp.reduce((a, q) => a+pos.get(q.id)[1], 0)/grp.length; const r = 7+2.5*grp.length;
+    grp.forEach((q, k) => { const a = Math.PI/4+2*Math.PI*k/grp.length; pos.set(q.id, [cx+r*Math.cos(a), cy+r*Math.sin(a)]); }); }
+  return pos;
+}
+function onMapClick(ev, svg, fl, st){
+  const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const p = pt.matrixTransform(svg.getScreenCTM().inverse()); const x = p.x, y = -p.y;
+  const seg = locate(st, fl, x, y); const t = S.tool;
+  if (t === "me"){ if (!seg) return toast("請點在走廊上"); S.me = {floor:fl, x, y}; send({type:"pos", role:S.role, floor:fl, x, y}); return render(); }
+  if (t === "fire"){ S.ov.fire = {floor:fl, x, y}; send({type:"fire", floor:fl, x, y}); toast("已設定起火點"); return render(); }
+  if (t === "add"){ if (!seg) return toast("請點在走廊上"); const id = "v" + (++S.vid); const role = document.getElementById("pRole").value;
+    S.people.set(id, {id, name:(role === "firefighter" ? "消防員 " : role === "bystander" ? "訪客 " : "避難者 ") + S.vid, role, floor:fl, x, y, virtual:true}); return render(); }
+  if (t === "del"){ let best = null, bd = 14; for (const q of S.people.values()) if (q.floor === fl && !q.out){ const d = Math.hypot(q.x-x, q.y-y); if (d < bd){ bd = d; best = q; } }
+    if (!best) return toast("附近沒有人員"); S.people.delete(best.id); return render(); }
+  if (!seg) return toast("請點在走廊上");
+  const e = S.ov.seg[seg.id] || (S.ov.seg[seg.id] = {});
+  if (t === "obs"){ delete e.clear; e.rate = +document.getElementById("pRate").value; }
+  if (t === "smoke"){ delete e.clear; e.smoke = +document.getElementById("pSmoke").value; }
+  if (t === "gate"){ delete e.clear; e.gate = !e.gate; }
+  if (t === "clear"){ S.ov.seg[seg.id] = {clear:true}; }
+  send({type:"edit", seg:seg.id, ov:S.ov.seg[seg.id]}); render();
+}
+
+// ---------- panels ----------
+function arrowIcon(d){
+  if (d === "X") return `<svg viewBox="-12 -12 24 24"><path d="M-7,-7L7,7M-7,7L7,-7" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>`;
+  if (d === "DOWN" || d === "UP") return `<svg viewBox="-12 -12 24 24"><path d="${d === "DOWN" ? "M-8,-7h5v5h5v5h5" : "M-8,7h5v-5h5v-5h5"}" fill="none" stroke="#fff" stroke-width="3"/></svg>`;
+  return `<svg viewBox="-12 -12 24 24"><path transform="rotate(${{N:0, E:90, S:180, W:270}[d] || 0})" d="M0,-9L7,1L2.5,1L2.5,8L-2.5,8L-2.5,1L-7,1Z" fill="#fff"/></svg>`;
+}
+function glyphSvg(fn, ...a){ const s = document.createElementNS(NS, "svg"); s.setAttribute("viewBox", "-12 -12 24 24"); s.setAttribute("aria-hidden", "true"); fn(s, ...a); return s; }
+function renderPanels(st){
+  document.getElementById("clock").textContent = st.t; document.getElementById("note").textContent = st.note;
+  document.getElementById("sitTime").textContent = `t = ${st.t}`;
+  const big = document.getElementById("bigArrow");
+  if (S.me){ const r = S.myRoute; const d = r && r.ok ? (r.first === "HERE" ? "N" : r.first) : "X";
+    big.className = "big" + (d === "X" ? " bad" : (d === "DOWN" || d === "UP") ? " stair" : ""); big.innerHTML = arrowIcon(d);
+    document.getElementById("mypos").textContent = `${S.me.floor}F・${ROLE_NAME[S.role]}`;
+    const m = r && r.ok ? Math.round(r.parts.reduce((a, p) => a+p.len, 0)/10) : 0;
+    document.getElementById("guideWhat").textContent = d === "X" ? "原地待援" : `${DIR_NAME[d]}${r.steps[0] ? "，到" + r.steps[0].to : ""}`;
+    document.getElementById("guideDetail").textContent = d === "X" ? "周圍路線都被堵住或煙太濃。請關門、壓低身體，消防員已收到你的位置。" : `約 ${m} 公尺、步行約 ${Math.max(1, Math.round(m/1.2))} 秒（模型比例 1:100）`;
+    document.getElementById("steps").innerHTML = r && r.ok ? r.steps.map((s, k) => `<li><span class="stepn">${k+1}</span>${s.d === "DOWN" ? "走樓梯下到 " + s.to : s.d === "UP" ? "走樓梯上到 " + s.to : DIR_NAME[s.d] + "，走到" + s.to}</li>`).join("") : ""; }
+  const segs = st.segments; const blk = segs.filter(blocked); const sm = segs.filter(s => s.smoke > .2); const pr = segs.filter(s => s.pred-s.smoke >= .2);
+  const hot = [...segs].sort((a, b) => b.risk-a.risk).filter(s => s.risk > .15).slice(0, 3);
+  const openEx = Object.keys(st.exits).filter(e => S.ov.exits[e] && st.dist.has(e)).length;
+  document.getElementById("sit").innerHTML = `<dt>起火點估計</dt><dd>${st.fire ? `${st.fire.floor}F（${st.fire.x.toFixed(0)}, ${st.fire.y.toFixed(0)}）${st.fire.manual ? "手動設定" : "可信度 " + Math.round(st.fire.conf*100) + "%"}` : "未偵測到"}</dd>
+    <dt>煙霧範圍</dt><dd>${sm.length} 段走廊${pr.length ? `，預測再擴散 ${pr.length} 段` : ""}</dd>
+    <dt>堵塞路段</dt><dd>${blk.length ? blk.map(segLabel).join("、") : "無"}</dd>
+    <dt>風險熱點</dt><dd>${hot.length ? hot.map(s => `${segLabel(s)} ${Math.round(s.risk*100)}%`).join("<br>") : "無"}</dd>
+    <dt>可用出口</dt><dd>${openEx} / ${Object.keys(st.exits).length}</dd>`;
+  renderPeoplePanel();
+  const cams = document.getElementById("cams"); cams.innerHTML = ""; const tg = document.getElementById("camToggles"); tg.innerHTML = "";
+  for (const c of st.cams){ const lbl = `${c.floor}F-${c.id.slice(1)}`;
+    const b = document.createElement("button"); b.textContent = lbl; if (!c.online) b.className = "off"; b.onclick = () => openCam(c.id); cams.appendChild(b);
+    const t = document.createElement("button"); t.textContent = lbl + (c.online ? "" : " 關"); if (!c.online) t.className = "off"; t.setAttribute("aria-pressed", String(!c.online));
+    t.onclick = () => { S.ov.camsOff.has(c.id) ? S.ov.camsOff.delete(c.id) : S.ov.camsOff.add(c.id); send({type:"cam", id:c.id, online:!S.ov.camsOff.has(c.id)}); render(); }; tg.appendChild(t); }
+  const net = st.net && Object.keys(st.net).length ? st.net : fakeNet(st);
+  document.getElementById("net").innerHTML = Object.entries(net).map(([k, v]) => { const lat = v.online ? v.latency+S.lag : 0;
+    return `<tr><td class="mono">${k}</td><td>${v.online ? lat+" ms" : "—"}</td><td>${v.online ? v.loss+"%" : "—"}</td><td>${v.online ? v.fps+" fps" : "—"}</td><td><span class="dot ${v.online ? (lat > 150 ? "warn" : "ok") : "bad"}"></span> ${v.online ? v.age+" s 前" : "離線"}</td></tr>`; }).join("");
+}
+function renderPeoplePanel(){
+  const ppl = [...S.people.values()]; const out = ppl.filter(p => p.out).length, trapped = ppl.filter(p => p.trapped && !p.out).length;
+  document.getElementById("counts").innerHTML = `<span class="tag">共 ${ppl.length} 人</span><span class="tag ok">已撤離 ${out}</span><span class="tag ${trapped ? "bad" : ""}">受困 ${trapped}</span><span class="tag">消防員 ${ppl.filter(p => p.role === "firefighter").length}</span>`;
+  const order = p => p.out ? 4 : p.trapped ? 0 : p.role === "evacuee" ? (S.role === "firefighter" ? 1 : 2) : p.role === "firefighter" ? (S.role === "firefighter" ? 3 : 1) : 3;
+  const ul = document.getElementById("ppl"); ul.innerHTML = "";
+  for (const p of ppl.sort((a, b) => order(a)-order(b))){ const li = document.createElement("li"); const b = document.createElement("button");
+    b.appendChild(glyphSvg((s) => G.person(s, p.role, p.trapped && !p.out)));
+    const nm = document.createElement("span"); nm.textContent = p.name; nm.style.flex = "1"; b.appendChild(nm);
+    b.insertAdjacentHTML("beforeend", `<span class="tag">${p.floor}F</span>${p.out ? '<span class="tag ok">已撤離</span>' : p.trapped ? '<span class="tag bad">受困</span>' : p.role === "evacuee" ? `<span class="tag">${DIR_NAME[p.dir] || ""}</span>` : `<span class="tag">${ROLE_NAME[p.role]}</span>`}`);
+    b.onclick = () => { S.focus = p.id; drawPeople(S.cur, 1); drawPeople(S.cur, 2); setTimeout(() => { if (S.focus === p.id){ S.focus = null; } }, 2200); };
+    li.appendChild(b); ul.appendChild(li); }
+}
+function fakeNet(st){ const o = {}; let s = S.step*7+3;
+  for (const c of st.cams){ s = (s*9301+49297)%233280; const r = s/233280; o["HUB-"+c.id] = {online:c.online, latency:Math.round(35+70*r), loss:(r*1.6).toFixed(1), fps:(4.2+r*1.6).toFixed(1), age:(r*1.8).toFixed(1)}; }
+  return o; }
+function openCam(id){
+  const st = S.cur; const c = st.cams.find(x => x.id === id); const m = document.getElementById("modal");
+  document.getElementById("modalT").textContent = `${c.floor}F 鏡頭 ${id.slice(1)}`;
+  const img = document.getElementById("modalImg"); const src = S.live ? `/api/cam/${id}.jpg?t=${Date.now()}` : (S.images[`${S.step}:${id}`] || "");
+  img.hidden = !c.online || !src; if (src) img.src = src;
+  const dets = (st.dets && st.dets[id]) || [];
+  document.getElementById("modalD").textContent = c.online ? (dets.length ? "偵測到：" + dets.map(d => `${DET_NAME[d[0]]} ${Math.round(d[5]*100)}%`).join("、") : "畫面中沒有偵測到障礙物或煙。") : "這個鏡頭目前離線。";
+  m.hidden = false; document.getElementById("modalX").focus();
+}
+document.getElementById("modalX").onclick = () => document.getElementById("modal").hidden = true;
+document.getElementById("modal").onclick = e => { if (e.target.id === "modal") e.target.hidden = true; };
+let toastT = null;
+function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 1600); }
+
+function updatePeopleStatus(st){
+  for (const p of S.people.values()){ if (p.out) continue; const r = personRoute(st, p.floor, p.x, p.y); p.route = r; p.dir = r.first; p.trapped = p.role === "evacuee" && !r.ok; }
+}
+function render(){ if (!S.base) return; const st = current(); S.cur = st; S.myRoute = S.me ? personRoute(st, S.me.floor, S.me.x, S.me.y) : null;
+  updatePeopleStatus(st); drawFloor(st, 2); drawFloor(st, 1); renderPanels(st); }
+
+// ---------- people walking simulation ----------
+let walkTimer = null, walkStart = null;
+function walkTick(){
+  const st = S.cur; if (!st) return; const step = S.walkSpd*0.1;
+  for (const p of S.people.values()){ if (p.out || p.role !== "evacuee") continue; const r = personRoute(st, p.floor, p.x, p.y); p.route = r; p.dir = r.first; p.trapped = !r.ok; if (!r.ok) continue;
+    let left = step; let part = r.parts[0]; let k = 1;
+    while (left > 0 && k < part.pts.length){ const [tx, ty] = part.pts[k]; const d = Math.hypot(tx-p.x, ty-p.y);
+      if (d <= left){ p.x = tx; p.y = ty; left -= d; k++; } else { p.x += (tx-p.x)/d*left; p.y += (ty-p.y)/d*left; left = 0; } }
+    if (k >= part.pts.length){ if (r.parts.length > 1){ const nx = r.parts[1]; p.floor = nx.floor; p.x = nx.pts[0][0]; p.y = nx.pts[0][1]; }
+      else if (Math.abs(p.x) >= 116 || r.steps.length && r.steps[r.steps.length-1].to === "出口") p.out = true; } }
+  drawPeople(st, 1); drawPeople(st, 2); renderPeoplePanel();
+  if ([...S.people.values()].every(p => p.out || p.role !== "evacuee" || p.trapped)) stopWalk();
+}
+function startWalk(){ if (!walkStart) walkStart = [...S.people.values()].map(p => ({...p})); walkTimer = setInterval(walkTick, 100); S.walking = true; document.getElementById("walk").textContent = "暫停移動"; }
+function stopWalk(){ clearInterval(walkTimer); walkTimer = null; S.walking = false; document.getElementById("walk").textContent = "開始移動"; }
+document.getElementById("walk").onclick = () => S.walking ? stopWalk() : startWalk();
+document.getElementById("resetWalk").onclick = () => { stopWalk(); if (walkStart){ S.people = new Map(walkStart.map(p => [p.id, {...p}])); walkStart = null; } render(); };
+bindSlider("walkSpd", "oWalk", v => { S.walkSpd = +v; return (v/10).toFixed(1) + " m/s"; });
+
+// ---------- controls ----------
+function bindSlider(id, out, fn){ const i = document.getElementById(id), o = document.getElementById(out); const upd = () => { o.textContent = fn(i.value); }; i.addEventListener("input", () => { upd(); if (id.startsWith("w")) render(); }); upd(); }
+bindSlider("pRate", "oRate", v => Math.round(v*100) + "%");
+bindSlider("pSmoke", "oSmoke", v => Math.round(v*100) + "%");
+bindSlider("wBlock", "oBlock", v => { S.W.block = +v; return Math.round(v*100) + "%"; });
+bindSlider("wObs", "oObs", v => { S.W.obs = +v; return (+v).toFixed(1); });
+bindSlider("wSmoke", "oSmokeW", v => { S.W.smoke = +v; return (+v).toFixed(1); });
+bindSlider("wPred", "oPred", v => { S.W.pred = +v; return (+v).toFixed(1); });
+bindSlider("wFire", "oFire", v => { S.W.fire = +v; return (+v).toFixed(1); });
+bindSlider("netLag", "oLag", v => { S.lag = +v; if (S.cur) renderPanels(S.cur); return `+${v} ms`; });
+document.getElementById("predict").onchange = e => { S.W.predict = e.target.checked; render(); };
+const toolsEl = document.getElementById("tools");
+for (const [k, name] of TOOLS){ const b = document.createElement("button"); b.textContent = name; b.dataset.tool = k; b.setAttribute("aria-pressed", String(k === S.tool));
+  b.onclick = () => { S.tool = k; for (const x of toolsEl.children) x.setAttribute("aria-pressed", String(x === b)); if (k !== "me") document.getElementById("dev").open = true; }; toolsEl.appendChild(b); }
+const layersEl = document.getElementById("layers");
+for (const [k, name] of LAYERS){ const l = document.createElement("label"); const c = document.createElement("input"); c.type = "checkbox"; c.id = "ly-" + k; c.checked = S.L[k];
+  c.onchange = () => { S.L[k] = c.checked; render(); }; l.appendChild(c); l.append(" " + name); layersEl.appendChild(l); }
+for (const b of document.querySelectorAll("#roles button")) b.onclick = () => { S.role = b.dataset.role; for (const x of document.querySelectorAll("#roles button")) x.setAttribute("aria-pressed", String(x === b));
+  if (S.me) send({type:"pos", role:S.role, ...S.me}); document.getElementById("pplCard").style.order = S.role === "firefighter" ? -1 : 0; render(); };
+const stepEl = document.getElementById("step");
+stepEl.oninput = () => setStep(+stepEl.value);
+function setStep(k){ S.step = k; S.base = S.seq[k]; stepEl.value = k; document.getElementById("stepLbl").textContent = `${k+1}/${S.seq.length}`; if (!S.walking && !walkStart) syncPeopleFromStep(); render(); }
+let timer = null;
+document.getElementById("play").onclick = e => { if (timer){ clearInterval(timer); timer = null; e.target.textContent = "播放"; return; }
+  if (S.step >= S.seq.length-1) setStep(0);
+  e.target.textContent = "暫停"; timer = setInterval(() => { if (S.step >= S.seq.length-1){ clearInterval(timer); timer = null; e.target.textContent = "播放"; return; } setStep(S.step+1); }, +document.getElementById("speed").value); };
+document.getElementById("exE").onchange = e => { S.ov.exits.EXIT_E = e.target.checked; send({type:"exit", id:"EXIT_E", open:e.target.checked}); render(); };
+document.getElementById("exW").onchange = e => { S.ov.exits.EXIT_W = e.target.checked; send({type:"exit", id:"EXIT_W", open:e.target.checked}); render(); };
+document.getElementById("stW").onchange = e => { S.ov.stairs.W = e.target.checked; send({type:"stair", id:"W", open:e.target.checked}); render(); };
+document.getElementById("stE").onchange = e => { S.ov.stairs.E = e.target.checked; send({type:"stair", id:"E", open:e.target.checked}); render(); };
+document.getElementById("layout").onchange = e => { S.ov.layout1 = e.target.value; render(); };
+document.getElementById("resetEdits").onclick = () => { S.ov.seg = {}; S.ov.fire = null; S.ov.camsOff.clear(); S.ov.exits = {EXIT_E:true, EXIT_W:true}; S.ov.stairs = {W:true, E:true};
+  for (const id of ["exE","exW","stW","stE"]) document.getElementById(id).checked = true; send({type:"reset"}); toast("已還原所有修改"); render(); };
+document.getElementById("randPeople").onclick = () => { const st = S.cur; for (let n = 0; n < 5; n++){ const s = st.segments[Math.floor(Math.random()*st.segments.length)]; const q = segGeom(st, s); const t = .2+.6*Math.random();
+  const id = "v" + (++S.vid); S.people.set(id, {id, name:"避難者 " + S.vid, role:"evacuee", floor:s.floor, x:q.ax+(q.bx-q.ax)*t, y:q.ay+(q.by-q.ay)*t, virtual:true}); } render(); };
+document.getElementById("clearVirtual").onclick = () => { for (const [id, p] of S.people) if (p.virtual) S.people.delete(id); render(); };
+document.getElementById("copyState").onclick = async () => { const st = S.cur; const out = {t:st.t, leds:st.leds, fire:st.fire, segments:st.segments.map(s => ({id:s.id, rate:s.rate, gate:s.gate, smoke:s.smoke, pred:s.pred, risk:+s.risk.toFixed(2)})), people:[...S.people.values()].map(p => ({id:p.id, role:p.role, floor:p.floor, x:+p.x.toFixed(1), y:+p.y.toFixed(1), out:!!p.out, trapped:!!p.trapped}))};
+  try { await navigator.clipboard.writeText(JSON.stringify(out, null, 1)); toast("已複製到剪貼簿"); } catch (e) { toast("無法使用剪貼簿"); } };
+
+// legend built from the same glyphs the map uses
+(function legend(){
+  const L = document.getElementById("legend");
+  const item = (label, draw) => { const s = document.createElement("span"); const sv = document.createElementNS(NS, "svg"); sv.setAttribute("viewBox", "-10 -10 20 20"); sv.setAttribute("aria-hidden", "true"); draw(sv); s.appendChild(sv); s.append(label); L.appendChild(s); };
+  const sw = fill => sv => el("rect", {x:-10, y:-6, width:20, height:12, rx:2, fill, ...(fill.startsWith("var(--h") ? {opacity:.7} : {})}, sv);
+  item("走廊（暢通）", sw("var(--corr)"));
+  item("風險：低", sw("var(--h1)")); item("風險：中", sw("var(--h2)")); item("風險：高", sw("var(--h3)"));
+  item("不可通行", sv => { const p = el("pattern", {id:"lgH", width:6, height:6, patternUnits:"userSpaceOnUse", patternTransform:"rotate(45)"}, el("defs", {}, sv)); el("rect", {width:3, height:6, fill:"var(--h3)"}, p); el("rect", {x:-10, y:-6, width:20, height:12, rx:2, fill:"url(#lgH)", stroke:"var(--h3)"}, sv); });
+  item("煙霧", sv => { el("circle", {cx:-3, cy:1, r:6, fill:"var(--smoke)", opacity:.6}, sv); el("circle", {cx:4, cy:-1, r:5, fill:"var(--smoke)", opacity:.6}, sv); });
+  item("煙霧預測擴散", sv => { const p = el("pattern", {id:"lgP", width:5, height:5, patternUnits:"userSpaceOnUse", patternTransform:"rotate(-45)"}, el("defs", {}, sv)); el("rect", {width:1.6, height:5, fill:"var(--smoke)"}, p); el("rect", {x:-10, y:-6, width:20, height:12, rx:2, fill:"url(#lgP)"}, sv); });
+  item("撤離方向", sv => { el("path", {d:"M-10,0H10", class:"flow"}, sv); el("path", {d:"M3,-3L6,0L3,3", class:"chev"}, sv); });
+  item("我的路線", sv => el("path", {d:"M-10,0H10", class:"myroute"}, sv));
+  item("燈號：方向", sv => G.sign(sv, "E")); item("燈號：下樓", sv => G.sign(sv, "DOWN")); item("燈號全暗：無路可走", sv => G.sign(sv, "X"));
+  item("出口", sv => G.exit(sv)); item("樓梯", sv => G.stair(sv)); item("起火點", sv => G.fire(sv));
+  item("障礙物（障礙率）", sv => G.obstacle(sv, .5, false)); item("閘門／封鎖", sv => G.gate(sv));
+  item("鏡頭", sv => G.cam(sv)); item("鏡頭離線", sv => G.cam(sv, false));
+  item("避難人員", sv => G.person(sv, "evacuee")); item("消防員", sv => G.person(sv, "firefighter"));
+  item("受困", sv => G.person(sv, "evacuee", true)); item("我", sv => G.me(sv));
+  item("未確認（鏡頭故障）", sv => el("rect", {x:-10, y:-6, width:20, height:12, fill:"none", stroke:"var(--ink)", "stroke-dasharray":"4 3", "stroke-width":1.3}, sv));
+})();
+
+// ---------- device management (live mode only) ----------
+const SLOT_NAMES = {"1N":"1F 北","1W":"1F 西","1S":"1F 南","1E":"1F 東","2N":"2F 北","2W":"2F 西","2S":"2F 南","2E":"2F 東"};
+function renderDevices(st){
+  const tb = document.getElementById("devTbl"); if (!tb || !st.devices) return;
+  const devs = st.devices;
+  if (!devs.length){ tb.innerHTML = `<tr><td colspan="6" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr>`; }
+  else tb.innerHTML = devs.map(d => `<tr>
+      <td><input class="devName" data-mac="${d.mac}" value="${d.name.replace(/"/g,"&quot;")}" style="font:inherit;width:9.5em;border:1px solid var(--line);border-radius:4px;padding:2px 4px;background:var(--panel);color:var(--ink)"><div class="hint mono">${d.mac}${d.ip ? " · " + d.ip : ""}</div></td>
+      <td><span class="dot ${d.online ? "ok" : "bad"}"></span> ${d.online ? (d.fps ? d.fps + " 次/秒" : "在線") : (d.age == null ? "未連線" : "離線 " + d.age + " s")}</td>
+      <td><select class="devSlot" data-mac="${d.mac}"><option value="">未分配</option>${Object.entries(SLOT_NAMES).map(([k, v]) => `<option value="${k}" ${d.slot === k ? "selected" : ""}>${v}${devs.some(o => o.slot === k && o.mac !== d.mac) ? "（佔用）" : ""}</option>`).join("")}</select></td>
+      <td class="mono">${d.fw || "—"}</td>
+      <td class="mono">${d.lum == null ? "—" : d.lum}</td>
+      <td><button class="btn devBlink" data-mac="${d.mac}" ${d.online ? "" : "disabled"}>${d.blink ? "閃燈中…" : "閃燈"}</button> <button class="btn devSnap" data-mac="${d.mac}" ${d.online ? "" : "disabled"}>畫面</button> <button class="btn devForget" data-mac="${d.mac}" title="從清單移除">移除</button></td></tr>`).join("");
+  tb.querySelectorAll(".devSlot").forEach(e => e.onchange = () => send({type:"assign", mac:e.dataset.mac, slot:e.value || null}));
+  tb.querySelectorAll(".devName").forEach(e => e.onchange = () => send({type:"rename", mac:e.dataset.mac, name:e.value}));
+  tb.querySelectorAll(".devBlink").forEach(e => e.onclick = () => send({type:"blink", mac:e.dataset.mac}));
+  tb.querySelectorAll(".devForget").forEach(e => e.onclick = () => { if (confirm("從清單移除這片板子？它下次連線會重新出現。")) send({type:"forget", mac:e.dataset.mac}); });
+  tb.querySelectorAll(".devSnap").forEach(e => e.onclick = () => { send({type:"snap", mac:e.dataset.mac});
+    const img = document.getElementById("modalImg"), mac = e.dataset.mac; document.getElementById("modalT").textContent = "板子畫面 " + mac.slice(-4);
+    document.getElementById("modalD").textContent = "每秒更新；這片板子目前位置：" + (SLOT_NAMES[(devs.find(x => x.mac === mac) || {}).slot] || "未分配");
+    document.getElementById("modal").hidden = false; clearInterval(S.snapT);
+    const pull = () => { img.src = `/api/devframe/${mac}.jpg?t=${Date.now()}`; }; pull(); S.snapT = setInterval(() => { if (document.getElementById("modal").hidden) clearInterval(S.snapT); else pull(); }, 1000); });
+  const wb = document.getElementById("wizBox"), w = st.wizard;
+  wb.hidden = !w; document.getElementById("wizStart").textContent = w ? "結束指認" : "遮鏡頭自動指認";
+  if (w) wb.innerHTML = w.slot ? `<span style="font-size:18px">請用手遮住 <b>${SLOT_NAMES[w.slot]}</b> 的鏡頭 <span class="hint">（${w.i + 1} / ${w.slots.length}）${w.msg ? "　上一個：" + w.msg : ""}</span></span><button class="btn" id="wizSkip">跳過這個位置</button>`
+                               : `<span style="font-size:18px">指認完成。${w.msg ? "最後：" + w.msg : ""}</span>`;
+  const sk = document.getElementById("wizSkip"); if (sk) sk.onclick = () => send({type:"wizard_skip"});
+}
+document.getElementById("wizStart").onclick = () => {
+  const on = document.getElementById("wizStart").textContent !== "結束指認"; const f = document.getElementById("wizFloor").value;
+  const slots = f === "all" ? Object.keys(SLOT_NAMES) : Object.keys(SLOT_NAMES).filter(k => k[0] === f);
+  send({type:"wizard", on, slots}); if (on) document.getElementById("dev").open = true; };
+
+// ---------- data: live server or embedded replay ----------
+function send(m){ if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify(m)); }
+function boot(){
+  if (EMBED){ const dc = document.getElementById("devCard"); if (dc) dc.hidden = true; S.seq = EMBED.seq; S.images = EMBED.images || {}; stepEl.max = S.seq.length-1; S.me = {floor:2, x:60, y:102}; setStep(0);
+    document.getElementById("linktxt").textContent = "回放模式（模擬世界）"; document.getElementById("linkdot").className = "dot warn"; return; }
+  try {
+    const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws"); S.ws = ws;
+    ws.onopen = () => { S.live = true; document.getElementById("linktxt").textContent = "即時連線"; document.getElementById("linkdot").className = "dot ok"; };
+    ws.onclose = () => { S.live = false; document.getElementById("linktxt").textContent = "連線中斷，重試中"; document.getElementById("linkdot").className = "dot bad"; setTimeout(boot, 2000); };
+    ws.onmessage = ev => { const m = JSON.parse(ev.data); if (m.type === "state"){ S.seq = [m.state]; S.step = 0; S.base = m.state;
+      for (const [id, p] of S.people) if (!p.virtual) S.people.delete(id);
+      for (const p of (m.state.people || [])) S.people.set(p.id, {...p}); render(); renderDevices(m.state); } };
+  } catch (e) { document.getElementById("linktxt").textContent = "無法連線"; }
+}
+boot();
+</script>
