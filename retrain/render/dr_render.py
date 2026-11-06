@@ -79,7 +79,7 @@ def setup_scene():
     r.resolution_x, r.resolution_y, r.resolution_percentage = W, H, 100
     r.use_compositing = False
     r.use_sequencer = False
-    r.use_persistent_data = True
+    r.use_persistent_data = False  # 長時間批次時 True 曾觸發 OptiX illegal memory access
     SC.view_settings.view_transform = 'Standard'
     SC.view_settings.look = 'None'
     SC.view_settings.exposure = 0.0

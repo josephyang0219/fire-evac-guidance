@@ -18,7 +18,10 @@
 | `tools/run_blender.py` | 啟動器：複製 .blend、確保路徑是英文、背景執行 Blender |
 | `tools/check_labels.py` | 標註檢查（格式、對應、渲染交叉驗證） |
 | `tools/make_dataset.py` | 多來源合併、切 train/val、打包 zip 和量化校正圖 |
-| `train/訓練與轉檔步驟.md` | Colab 訓練 → 重參數化 → Realtek 轉檔 → 上板 |
+| `train/colab_train.ipynb` | **Colab 筆記本**：照順序執行就能完成訓練、畫圖、重參數化、打包轉檔 zip |
+| `train/Colab操作步驟.md` | 給使用者的操作說明：上傳哪些檔、每步多久、轉檔參數、換進 SDK |
+| `train/訓練與轉檔步驟.md` | 技術細節（指令、重參數化原理） |
+| `tools/render_batch.sh` | 大量渲染：每批 200 張重開 Blender，失敗自動重試 |
 | `train/reparam.py` | 重參數化（IDetect → Detect）＋輸出比對 |
 | `config/` | `yolov7-tiny-fire7.yaml`（訓練）、`-deploy.yaml`（部署）、`hyp.ft7.yaml`，都是 nc = 7 |
 | `補拍清單.md` | 實體模型回來後要拍的照片 |
@@ -38,6 +41,7 @@ python retrain/tools/check_labels.py %USERPROFILE%\fire_retrain\out\dr_s001 %USE
 python retrain/tools/run_blender.py negatives --src <教室照片資料夾> --name classroom
 ```
 
+- 正式數量（例如 3000 張）：`bash retrain/tools/render_batch.sh render 1 0 3000`。長時間連續渲染曾遇到 OptiX `illegal memory access`，所以分批執行。
 - 要更多張：換 `--seed`（每個種子一個資料夾），或同一個種子用 `--start 200 --count 800` 接續；`--skip-existing` 可中斷後續跑。
 - 速度：RTX 5060 Laptop（OptiX）約 1 秒／張（200 張 191 秒）。
 
@@ -101,7 +105,27 @@ python retrain/tools/run_blender.py negatives --src <教室照片資料夾> --na
 | 5 smoke | 67 | 23309 | 45 |
 | 6 person | 290 | 3994 | 86 |
 
-完整報告：`samples/check_report_s001.json`。每張圖的參數（鏡頭、光、後處理、每個物件的位置／像素數／投影框）都在 `meta/*.json`。
+完整報告：`samples/check_report_s001.json`。
+
+### 正式資料集（2026-11-06）
+
+seed 1 渲染 3000 張＋seed 2 空場景 400 張，共 3400 張。
+
+- **檢查結果**：錯誤 0 個。投影交叉驗證檢查了 10643 個物件，0 個失敗。
+- **切分**：train 2887 張（其中 602 張是空標註）、val 513 張（其中 120 張是空標註），兩組沒有重複。
+- **框數**：
+  - 0 櫃子 941、1 紙箱 970、2 桌椅 1072、3 瓦礫 985
+  - 4 閘門 1680、5 煙 1070、6 人偶 4006
+- **輸出位置**（不進 git）：`C:\Users\User\Documents\fire_retrain_data\`
+  - `fire7.zip`：95.3 MB
+  - `fire7_quant_images.zip`：30 張量化校正圖
+  - `upload_to_drive\`：要上傳到 Drive 的 7 個檔案，加上筆記本
+
+**為什麼是 3000＋400 張**：
+- 每類約 1000 個框（人偶約 4000 個），符合 YOLO 每類 1000 個以上框的常見建議。
+- 空標註約占 21%，落在 20–30% 的建議範圍。
+- 背景網路沿用舊模型，只有偵測頭要重學；再多的渲染圖對 sim-to-real 的幫助會遞減，之後應該補實拍照片。
+- T4 上 80 輪約 1.5–2.5 小時，一次 Colab 工作階段跑得完。每張圖的參數（鏡頭、光、後處理、每個物件的位置／像素數／投影框）都在 `meta/*.json`。
 
 ## 負樣本流程
 
