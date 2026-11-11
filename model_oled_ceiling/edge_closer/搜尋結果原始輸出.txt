@@ -1,0 +1,109 @@
+== search_edges_closer.py -- <S> 0（長孔只能在實心天花板）
+RES (0, 99) relax False n 804
+   off 36.5 up S pcb (-36.5,96.0) slot (-36.50,84.03) slot_cuts_plug False seen {}
+   off 37.0 up S pcb (-37.0,96.0) slot (-37.00,84.03) slot_cuts_plug False seen {}
+   off 38.0 up S pcb (-38.0,96.0) slot (-38.00,84.03) slot_cuts_plug False seen {}
+RES (99, 0) relax False n 804
+   off 36.5 up W pcb (96.0,-36.5) slot (84.03,-36.50) slot_cuts_plug False seen {}
+   off 37.0 up W pcb (96.0,-37.0) slot (84.03,-37.00) slot_cuts_plug False seen {}
+   off 38.0 up W pcb (96.0,-38.0) slot (84.03,-38.00) slot_cuts_plug False seen {}
+RES (0, -99) relax False n 696
+   off 36.5 up N pcb (-36.5,-98.5) slot (-36.50,-86.53) slot_cuts_plug False seen {}
+   off 37.0 up N pcb (-37.0,-98.5) slot (-37.00,-86.53) slot_cuts_plug False seen {}
+   off 38.0 up N pcb (-38.0,-98.5) slot (-38.00,-86.53) slot_cuts_plug False seen {}
+RES (-99, 0) relax False n 696
+   off 36.5 up E pcb (-98.5,-36.5) slot (-86.53,-36.50) slot_cuts_plug False seen {}
+   off 37.0 up E pcb (-98.5,-37.0) slot (-86.53,-37.00) slot_cuts_plug False seen {}
+   off 38.0 up E pcb (-98.5,-38.0) slot (-86.53,-38.00) slot_cuts_plug False seen {}
+
+== search_edges_closer.py -- <S> 1（長孔可穿過塞子）；seen 是 65° 圓錐估計，實際畫面以 camera_view_candidates.py 為準
+RES (0, 99) relax True n 3627
+   off 23.4 up E pcb (25.5,97.0) slot (37.47,97.00) slot_cuts_plug True seen {'1FN': 52}
+   off 24.0 up E pcb (26.0,96.5) slot (37.97,96.50) slot_cuts_plug True seen {'1FN': 53}
+   off 25.0 up E pcb (27.0,96.5) slot (38.97,96.50) slot_cuts_plug True seen {'1FN': 55}
+   off 26.0 up E pcb (28.0,96.5) slot (39.97,96.50) slot_cuts_plug True seen {'1FN': 56}
+   off 27.0 up E pcb (29.0,96.5) slot (40.97,96.50) slot_cuts_plug True seen {'1FN': 58}
+   off 28.0 up E pcb (30.0,96.5) slot (41.97,96.50) slot_cuts_plug True seen {'1FN': 59}
+   off 29.0 up E pcb (31.0,96.5) slot (42.97,96.50) slot_cuts_plug True seen {'1FN': 60}
+   off 30.0 up E pcb (32.0,96.5) slot (43.97,96.50) slot_cuts_plug True seen {'1FN': 62}
+   off 31.0 up E pcb (33.0,96.5) slot (44.97,96.50) slot_cuts_plug True seen {'1FN': 63}
+   off 32.4 up E pcb (34.5,96.5) slot (46.47,96.50) slot_cuts_plug True seen {'1FN': 64}
+   off 33.4 up E pcb (35.5,96.5) slot (47.47,96.50) slot_cuts_plug True seen {}
+   off 34.4 up E pcb (36.5,96.5) slot (48.47,96.50) slot_cuts_plug True seen {}
+   off 35.4 up E pcb (37.5,96.5) slot (49.47,96.50) slot_cuts_plug True seen {}
+   off 36.4 up E pcb (38.5,96.5) slot (50.47,96.50) slot_cuts_plug True seen {}
+   off 37.0 up S pcb (-37.0,96.0) slot (-37.00,84.03) slot_cuts_plug False seen {}
+   off 38.0 up S pcb (-38.0,96.0) slot (-38.00,84.03) slot_cuts_plug False seen {}
+RES (99, 0) relax True n 3627
+   off 23.4 up N pcb (97.0,25.5) slot (97.00,37.47) slot_cuts_plug True seen {'1FE': 52}
+   off 24.0 up N pcb (96.5,26.0) slot (96.50,37.97) slot_cuts_plug True seen {'1FE': 53}
+   off 25.0 up N pcb (96.5,27.0) slot (96.50,38.97) slot_cuts_plug True seen {'1FE': 55}
+   off 26.0 up N pcb (96.5,28.0) slot (96.50,39.97) slot_cuts_plug True seen {'1FE': 56}
+   off 27.0 up N pcb (96.5,29.0) slot (96.50,40.97) slot_cuts_plug True seen {'1FE': 58}
+   off 28.0 up N pcb (96.5,30.0) slot (96.50,41.97) slot_cuts_plug True seen {'1FE': 59}
+   off 29.0 up N pcb (96.5,31.0) slot (96.50,42.97) slot_cuts_plug True seen {'1FE': 60}
+   off 30.0 up N pcb (96.5,32.0) slot (96.50,43.97) slot_cuts_plug True seen {'1FE': 62}
+   off 31.0 up N pcb (96.5,33.0) slot (96.50,44.97) slot_cuts_plug True seen {'1FE': 63}
+   off 32.4 up N pcb (96.5,34.5) slot (96.50,46.47) slot_cuts_plug True seen {'1FE': 64}
+   off 33.4 up N pcb (96.5,35.5) slot (96.50,47.47) slot_cuts_plug True seen {}
+   off 34.4 up N pcb (96.5,36.5) slot (96.50,48.47) slot_cuts_plug True seen {}
+   off 35.4 up N pcb (96.5,37.5) slot (96.50,49.47) slot_cuts_plug True seen {}
+   off 36.4 up N pcb (96.5,38.5) slot (96.50,50.47) slot_cuts_plug True seen {}
+   off 37.0 up W pcb (96.0,-37.0) slot (84.03,-37.00) slot_cuts_plug False seen {}
+   off 38.0 up W pcb (96.0,-38.0) slot (84.03,-38.00) slot_cuts_plug False seen {}
+RES (0, -99) relax True n 3195
+   off 23.4 up E pcb (25.5,-100.5) slot (37.47,-100.50) slot_cuts_plug True seen {'1FS': 53}
+   off 24.4 up E pcb (26.5,-100.5) slot (38.47,-100.50) slot_cuts_plug True seen {'1FS': 55}
+   off 25.4 up E pcb (27.5,-100.5) slot (39.47,-100.50) slot_cuts_plug True seen {'1FS': 57}
+   off 26.4 up E pcb (28.5,-100.5) slot (40.47,-100.50) slot_cuts_plug True seen {'1FS': 58}
+   off 27.4 up E pcb (29.5,-100.5) slot (41.47,-100.50) slot_cuts_plug True seen {'1FS': 60}
+   off 28.4 up E pcb (30.5,-100.5) slot (42.47,-100.50) slot_cuts_plug True seen {'1FS': 61}
+   off 29.4 up E pcb (31.5,-100.5) slot (43.47,-100.50) slot_cuts_plug True seen {'1FS': 63}
+   off 30.4 up E pcb (32.5,-100.5) slot (44.47,-100.50) slot_cuts_plug True seen {'1FS': 64}
+   off 31.4 up E pcb (33.5,-100.5) slot (45.47,-100.50) slot_cuts_plug True seen {}
+   off 32.4 up E pcb (34.5,-100.5) slot (46.47,-100.50) slot_cuts_plug True seen {}
+   off 33.4 up E pcb (35.5,-100.5) slot (47.47,-100.50) slot_cuts_plug True seen {}
+   off 34.4 up E pcb (36.5,-100.5) slot (48.47,-100.50) slot_cuts_plug True seen {}
+   off 35.4 up E pcb (37.5,-100.5) slot (49.47,-100.50) slot_cuts_plug True seen {}
+   off 36.4 up E pcb (38.5,-100.5) slot (50.47,-100.50) slot_cuts_plug True seen {}
+   off 37.0 up N pcb (-37.0,-98.5) slot (-37.00,-86.53) slot_cuts_plug False seen {}
+   off 38.0 up N pcb (-38.0,-98.5) slot (-38.00,-86.53) slot_cuts_plug False seen {}
+RES (-99, 0) relax True n 3195
+   off 23.4 up N pcb (-100.5,25.5) slot (-100.50,37.47) slot_cuts_plug True seen {'1FW': 53}
+   off 24.4 up N pcb (-100.5,26.5) slot (-100.50,38.47) slot_cuts_plug True seen {'1FW': 55}
+   off 25.4 up N pcb (-100.5,27.5) slot (-100.50,39.47) slot_cuts_plug True seen {'1FW': 57}
+   off 26.4 up N pcb (-100.5,28.5) slot (-100.50,40.47) slot_cuts_plug True seen {'1FW': 58}
+   off 27.4 up N pcb (-100.5,29.5) slot (-100.50,41.47) slot_cuts_plug True seen {'1FW': 60}
+   off 28.4 up N pcb (-100.5,30.5) slot (-100.50,42.47) slot_cuts_plug True seen {'1FW': 61}
+   off 29.4 up N pcb (-100.5,31.5) slot (-100.50,43.47) slot_cuts_plug True seen {'1FW': 63}
+   off 30.4 up N pcb (-100.5,32.5) slot (-100.50,44.47) slot_cuts_plug True seen {'1FW': 64}
+   off 31.4 up N pcb (-100.5,33.5) slot (-100.50,45.47) slot_cuts_plug True seen {}
+   off 32.4 up N pcb (-100.5,34.5) slot (-100.50,46.47) slot_cuts_plug True seen {}
+   off 33.4 up N pcb (-100.5,35.5) slot (-100.50,47.47) slot_cuts_plug True seen {}
+   off 34.4 up N pcb (-100.5,36.5) slot (-100.50,48.47) slot_cuts_plug True seen {}
+   off 35.4 up N pcb (-100.5,37.5) slot (-100.50,49.47) slot_cuts_plug True seen {}
+   off 36.4 up N pcb (-100.5,38.5) slot (-100.50,50.47) slot_cuts_plug True seen {}
+   off 37.0 up E pcb (-98.5,-37.0) slot (-86.53,-37.00) slot_cuts_plug False seen {}
+   off 38.0 up E pcb (-98.5,-38.0) slot (-86.53,-38.00) slot_cuts_plug False seen {}
+
+== camera_view_candidates.py（576×320 逐像素）
+CAND {"name": "N_36.5mm_現行", "offset_mm": 36.5, "pcb_center": [-36.5, 96.0], "screen_up": "S", "slot_cuts_ring_plug": false, "camera": "1F N", "oled_pixels": 0}
+CAND {"name": "N_29mm", "offset_mm": 29, "pcb_center": [31.1, 96.5], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F N", "oled_pixels": 0}
+CAND {"name": "N_28mm", "offset_mm": 28, "pcb_center": [30.1, 96.5], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F N", "oled_pixels": 51, "pixel_box": [570, 260, 575, 275], "min_angle_from_axis_deg": 59.3, "image_fraction_pct": 0.03, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 51, "牆／障礙物": 0, "走廊地面": 0, "房間地面或其他": 0}}
+CAND {"name": "N_26mm", "offset_mm": 26, "pcb_center": [28.1, 96.5], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F N", "oled_pixels": 910, "pixel_box": [553, 225, 575, 303], "min_angle_from_axis_deg": 56.5, "image_fraction_pct": 0.49, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 570, "牆／障礙物": 340, "走廊地面": 0, "房間地面或其他": 0}}
+CAND {"name": "N_23.4mm", "offset_mm": 23.4, "pcb_center": [25.5, 97.0], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F N", "oled_pixels": 4299, "pixel_box": [528, 126, 575, 319], "min_angle_from_axis_deg": 52.0, "image_fraction_pct": 2.33, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 1250, "牆／障礙物": 3049, "走廊地面": 0, "房間地面或其他": 0}}
+CAND {"name": "E_36.5mm_現行", "offset_mm": 36.5, "pcb_center": [96.0, -36.5], "screen_up": "W", "slot_cuts_ring_plug": false, "camera": "1F E", "oled_pixels": 0}
+CAND {"name": "E_29mm", "offset_mm": 29, "pcb_center": [96.5, 31.1], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F E", "oled_pixels": 0}
+CAND {"name": "E_28mm", "offset_mm": 28, "pcb_center": [96.5, 30.1], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F E", "oled_pixels": 51, "pixel_box": [0, 260, 5, 275], "min_angle_from_axis_deg": 59.3, "image_fraction_pct": 0.03, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 51, "牆／障礙物": 0, "走廊地面": 0, "房間地面或其他": 0}}
+CAND {"name": "E_26mm", "offset_mm": 26, "pcb_center": [96.5, 28.1], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F E", "oled_pixels": 910, "pixel_box": [0, 225, 22, 303], "min_angle_from_axis_deg": 56.5, "image_fraction_pct": 0.49, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 570, "牆／障礙物": 340, "走廊地面": 0, "房間地面或其他": 0}}
+CAND {"name": "E_23.4mm", "offset_mm": 23.4, "pcb_center": [97.0, 25.5], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F E", "oled_pixels": 4299, "pixel_box": [0, 126, 47, 319], "min_angle_from_axis_deg": 52.0, "image_fraction_pct": 2.33, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 1250, "牆／障礙物": 3049, "走廊地面": 0, "房間地面或其他": 0}}
+CAND {"name": "S_36.5mm_現行", "offset_mm": 36.5, "pcb_center": [-36.5, -98.5], "screen_up": "N", "slot_cuts_ring_plug": false, "camera": "1F S", "oled_pixels": 0}
+CAND {"name": "S_29mm", "offset_mm": 29, "pcb_center": [31.1, -100.5], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F S", "oled_pixels": 0}
+CAND {"name": "S_28mm", "offset_mm": 28, "pcb_center": [30.1, -100.5], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F S", "oled_pixels": 0}
+CAND {"name": "S_26mm", "offset_mm": 26, "pcb_center": [28.1, -100.5], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F S", "oled_pixels": 0}
+CAND {"name": "S_23.4mm", "offset_mm": 23.4, "pcb_center": [25.5, -100.5], "screen_up": "E", "slot_cuts_ring_plug": true, "camera": "1F S", "oled_pixels": 1150, "pixel_box": [0, 126, 22, 236], "min_angle_from_axis_deg": 52.7, "image_fraction_pct": 0.62, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 0, "牆／障礙物": 1150, "走廊地面": 0, "房間地面或其他": 0}}
+CAND {"name": "W_36.5mm_現行", "offset_mm": 36.5, "pcb_center": [-98.5, -36.5], "screen_up": "E", "slot_cuts_ring_plug": false, "camera": "1F W", "oled_pixels": 0}
+CAND {"name": "W_29mm", "offset_mm": 29, "pcb_center": [-100.5, 31.1], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F W", "oled_pixels": 0}
+CAND {"name": "W_28mm", "offset_mm": 28, "pcb_center": [-100.5, 30.1], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F W", "oled_pixels": 0}
+CAND {"name": "W_26mm", "offset_mm": 26, "pcb_center": [-100.5, 28.1], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F W", "oled_pixels": 0}
+CAND {"name": "W_23.4mm", "offset_mm": 23.4, "pcb_center": [-100.5, 25.5], "screen_up": "N", "slot_cuts_ring_plug": true, "camera": "1F W", "oled_pixels": 1150, "pixel_box": [553, 126, 575, 236], "min_angle_from_axis_deg": 52.7, "image_fraction_pct": 0.62, "at_edge": true, "masked_floor_pixels": 0, "behind_oled_pixels": {"天花板": 0, "牆／障礙物": 1150, "走廊地面": 0, "房間地面或其他": 0}}

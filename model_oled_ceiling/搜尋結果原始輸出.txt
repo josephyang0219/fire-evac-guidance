@@ -1,0 +1,71 @@
+== search_through_hole.py（膠 2.0 mm，凸出 5.0 mm；視窗 ±60 mm）
+RES (-99, 99) tape 2.0 cands 480 headroomOK 464 | nearest(any) (0.09999999999999432, 'W', -101.5, 99.0, -113.72, 99.0, 216.5999984741211) | nearest(headroom) ((0.09999999999999432, 'W', -101.5, 99.0, -113.72, 99.0, 216.5999984741211), None) | nearest hidden (0.09999999999999432, 'W', -101.5, 99.0, -113.72, 99.0, 216.5999984741211)
+RES (0, 99) tape 2.0 cands 1144 headroomOK 0 | nearest(any) (30.599999999999994, 'S', 0.0, 66.0, 0.0, 53.78, 115.0) | nearest(headroom) None | nearest hidden None
+RES (99, 99) tape 2.0 cands 514 headroomOK 498 | nearest(any) (0.5099019513592774, 'S', 99.5, 96.5, 99.5, 84.28, 216.5999984741211) | nearest(headroom) ((0.5099019513592774, 'S', 99.5, 96.5, 99.5, 84.28, 216.5999984741211), None) | nearest hidden (0.5099019513592774, 'S', 99.5, 96.5, 99.5, 84.28, 216.5999984741211)
+RES (-99, 0) tape 2.0 cands 1144 headroomOK 0 | nearest(any) (30.599999999999994, 'E', -66.0, 0.0, -53.78, 0.0, 115.0) | nearest(headroom) None | nearest hidden None
+RES (0, 0) tape 2.0 cands 1392 headroomOK 0 | nearest(any) (55.6, 'E', 58.0, 0.0, 70.22, 0.0, 115.0) | nearest(headroom) None | nearest hidden None
+RES (99, 0) tape 2.0 cands 1144 headroomOK 0 | nearest(any) (30.599999999999994, 'W', 66.0, 0.0, 53.78, 0.0, 115.0) | nearest(headroom) None | nearest hidden None
+RES (-99, -99) tape 2.0 cands 446 headroomOK 430 | nearest(any) (0.5099019513592774, 'E', -96.5, -99.5, -84.28, -99.5, 211.0) | nearest(headroom) ((0.5099019513592774, 'E', -96.5, -99.5, -84.28, -99.5, 211.0), None) | nearest hidden (0.5099019513592774, 'E', -96.5, -99.5, -84.28, -99.5, 211.0)
+RES (0, -99) tape 2.0 cands 1144 headroomOK 0 | nearest(any) (30.599999999999994, 'N', 0.0, -66.0, 0.0, -53.78, 115.0) | nearest(headroom) None | nearest hidden None
+RES (99, -99) tape 2.0 cands 480 headroomOK 464 | nearest(any) (0.09999999999999432, 'S', 99.0, -101.5, 99.0, -113.72, 216.5999984741211) | nearest(headroom) ((0.09999999999999432, 'S', 99.0, -101.5, 99.0, -113.72, 216.5999984741211), None) | nearest hidden (0.09999999999999432, 'S', 99.0, -101.5, 99.0, -113.72, 216.5999984741211)
+
+== 邊中點與中心擴大到 ±115 mm
+RES (0, 99) tape 2.0 cands 1091 headroomOK 238 | nearest(any) (30.599999999999994, 'S', 0.0, 66.0, 0.0, 53.78, 115.0) | nearest(headroom) ((91.60545835265494, 'E', 94.0, 100.0, 106.22, 100.0, 216.5999984741211), None) | nearest hidden (91.60545835265494, 'E', 94.0, 100.0, 106.22, 100.0, 216.5999984741211)
+RES (-99, 0) tape 2.0 cands 1071 headroomOK 218 | nearest(any) (30.599999999999994, 'E', -66.0, 0.0, -53.78, 0.0, 115.0) | nearest(headroom) ((91.60545835265494, 'N', -100.0, 94.0, -100.0, 106.22, 216.5999984741211), None) | nearest hidden (91.60545835265494, 'N', -100.0, 94.0, -100.0, 106.22, 216.5999984741211)
+RES (0, 0) tape 2.0 cands 1604 headroomOK 456 | nearest(any) (55.6, 'E', 58.0, 0.0, 70.22, 0.0, 115.0) | nearest(headroom) ((135.50557184116084, 'S', 94.0, -100.0, 94.0, -112.22, 216.5999984741211), None) | nearest hidden (135.50557184116084, 'S', 94.0, -100.0, 94.0, -112.22, 216.5999984741211)
+RES (11, 11) tape 2.0 cands 1604 headroomOK 456 | nearest(any) (45.499010978261936, 'E', 58.0, 2.0, 70.22, 2.0, 115.0) | nearest(headroom) ((120.0723115460013, 'E', 94.0, 100.0, 106.22, 100.0, 216.5999984741211), None) | nearest hidden (120.0723115460013, 'E', 94.0, 100.0, 106.22, 100.0, 216.5999984741211)
+
+== search_corner_exact.py（精確射線，四角）
+FIT (-99, 99) (1.01, 'E', (-97.0, 100.0))
+FIT (99, 99) (1.01, 'S', (100.0, 97.0))
+FIT (99, -99) (0.15, 'S', (99.0, -101.0))
+FIT (-99, -99) (1.01, 'N', (-100.0, -97.0))
+
+== check_visibility_candidates.py（凸出 5.0 mm 時看得到它的鏡頭與離光軸角度）
+VIS N {'1FN': 39}
+VIS E {'1FE': 39}
+VIS S {'1FS': 39}
+VIS W {'1FW': 39}
+VIS C@E-arm {'1FE': 51}
+VIS C@center {}
+
+== search_center.py（中心：模組可蓋住塞子；依長孔穿過的東西分類，各取顯示區離路口最近者）
+CEN plug (0.15, 'S', (0.0, -2.0))
+CEN groove+plug (0.15, 'N', (0.0, 2.0))
+CEN blind+groove+plug (2.01, 'E', (2.0, 2.0))
+CEN other+plug (3.15, 'S', (0.0, 1.0))
+CEN groove+other+plug (3.19, 'W', (1.0, 0.5))
+CEN blind+groove+other+plug (4.02, 'S', (2.5, 1.0))
+CEN blind+other+plug (5.5, 'N', (-5.5, 2.0))
+CEN blind+plug (5.91, 'E', (-1.0, -5.0))
+CEN groove (7.65, 'N', (0.0, -5.5))
+CEN solid (7.65, 'S', (0.0, 5.5))
+CEN blind+groove+other (8.51, 'W', (-2.5, 8.5))
+CEN other (10.11, 'E', (-7.5, -3.0))
+
+== search_edges_cover.py（邊中點：模組可從下方蓋住塞子；孔上方要有空間；鏡頭看不到）
+RES (0, 99) tape 2.0 cands 12023 headroomOK 4633 | nearest(any) (26.000192306981116, 'S', -26.0, 96.5, -26.0, 84.28, 115.0) | nearest(headroom) ((36.50013698604431, 'S', -36.5, 96.5, -36.5, 84.28, 214.0), None) | nearest hidden (36.50013698604431, 'S', -36.5, 96.5, -36.5, 84.28, 214.0)
+RES (99, 0) tape 2.0 cands 12023 headroomOK 4633 | nearest(any) (26.000192306981116, 'W', 96.5, -26.0, 84.28, -26.0, 115.0) | nearest(headroom) ((36.50013698604431, 'W', 96.5, -36.5, 84.28, -36.5, 214.0), None) | nearest hidden (36.50013698604431, 'W', 96.5, -36.5, 84.28, -36.5, 214.0)
+RES (0, -99) tape 2.0 cands 11226 headroomOK 4443 | nearest(any) (26.000192306981116, 'N', -26.0, -96.5, -26.0, -84.28, 115.0) | nearest(headroom) ((36.50013698604431, 'N', -36.5, -96.5, -36.5, -84.28, 214.0), None) | nearest hidden (36.50013698604431, 'N', -36.5, -96.5, -36.5, -84.28, 214.0)
+RES (-99, 0) tape 2.0 cands 11226 headroomOK 4443 | nearest(any) (26.000192306981116, 'E', -96.5, -26.0, -84.28, -26.0, 115.0) | nearest(headroom) ((36.50013698604431, 'E', -96.5, -36.5, -84.28, -36.5, 214.0), None) | nearest hidden (36.50013698604431, 'E', -96.5, -36.5, -84.28, -36.5, 214.0)
+
+== check_edge_visibility.py（N 邊中點往路口靠近時的入鏡情形；凸出 5.0 mm）
+VISC module -26 {'1FN': 53}
+VISC module -28 {'1FN': 56}
+VISC module -30 {'1FN': 59}
+VISC module -33 {'1FN': 63}
+VISC module -36.5 {}
+VISC wire {}
+
+== search_hub5_rects.py（設備層最大空矩形，寬 W 時的最大長度）
+RECT W 20 maxH 44 at (np.float64(-89.0), np.float64(52.0))
+RECT W 28 maxH 44 at (np.float64(-85.0), np.float64(52.0))
+RECT W 36 maxH 31 at (np.float64(48.0), np.float64(-84.0))
+RECT W 44 maxH 31 at (np.float64(52.0), np.float64(-84.0))
+RECT W 52 maxH 12 at (np.float64(56.0), np.float64(-93.0))
+RECT W 60 maxH 12 at (np.float64(60.0), np.float64(-93.0))
+
+== search_hub5_paths.py（候選位置到 5 個長條孔的最短走線，cm）
+PATH (52, -84, 44, 31) {'C': np.float64(9.4), 'N': np.float64(22.1), 'E': np.float64(4.2), 'S': np.float64(13.0), 'W': np.float64(14.8)} max 22.1
+PATH (-84, 52, 30, 44) {'C': np.float64(10.6), 'N': np.float64(4.3), 'E': np.float64(22.2), 'S': np.float64(14.8), 'W': np.float64(13.1)} max 22.2
+PATH (-30, 18, 32, 31) {'C': np.float64(2.2), 'N': np.float64(5.1), 'E': np.float64(13.8), 'S': np.float64(8.6), 'W': np.float64(7.8)} max 13.8

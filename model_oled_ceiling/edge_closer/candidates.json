@@ -1,0 +1,370 @@
+[
+ {
+  "name": "N_36.5mm_現行",
+  "offset_mm": 36.5,
+  "pcb_center": [
+   -36.5,
+   96.0
+  ],
+  "screen_up": "S",
+  "slot_cuts_ring_plug": false,
+  "camera": "1F N",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N_29mm",
+  "offset_mm": 29,
+  "pcb_center": [
+   31.1,
+   96.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F N",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N_28mm",
+  "offset_mm": 28,
+  "pcb_center": [
+   30.1,
+   96.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F N",
+  "oled_pixels": 51,
+  "pixel_box": [
+   570,
+   260,
+   575,
+   275
+  ],
+  "min_angle_from_axis_deg": 59.3,
+  "image_fraction_pct": 0.03,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 51,
+   "牆／障礙物": 0,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ },
+ {
+  "name": "N_26mm",
+  "offset_mm": 26,
+  "pcb_center": [
+   28.1,
+   96.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F N",
+  "oled_pixels": 910,
+  "pixel_box": [
+   553,
+   225,
+   575,
+   303
+  ],
+  "min_angle_from_axis_deg": 56.5,
+  "image_fraction_pct": 0.49,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 570,
+   "牆／障礙物": 340,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ },
+ {
+  "name": "N_23.4mm",
+  "offset_mm": 23.4,
+  "pcb_center": [
+   25.5,
+   97.0
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F N",
+  "oled_pixels": 4299,
+  "pixel_box": [
+   528,
+   126,
+   575,
+   319
+  ],
+  "min_angle_from_axis_deg": 52.0,
+  "image_fraction_pct": 2.33,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 1250,
+   "牆／障礙物": 3049,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ },
+ {
+  "name": "E_36.5mm_現行",
+  "offset_mm": 36.5,
+  "pcb_center": [
+   96.0,
+   -36.5
+  ],
+  "screen_up": "W",
+  "slot_cuts_ring_plug": false,
+  "camera": "1F E",
+  "oled_pixels": 0
+ },
+ {
+  "name": "E_29mm",
+  "offset_mm": 29,
+  "pcb_center": [
+   96.5,
+   31.1
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F E",
+  "oled_pixels": 0
+ },
+ {
+  "name": "E_28mm",
+  "offset_mm": 28,
+  "pcb_center": [
+   96.5,
+   30.1
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F E",
+  "oled_pixels": 51,
+  "pixel_box": [
+   0,
+   260,
+   5,
+   275
+  ],
+  "min_angle_from_axis_deg": 59.3,
+  "image_fraction_pct": 0.03,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 51,
+   "牆／障礙物": 0,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ },
+ {
+  "name": "E_26mm",
+  "offset_mm": 26,
+  "pcb_center": [
+   96.5,
+   28.1
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F E",
+  "oled_pixels": 910,
+  "pixel_box": [
+   0,
+   225,
+   22,
+   303
+  ],
+  "min_angle_from_axis_deg": 56.5,
+  "image_fraction_pct": 0.49,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 570,
+   "牆／障礙物": 340,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ },
+ {
+  "name": "E_23.4mm",
+  "offset_mm": 23.4,
+  "pcb_center": [
+   97.0,
+   25.5
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F E",
+  "oled_pixels": 4299,
+  "pixel_box": [
+   0,
+   126,
+   47,
+   319
+  ],
+  "min_angle_from_axis_deg": 52.0,
+  "image_fraction_pct": 2.33,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 1250,
+   "牆／障礙物": 3049,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ },
+ {
+  "name": "S_36.5mm_現行",
+  "offset_mm": 36.5,
+  "pcb_center": [
+   -36.5,
+   -98.5
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": false,
+  "camera": "1F S",
+  "oled_pixels": 0
+ },
+ {
+  "name": "S_29mm",
+  "offset_mm": 29,
+  "pcb_center": [
+   31.1,
+   -100.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F S",
+  "oled_pixels": 0
+ },
+ {
+  "name": "S_28mm",
+  "offset_mm": 28,
+  "pcb_center": [
+   30.1,
+   -100.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F S",
+  "oled_pixels": 0
+ },
+ {
+  "name": "S_26mm",
+  "offset_mm": 26,
+  "pcb_center": [
+   28.1,
+   -100.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F S",
+  "oled_pixels": 0
+ },
+ {
+  "name": "S_23.4mm",
+  "offset_mm": 23.4,
+  "pcb_center": [
+   25.5,
+   -100.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F S",
+  "oled_pixels": 1150,
+  "pixel_box": [
+   0,
+   126,
+   22,
+   236
+  ],
+  "min_angle_from_axis_deg": 52.7,
+  "image_fraction_pct": 0.62,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 0,
+   "牆／障礙物": 1150,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ },
+ {
+  "name": "W_36.5mm_現行",
+  "offset_mm": 36.5,
+  "pcb_center": [
+   -98.5,
+   -36.5
+  ],
+  "screen_up": "E",
+  "slot_cuts_ring_plug": false,
+  "camera": "1F W",
+  "oled_pixels": 0
+ },
+ {
+  "name": "W_29mm",
+  "offset_mm": 29,
+  "pcb_center": [
+   -100.5,
+   31.1
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F W",
+  "oled_pixels": 0
+ },
+ {
+  "name": "W_28mm",
+  "offset_mm": 28,
+  "pcb_center": [
+   -100.5,
+   30.1
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F W",
+  "oled_pixels": 0
+ },
+ {
+  "name": "W_26mm",
+  "offset_mm": 26,
+  "pcb_center": [
+   -100.5,
+   28.1
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F W",
+  "oled_pixels": 0
+ },
+ {
+  "name": "W_23.4mm",
+  "offset_mm": 23.4,
+  "pcb_center": [
+   -100.5,
+   25.5
+  ],
+  "screen_up": "N",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F W",
+  "oled_pixels": 1150,
+  "pixel_box": [
+   553,
+   126,
+   575,
+   236
+  ],
+  "min_angle_from_axis_deg": 52.7,
+  "image_fraction_pct": 0.62,
+  "at_edge": true,
+  "masked_floor_pixels": 0,
+  "behind_oled_pixels": {
+   "天花板": 0,
+   "牆／障礙物": 1150,
+   "走廊地面": 0,
+   "房間地面或其他": 0
+  }
+ }
+]

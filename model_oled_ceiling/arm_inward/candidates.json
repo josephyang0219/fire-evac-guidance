@@ -1,0 +1,86 @@
+[
+ {
+  "name": "N臂_s41_離中心58mm",
+  "offset_mm": 41,
+  "pcb_center": [
+   0.0,
+   55.85
+  ],
+  "screen_up": "S",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F N",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N臂_s50_離中心49mm",
+  "offset_mm": 50,
+  "pcb_center": [
+   0.0,
+   46.85
+  ],
+  "screen_up": "S",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F N",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N臂_s60_離中心39mm",
+  "offset_mm": 60,
+  "pcb_center": [
+   0.0,
+   36.85
+  ],
+  "screen_up": "S",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F N",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N臂_s65_離中心34mm",
+  "offset_mm": 65,
+  "pcb_center": [
+   -2.15,
+   34.0
+  ],
+  "screen_up": "W",
+  "slot_cuts_ring_plug": false,
+  "camera": "1F N",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N臂_s50_從1F_E看",
+  "offset_mm": 50,
+  "pcb_center": [
+   0.0,
+   46.85
+  ],
+  "screen_up": "S",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F E",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N臂_s50_從1F_W看",
+  "offset_mm": 50,
+  "pcb_center": [
+   0.0,
+   46.85
+  ],
+  "screen_up": "S",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F W",
+  "oled_pixels": 0
+ },
+ {
+  "name": "N臂_s50_從1F_S看",
+  "offset_mm": 50,
+  "pcb_center": [
+   0.0,
+   46.85
+  ],
+  "screen_up": "S",
+  "slot_cuts_ring_plug": true,
+  "camera": "1F S",
+  "oled_pixels": 0
+ }
+]

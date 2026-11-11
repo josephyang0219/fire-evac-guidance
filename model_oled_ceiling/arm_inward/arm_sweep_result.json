@@ -1,0 +1,4734 @@
+{
+"N": [
+{
+"s": 0,
+"dist_center": 99.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 1,
+"dist_center": 98.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 2,
+"dist_center": 97.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 3,
+"dist_center": 96.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 4,
+"dist_center": 95.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 5,
+"dist_center": 94.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 6,
+"dist_center": 93.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 7,
+"dist_center": 92.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 8,
+"dist_center": 91.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 9,
+"dist_center": 90.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 10,
+"dist_center": 89.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 11,
+"dist_center": 88.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 12,
+"dist_center": 87.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 13,
+"dist_center": 86.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 14,
+"dist_center": 85.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 15,
+"dist_center": 84.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 16,
+"dist_center": 83.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 17,
+"dist_center": 82.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 18,
+"dist_center": 81.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 19,
+"dist_center": 80.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 20,
+"dist_center": 79.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 21,
+"dist_center": 78.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 22,
+"dist_center": 77.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 23,
+"dist_center": 76.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 24,
+"dist_center": 75.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 25,
+"dist_center": 74.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 26,
+"dist_center": 73.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 27,
+"dist_center": 72.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 28,
+"dist_center": 71.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 29,
+"dist_center": 70.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 30,
+"dist_center": 69.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 31,
+"dist_center": 68.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 32,
+"dist_center": 67.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 33,
+"dist_center": 66.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 34,
+"dist_center": 65.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 35,
+"dist_center": 64.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 36,
+"dist_center": 63.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 37,
+"dist_center": 62.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 38,
+"dist_center": 61.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 39,
+"dist_center": 60.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 40,
+"dist_center": 59.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 41,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+55.85
+],
+"slot": [
+0.0,
+43.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 58.0
+},
+{
+"s": 42,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+54.85
+],
+"slot": [
+0.0,
+42.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 57.0
+},
+{
+"s": 43,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+53.85
+],
+"slot": [
+0.0,
+41.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 56.0
+},
+{
+"s": 44,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+52.85
+],
+"slot": [
+0.0,
+40.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 55.0
+},
+{
+"s": 45,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+51.85
+],
+"slot": [
+0.0,
+39.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 54.0
+},
+{
+"s": 46,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+50.85
+],
+"slot": [
+0.0,
+38.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 53.0
+},
+{
+"s": 47,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+49.85
+],
+"slot": [
+0.0,
+37.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 52.0
+},
+{
+"s": 48,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+48.85
+],
+"slot": [
+0.0,
+36.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 51.0
+},
+{
+"s": 49,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+47.85
+],
+"slot": [
+0.0,
+35.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 50.0
+},
+{
+"s": 50,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+46.85
+],
+"slot": [
+0.0,
+34.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 49.0
+},
+{
+"s": 51,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+45.85
+],
+"slot": [
+0.0,
+33.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 48.0
+},
+{
+"s": 52,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+44.85
+],
+"slot": [
+0.0,
+32.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 47.0
+},
+{
+"s": 53,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+43.85
+],
+"slot": [
+0.0,
+31.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 46.0
+},
+{
+"s": 54,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+42.85
+],
+"slot": [
+0.0,
+30.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 45.0
+},
+{
+"s": 55,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+41.85
+],
+"slot": [
+0.0,
+29.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 44.0
+},
+{
+"s": 56,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+40.85
+],
+"slot": [
+0.0,
+28.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 43.0
+},
+{
+"s": 57,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+39.85
+],
+"slot": [
+0.0,
+27.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 42.0
+},
+{
+"s": 58,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+38.85
+],
+"slot": [
+0.0,
+26.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 41.0
+},
+{
+"s": 59,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+37.85
+],
+"slot": [
+0.0,
+25.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 40.0
+},
+{
+"s": 60,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+36.85
+],
+"slot": [
+0.0,
+24.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 39.0
+},
+{
+"s": 61,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+35.85
+],
+"slot": [
+0.0,
+23.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 38.0
+},
+{
+"s": 62,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+34.85
+],
+"slot": [
+0.0,
+22.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 37.0
+},
+{
+"s": 63,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+33.85
+],
+"slot": [
+0.0,
+21.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 36.0
+},
+{
+"s": 64,
+"lateral": 0,
+"up": "W",
+"pcb": [
+-2.1500000000000004,
+35.0
+],
+"slot": [
+-14.12,
+35.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": false,
+"near_mux": true,
+"cams": {},
+"dist_center": 35.0
+},
+{
+"s": 65,
+"lateral": 0,
+"up": "W",
+"pcb": [
+-2.1500000000000004,
+34.0
+],
+"slot": [
+-14.12,
+34.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": false,
+"near_mux": true,
+"cams": {},
+"dist_center": 34.0
+},
+{
+"s": 66,
+"dist_center": 33.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 67,
+"dist_center": 32.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 68,
+"dist_center": 31.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 69,
+"dist_center": 30.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 70,
+"dist_center": 29.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 71,
+"dist_center": 28.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 72,
+"dist_center": 27.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 73,
+"dist_center": 26.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 74,
+"dist_center": 25.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 75,
+"dist_center": 24.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 76,
+"dist_center": 23.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 77,
+"dist_center": 22.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 78,
+"dist_center": 21.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 79,
+"dist_center": 20.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 80,
+"dist_center": 19.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 81,
+"dist_center": 18.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 82,
+"dist_center": 17.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 83,
+"dist_center": 16.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 84,
+"dist_center": 15.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 85,
+"dist_center": 14.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 86,
+"dist_center": 13.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 87,
+"dist_center": 12.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 88,
+"dist_center": 11.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 89,
+"dist_center": 10.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 90,
+"dist_center": 9.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 91,
+"dist_center": 8.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 92,
+"dist_center": 7.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 93,
+"dist_center": 6.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 94,
+"dist_center": 5.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 95,
+"dist_center": 4.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 96,
+"dist_center": 3.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 97,
+"dist_center": 2.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 98,
+"dist_center": 1.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 99,
+"dist_center": 0.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+}
+],
+"E": [
+{
+"s": 0,
+"dist_center": 99.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 1,
+"dist_center": 98.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 2,
+"dist_center": 97.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 3,
+"dist_center": 96.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 4,
+"dist_center": 95.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 5,
+"dist_center": 94.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 6,
+"dist_center": 93.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 7,
+"dist_center": 92.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 8,
+"dist_center": 91.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 9,
+"dist_center": 90.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 10,
+"dist_center": 89.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 11,
+"dist_center": 88.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 12,
+"dist_center": 87.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 13,
+"dist_center": 86.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 14,
+"dist_center": 85.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 15,
+"dist_center": 84.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 16,
+"dist_center": 83.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 17,
+"dist_center": 82.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 18,
+"dist_center": 81.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 19,
+"dist_center": 80.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 20,
+"dist_center": 79.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 21,
+"dist_center": 78.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 22,
+"dist_center": 77.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 23,
+"dist_center": 76.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 24,
+"dist_center": 75.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 25,
+"dist_center": 74.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 26,
+"dist_center": 73.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 27,
+"dist_center": 72.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 28,
+"dist_center": 71.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 29,
+"dist_center": 70.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 30,
+"dist_center": 69.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 31,
+"dist_center": 68.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 32,
+"dist_center": 67.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 33,
+"dist_center": 66.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 34,
+"dist_center": 65.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 35,
+"dist_center": 64.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 36,
+"dist_center": 63.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 37,
+"dist_center": 62.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 38,
+"dist_center": 61.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 39,
+"dist_center": 60.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 40,
+"dist_center": 59.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 41,
+"lateral": 0,
+"up": "W",
+"pcb": [
+55.85,
+0.0
+],
+"slot": [
+43.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 58.0
+},
+{
+"s": 42,
+"lateral": 0,
+"up": "W",
+"pcb": [
+54.85,
+0.0
+],
+"slot": [
+42.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 57.0
+},
+{
+"s": 43,
+"lateral": 0,
+"up": "W",
+"pcb": [
+53.85,
+0.0
+],
+"slot": [
+41.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 56.0
+},
+{
+"s": 44,
+"lateral": 0,
+"up": "W",
+"pcb": [
+52.85,
+0.0
+],
+"slot": [
+40.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 55.0
+},
+{
+"s": 45,
+"lateral": 0,
+"up": "W",
+"pcb": [
+51.85,
+0.0
+],
+"slot": [
+39.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 54.0
+},
+{
+"s": 46,
+"lateral": 0,
+"up": "W",
+"pcb": [
+50.85,
+0.0
+],
+"slot": [
+38.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 53.0
+},
+{
+"s": 47,
+"lateral": 0,
+"up": "W",
+"pcb": [
+49.85,
+0.0
+],
+"slot": [
+37.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 52.0
+},
+{
+"s": 48,
+"lateral": 0,
+"up": "W",
+"pcb": [
+48.85,
+0.0
+],
+"slot": [
+36.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 51.0
+},
+{
+"s": 49,
+"lateral": 0,
+"up": "W",
+"pcb": [
+47.85,
+0.0
+],
+"slot": [
+35.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 50.0
+},
+{
+"s": 50,
+"lateral": 0,
+"up": "W",
+"pcb": [
+46.85,
+0.0
+],
+"slot": [
+34.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 49.0
+},
+{
+"s": 51,
+"lateral": 0,
+"up": "W",
+"pcb": [
+45.85,
+0.0
+],
+"slot": [
+33.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 48.0
+},
+{
+"s": 52,
+"lateral": 0,
+"up": "W",
+"pcb": [
+44.85,
+0.0
+],
+"slot": [
+32.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 47.0
+},
+{
+"s": 53,
+"lateral": 0,
+"up": "W",
+"pcb": [
+43.85,
+0.0
+],
+"slot": [
+31.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 46.0
+},
+{
+"s": 54,
+"lateral": 0,
+"up": "W",
+"pcb": [
+42.85,
+0.0
+],
+"slot": [
+30.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 45.0
+},
+{
+"s": 55,
+"lateral": 0,
+"up": "W",
+"pcb": [
+41.85,
+0.0
+],
+"slot": [
+29.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 44.0
+},
+{
+"s": 56,
+"lateral": 0,
+"up": "W",
+"pcb": [
+40.85,
+0.0
+],
+"slot": [
+28.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 43.0
+},
+{
+"s": 57,
+"lateral": 0,
+"up": "W",
+"pcb": [
+39.85,
+0.0
+],
+"slot": [
+27.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 42.0
+},
+{
+"s": 58,
+"lateral": 0,
+"up": "W",
+"pcb": [
+38.85,
+0.0
+],
+"slot": [
+26.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 41.0
+},
+{
+"s": 59,
+"lateral": 0,
+"up": "S",
+"pcb": [
+40.0,
+-2.1500000000000004
+],
+"slot": [
+40.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 40.0
+},
+{
+"s": 60,
+"lateral": 0,
+"up": "S",
+"pcb": [
+39.0,
+-2.1500000000000004
+],
+"slot": [
+39.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 39.0
+},
+{
+"s": 61,
+"lateral": 0,
+"up": "S",
+"pcb": [
+38.0,
+-2.1500000000000004
+],
+"slot": [
+38.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 38.0
+},
+{
+"s": 62,
+"lateral": 0,
+"up": "S",
+"pcb": [
+37.0,
+-2.1500000000000004
+],
+"slot": [
+37.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 37.0
+},
+{
+"s": 63,
+"lateral": 0,
+"up": "S",
+"pcb": [
+36.0,
+-2.1500000000000004
+],
+"slot": [
+36.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 36.0
+},
+{
+"s": 64,
+"lateral": 0,
+"up": "S",
+"pcb": [
+35.0,
+-2.1500000000000004
+],
+"slot": [
+35.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 35.0
+},
+{
+"s": 65,
+"lateral": 0,
+"up": "S",
+"pcb": [
+34.0,
+-2.1500000000000004
+],
+"slot": [
+34.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 34.0
+},
+{
+"s": 66,
+"lateral": 0,
+"up": "S",
+"pcb": [
+33.0,
+-2.1500000000000004
+],
+"slot": [
+33.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 33.0
+},
+{
+"s": 67,
+"lateral": 0,
+"up": "S",
+"pcb": [
+32.0,
+-2.1500000000000004
+],
+"slot": [
+32.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 32.0
+},
+{
+"s": 68,
+"lateral": 0,
+"up": "S",
+"pcb": [
+31.0,
+-2.1500000000000004
+],
+"slot": [
+31.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 31.0
+},
+{
+"s": 69,
+"lateral": 0,
+"up": "S",
+"pcb": [
+30.0,
+-2.1500000000000004
+],
+"slot": [
+30.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 30.0
+},
+{
+"s": 70,
+"lateral": 0,
+"up": "E",
+"pcb": [
+31.15,
+0.0
+],
+"slot": [
+43.12,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 29.0
+},
+{
+"s": 71,
+"lateral": 0,
+"up": "E",
+"pcb": [
+30.15,
+0.0
+],
+"slot": [
+42.12,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 28.0
+},
+{
+"s": 72,
+"lateral": 0,
+"up": "E",
+"pcb": [
+29.15,
+0.0
+],
+"slot": [
+41.12,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 27.0
+},
+{
+"s": 73,
+"lateral": 0,
+"up": "E",
+"pcb": [
+28.15,
+0.0
+],
+"slot": [
+40.12,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 26.0
+},
+{
+"s": 74,
+"dist_center": 25.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 75,
+"dist_center": 24.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 76,
+"dist_center": 23.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 77,
+"dist_center": 22.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 78,
+"dist_center": 21.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 79,
+"dist_center": 20.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 80,
+"dist_center": 19.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 81,
+"dist_center": 18.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 82,
+"dist_center": 17.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 83,
+"dist_center": 16.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 84,
+"dist_center": 15.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 85,
+"dist_center": 14.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 86,
+"dist_center": 13.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 87,
+"dist_center": 12.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 88,
+"dist_center": 11.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 89,
+"dist_center": 10.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 90,
+"dist_center": 9.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 91,
+"dist_center": 8.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 92,
+"dist_center": 7.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 93,
+"dist_center": 6.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 94,
+"dist_center": 5.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 95,
+"dist_center": 4.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 96,
+"dist_center": 3.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 97,
+"dist_center": 2.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 98,
+"dist_center": 1.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 99,
+"dist_center": 0.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+}
+],
+"S": [
+{
+"s": 0,
+"dist_center": 99.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 1,
+"dist_center": 98.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 2,
+"dist_center": 97.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 3,
+"dist_center": 96.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 4,
+"dist_center": 95.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 5,
+"dist_center": 94.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 6,
+"dist_center": 93.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 7,
+"dist_center": 92.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 8,
+"dist_center": 91.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 9,
+"dist_center": 90.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 10,
+"dist_center": 89.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 11,
+"dist_center": 88.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 12,
+"dist_center": 87.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 13,
+"dist_center": 86.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 14,
+"dist_center": 85.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 15,
+"dist_center": 84.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 16,
+"dist_center": 83.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 17,
+"dist_center": 82.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 18,
+"dist_center": 81.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 19,
+"dist_center": 80.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 20,
+"dist_center": 79.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 21,
+"dist_center": 78.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 22,
+"dist_center": 77.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 23,
+"dist_center": 76.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 24,
+"dist_center": 75.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 25,
+"dist_center": 74.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 26,
+"dist_center": 73.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 27,
+"dist_center": 72.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 28,
+"dist_center": 71.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 29,
+"dist_center": 70.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 30,
+"dist_center": 69.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 31,
+"dist_center": 68.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 32,
+"dist_center": 67.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 33,
+"dist_center": 66.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 34,
+"dist_center": 65.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 35,
+"dist_center": 64.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 36,
+"dist_center": 63.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 37,
+"dist_center": 62.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 38,
+"dist_center": 61.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 39,
+"dist_center": 60.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 40,
+"dist_center": 59.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 41,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-55.85
+],
+"slot": [
+0.0,
+-43.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 58.0
+},
+{
+"s": 42,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-54.85
+],
+"slot": [
+0.0,
+-42.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 57.0
+},
+{
+"s": 43,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-53.85
+],
+"slot": [
+0.0,
+-41.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 56.0
+},
+{
+"s": 44,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-52.85
+],
+"slot": [
+0.0,
+-40.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 55.0
+},
+{
+"s": 45,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-51.85
+],
+"slot": [
+0.0,
+-39.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 54.0
+},
+{
+"s": 46,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-50.85
+],
+"slot": [
+0.0,
+-38.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 53.0
+},
+{
+"s": 47,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-49.85
+],
+"slot": [
+0.0,
+-37.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 52.0
+},
+{
+"s": 48,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-48.85
+],
+"slot": [
+0.0,
+-36.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 51.0
+},
+{
+"s": 49,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-47.85
+],
+"slot": [
+0.0,
+-35.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 50.0
+},
+{
+"s": 50,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-46.85
+],
+"slot": [
+0.0,
+-34.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 49.0
+},
+{
+"s": 51,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-45.85
+],
+"slot": [
+0.0,
+-33.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 48.0
+},
+{
+"s": 52,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-44.85
+],
+"slot": [
+0.0,
+-32.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 47.0
+},
+{
+"s": 53,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-43.85
+],
+"slot": [
+0.0,
+-31.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 46.0
+},
+{
+"s": 54,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-42.85
+],
+"slot": [
+0.0,
+-30.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 45.0
+},
+{
+"s": 55,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-41.85
+],
+"slot": [
+0.0,
+-29.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 44.0
+},
+{
+"s": 56,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-40.85
+],
+"slot": [
+0.0,
+-28.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 43.0
+},
+{
+"s": 57,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-39.85
+],
+"slot": [
+0.0,
+-27.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 42.0
+},
+{
+"s": 58,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-38.85
+],
+"slot": [
+0.0,
+-26.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 41.0
+},
+{
+"s": 59,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-37.85
+],
+"slot": [
+0.0,
+-25.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 40.0
+},
+{
+"s": 60,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-36.85
+],
+"slot": [
+0.0,
+-24.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 39.0
+},
+{
+"s": 61,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-35.85
+],
+"slot": [
+0.0,
+-23.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 38.0
+},
+{
+"s": 62,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-34.85
+],
+"slot": [
+0.0,
+-22.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 37.0
+},
+{
+"s": 63,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-33.85
+],
+"slot": [
+0.0,
+-21.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 36.0
+},
+{
+"s": 64,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-32.85
+],
+"slot": [
+0.0,
+-20.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 35.0
+},
+{
+"s": 65,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-31.85
+],
+"slot": [
+0.0,
+-19.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 34.0
+},
+{
+"s": 66,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-30.85
+],
+"slot": [
+0.0,
+-18.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 33.0
+},
+{
+"s": 67,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-29.85
+],
+"slot": [
+0.0,
+-17.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 32.0
+},
+{
+"s": 68,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-28.85
+],
+"slot": [
+0.0,
+-16.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 31.0
+},
+{
+"s": 69,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-27.85
+],
+"slot": [
+0.0,
+-15.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 30.0
+},
+{
+"s": 70,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-26.85
+],
+"slot": [
+0.0,
+-14.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 29.0
+},
+{
+"s": 71,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-25.85
+],
+"slot": [
+0.0,
+-13.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 28.0
+},
+{
+"s": 72,
+"lateral": 0,
+"up": "N",
+"pcb": [
+0.0,
+-24.85
+],
+"slot": [
+0.0,
+-12.88
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 27.0
+},
+{
+"s": 73,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+-28.15
+],
+"slot": [
+0.0,
+-40.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 26.0
+},
+{
+"s": 74,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+-27.15
+],
+"slot": [
+0.0,
+-39.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 25.0
+},
+{
+"s": 75,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+-26.15
+],
+"slot": [
+0.0,
+-38.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 24.0
+},
+{
+"s": 76,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+-25.15
+],
+"slot": [
+0.0,
+-37.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 23.0
+},
+{
+"s": 77,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+-24.15
+],
+"slot": [
+0.0,
+-36.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 22.0
+},
+{
+"s": 78,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+-23.15
+],
+"slot": [
+0.0,
+-35.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 21.0
+},
+{
+"s": 79,
+"lateral": 0,
+"up": "S",
+"pcb": [
+0.0,
+-22.15
+],
+"slot": [
+0.0,
+-34.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": true,
+"near_mux": false,
+"cams": {},
+"dist_center": 20.0
+},
+{
+"s": 80,
+"dist_center": 19.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 81,
+"dist_center": 18.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 82,
+"dist_center": 17.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 83,
+"dist_center": 16.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 84,
+"dist_center": 15.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 85,
+"dist_center": 14.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 86,
+"dist_center": 13.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 87,
+"dist_center": 12.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 88,
+"dist_center": 11.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 89,
+"dist_center": 10.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 90,
+"dist_center": 9.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 91,
+"dist_center": 8.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 92,
+"dist_center": 7.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 93,
+"dist_center": 6.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 94,
+"dist_center": 5.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 95,
+"dist_center": 4.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 96,
+"dist_center": 3.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 97,
+"dist_center": 2.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 98,
+"dist_center": 1.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 99,
+"dist_center": 0.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+}
+],
+"W": [
+{
+"s": 0,
+"dist_center": 99.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 1,
+"dist_center": 98.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 2,
+"dist_center": 97.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 3,
+"dist_center": 96.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 4,
+"dist_center": 95.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 5,
+"dist_center": 94.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 6,
+"dist_center": 93.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 7,
+"dist_center": 92.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 8,
+"dist_center": 91.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 9,
+"dist_center": 90.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 10,
+"dist_center": 89.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 11,
+"dist_center": 88.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 12,
+"dist_center": 87.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 13,
+"dist_center": 86.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 14,
+"dist_center": 85.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 15,
+"dist_center": 84.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 16,
+"dist_center": 83.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 17,
+"dist_center": 82.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 18,
+"dist_center": 81.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 19,
+"dist_center": 80.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 20,
+"dist_center": 79.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 21,
+"dist_center": 78.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 22,
+"dist_center": 77.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 23,
+"dist_center": 76.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 24,
+"dist_center": 75.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 25,
+"dist_center": 74.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 26,
+"dist_center": 73.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 27,
+"dist_center": 72.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 28,
+"dist_center": 71.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 29,
+"dist_center": 70.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 30,
+"dist_center": 69.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 31,
+"dist_center": 68.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 32,
+"dist_center": 67.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 33,
+"dist_center": 66.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 34,
+"dist_center": 65.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 35,
+"dist_center": 64.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 36,
+"dist_center": 63.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 37,
+"dist_center": 62.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 38,
+"dist_center": 61.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 39,
+"dist_center": 60.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 40,
+"dist_center": 59.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED",
+"長孔上方是麵包板座（沒有母座空間）",
+"長孔碰到排線溝／孔／中心長孔"
+]
+},
+{
+"s": 41,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-55.85,
+0.0
+],
+"slot": [
+-43.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 58.0
+},
+{
+"s": 42,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-54.85,
+0.0
+],
+"slot": [
+-42.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 57.0
+},
+{
+"s": 43,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-53.85,
+0.0
+],
+"slot": [
+-41.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 56.0
+},
+{
+"s": 44,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-52.85,
+0.0
+],
+"slot": [
+-40.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 55.0
+},
+{
+"s": 45,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-51.85,
+0.0
+],
+"slot": [
+-39.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 54.0
+},
+{
+"s": 46,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-50.85,
+0.0
+],
+"slot": [
+-38.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 53.0
+},
+{
+"s": 47,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-49.85,
+0.0
+],
+"slot": [
+-37.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 52.0
+},
+{
+"s": 48,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-48.85,
+0.0
+],
+"slot": [
+-36.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 51.0
+},
+{
+"s": 49,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-47.85,
+0.0
+],
+"slot": [
+-35.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 50.0
+},
+{
+"s": 50,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-46.85,
+0.0
+],
+"slot": [
+-34.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 49.0
+},
+{
+"s": 51,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-45.85,
+0.0
+],
+"slot": [
+-33.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 48.0
+},
+{
+"s": 52,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-44.85,
+0.0
+],
+"slot": [
+-32.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 47.0
+},
+{
+"s": 53,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-43.85,
+0.0
+],
+"slot": [
+-31.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 46.0
+},
+{
+"s": 54,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-42.85,
+0.0
+],
+"slot": [
+-30.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 45.0
+},
+{
+"s": 55,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-41.85,
+0.0
+],
+"slot": [
+-29.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 44.0
+},
+{
+"s": 56,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-40.85,
+0.0
+],
+"slot": [
+-28.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 43.0
+},
+{
+"s": 57,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-39.85,
+0.0
+],
+"slot": [
+-27.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 42.0
+},
+{
+"s": 58,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-38.85,
+0.0
+],
+"slot": [
+-26.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 41.0
+},
+{
+"s": 59,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-37.85,
+0.0
+],
+"slot": [
+-25.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 40.0
+},
+{
+"s": 60,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-36.85,
+0.0
+],
+"slot": [
+-24.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 39.0
+},
+{
+"s": 61,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-35.85,
+0.0
+],
+"slot": [
+-23.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 38.0
+},
+{
+"s": 62,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-34.85,
+0.0
+],
+"slot": [
+-22.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 37.0
+},
+{
+"s": 63,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-33.85,
+0.0
+],
+"slot": [
+-21.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 36.0
+},
+{
+"s": 64,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-32.85,
+0.0
+],
+"slot": [
+-20.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 35.0
+},
+{
+"s": 65,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-31.85,
+0.0
+],
+"slot": [
+-19.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 34.0
+},
+{
+"s": 66,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-30.85,
+0.0
+],
+"slot": [
+-18.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 33.0
+},
+{
+"s": 67,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-29.85,
+0.0
+],
+"slot": [
+-17.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 32.0
+},
+{
+"s": 68,
+"lateral": 0,
+"up": "E",
+"pcb": [
+-28.85,
+0.0
+],
+"slot": [
+-16.88,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 31.0
+},
+{
+"s": 69,
+"lateral": 0,
+"up": "S",
+"pcb": [
+-30.0,
+-2.1500000000000004
+],
+"slot": [
+-30.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 30.0
+},
+{
+"s": 70,
+"lateral": 0,
+"up": "S",
+"pcb": [
+-29.0,
+-2.1500000000000004
+],
+"slot": [
+-29.0,
+-14.12
+],
+"hx": 13.9,
+"hy": 13.65,
+"slot_in_plug": false,
+"near_mux": false,
+"cams": {},
+"dist_center": 29.0
+},
+{
+"s": 71,
+"lateral": 0,
+"up": "W",
+"pcb": [
+-30.15,
+0.0
+],
+"slot": [
+-42.12,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 28.0
+},
+{
+"s": 72,
+"lateral": 0,
+"up": "W",
+"pcb": [
+-29.15,
+0.0
+],
+"slot": [
+-41.12,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 27.0
+},
+{
+"s": 73,
+"lateral": 0,
+"up": "W",
+"pcb": [
+-28.15,
+0.0
+],
+"slot": [
+-40.12,
+0.0
+],
+"hx": 13.65,
+"hy": 13.9,
+"slot_in_plug": true,
+"near_mux": true,
+"cams": {},
+"dist_center": 26.0
+},
+{
+"s": 74,
+"dist_center": 25.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 75,
+"dist_center": 24.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 76,
+"dist_center": 23.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 77,
+"dist_center": 22.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 78,
+"dist_center": 21.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 79,
+"dist_center": 20.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 80,
+"dist_center": 19.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 81,
+"dist_center": 18.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 82,
+"dist_center": 17.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 83,
+"dist_center": 16.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 84,
+"dist_center": 15.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 85,
+"dist_center": 14.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 86,
+"dist_center": 13.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 87,
+"dist_center": 12.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 88,
+"dist_center": 11.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 89,
+"dist_center": 10.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 90,
+"dist_center": 9.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 91,
+"dist_center": 8.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 92,
+"dist_center": 7.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 93,
+"dist_center": 6.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 94,
+"dist_center": 5.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 95,
+"dist_center": 4.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 96,
+"dist_center": 3.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 97,
+"dist_center": 2.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 98,
+"dist_center": 1.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+},
+{
+"s": 99,
+"dist_center": 0.0,
+"feasible": false,
+"reasons": [
+"模組碰到鏡頭孔／牆／中心 OLED"
+]
+}
+]
+}
