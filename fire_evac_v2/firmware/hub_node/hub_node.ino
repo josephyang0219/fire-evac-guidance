@@ -13,8 +13,10 @@
     blink      1 = flash the displays (console "閃燈" button, to find this board physically)
     snap       1 = also upload a JPEG snapshot (console preview / "遮鏡頭指認" wizard)
 
-  Which junction OLEDs a board drives is the OLED_MAP table below (by slot), not the server:
-  the OLED wiring is not final yet, so change the table, not the code. See README.md.
+  Which junction OLED a board drives is the OLED_MAP table below (by slot), not the server. 1F layout (2026-11-10):
+  each camera HUB drives ONE corner OLED on Wire (N -> J(-1,1), E -> J(1,1), S -> J(1,-1), W -> J(-1,-1));
+  the centre and the 4 edge middles are on the 5th, display-only HUB (firmware/hub_oled5). See README.md.
+  Displays are drawn by the EvacOled library (oled_fw/libraries/EvacOled, pass it with --library).
 
   Board package: Realtek AmebaPro2 (Arduino IDE). Model: our yolov7_tiny.nb swapped into the SDK (DEFAULT_YOLOV7TINY), Tools -> NN Model Load from: Flash.
 */
@@ -22,6 +24,7 @@
 #include "StreamIO.h"
 #include "VideoStream.h"
 #include "NNObjectDetection.h"
+#include <EvacOled.h>
 // No ObjectClassList.h: the board only sends class indices; the server maps them to names (evac.CLASSES).
 
 // ---------- same for every board ----------
@@ -29,50 +32,48 @@ const char* SSID = "FireDemo";          // laptop hotspot
 const char* PASS = "firedemo123";
 const char* SERVER = "192.168.137.1";   // laptop address on the hotspot
 const int   PORT = 8000;
-const char* FW = "2.1";
+const char* FW = "2.2";
 
-// ---------- junction OLEDs: which displays this position drives (EDIT HERE) ----------
-// One row per OLED. slot = console position (1N 1W 1S 1E 2N ...), junction = id the server sends,
-// bus/addr = where the display sits (0 = Wire, 1 = Wire1; SSD1306 0x3C or 0x3D). A slot may own 0..MAX_OWN rows.
-// PROVISIONAL: follows the 1f-9-oled layout (edge middle on 0x3C, corner on 0x3D, all on Wire) -- not decided yet.
-// No OLED at the centre J(0,0) (decided 2026-11-05); the server still sends its direction for the console / slides.
-struct OledSlot { const char* slot; const char* junction; uint8_t bus; uint8_t addr; };
-const OledSlot OLED_MAP[] = {
-  {"1N", "J(0,1)",   0, 0x3C}, {"1N", "J(-1,1)",  0, 0x3D},
-  {"1E", "J(1,0)",   0, 0x3C}, {"1E", "J(1,1)",   0, 0x3D},
-  {"1S", "J(0,-1)",  0, 0x3C}, {"1S", "J(1,-1)",  0, 0x3D},
-  {"1W", "J(-1,0)",  0, 0x3C}, {"1W", "J(-1,-1)", 0, 0x3D},
+// ---------- junction OLEDs: which display this position drives (EDIT HERE) ----------
+// One row per OLED: slot = console position (1N 1W 1S 1E 2N ...) + an EvacOled SlotConfig whose id is the junction id
+// the server sends. One display per bus -> factory address 0x3C; build with -DEVAC_CORNER_ADDR=0x3D to go back.
+#ifndef EVAC_CORNER_ADDR
+#define EVAC_CORNER_ADDR 0x3C
+#endif
+using namespace evac;
+// top / ceiling: screen top edge points north and the panel faces down (seen from below) -- fix once mounted
+#define OLED(id, bus, addr, ch) {id, bus, addr, ch, Panel::P128x64, Compass::N, true}
+struct SlotOled { const char* slot; SlotConfig cfg; };
+const SlotOled OLED_MAP[] = {
+  {"1N", OLED("J(-1,1)",  Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
+  {"1E", OLED("J(1,1)",   Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
+  {"1S", OLED("J(1,-1)",  Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
+  {"1W", OLED("J(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
 };
-const int N_MAP = sizeof(OLED_MAP) / sizeof(OledSlot);
-const unsigned long LINK_TIMEOUT_MS = 3000;   // no reply this long -> displays show "--" (link lost), not a stale arrow
+const int N_MAP = sizeof(OLED_MAP) / sizeof(SlotOled);
+const unsigned long LINK_TIMEOUT_MS = 3000;   // no reply this long -> displays go dark (no stale arrow)
 
 #define MAX_OWN 4
-int own[MAX_OWN]; String shown[MAX_OWN]; int N_OWN = 0;   // OLED_MAP rows of this slot + what each one shows now
+SlotConfig own[MAX_OWN]; int N_OWN = 0;       // this slot's displays (EvacOled keeps a pointer to this array)
+EvacOled oled;
 String mySlot = "?";                 // "?" = nothing received yet, so the first reply always runs defineSlot()
 unsigned long lastReply = 0;
-
-// Output hook: the OLED sketch replaces this with real drawing (bus/addr from the row). Called only on change.
-// dir: N S E W UP DOWN X, "--" = no data from the server, "WAIT" = no position assigned, "BLINK" = 閃燈 on-phase.
-void showDirection(const OledSlot& o, const String& dir) {
-  Serial.print("[OLED "); Serial.print(o.bus); Serial.print(" 0x"); Serial.print(o.addr, HEX); Serial.print("] ");
-  Serial.print(o.junction); Serial.print(" -> "); Serial.println(dir);
-}
-
-void setDisplay(int k, const String& dir) { if (shown[k] != dir) { shown[k] = dir; showDirection(OLED_MAP[own[k]], dir); } }
+bool linkLost = false;
 
 void defineSlot(const String& slot) {
+  oled.setAll(Sign::Off); oled.update();      // blank the old position's displays before re-pointing the library
   mySlot = slot; N_OWN = 0;
   for (int r = 0; r < N_MAP && N_OWN < MAX_OWN; r++)
-    if (slot == OLED_MAP[r].slot) { own[N_OWN] = r; shown[N_OWN] = ""; N_OWN++; }
-  Serial.print("slot "); Serial.print(slot.length() ? slot : String("(none)")); Serial.print(", OLEDs "); Serial.println(N_OWN);
+    if (slot == OLED_MAP[r].slot) own[N_OWN++] = OLED_MAP[r].cfg;
+  uint8_t ok = oled.begin(own, N_OWN);
+  Serial.print("slot "); Serial.print(slot.length() ? slot : String("(none)"));
+  Serial.print(", OLEDs "); Serial.print(ok); Serial.print("/"); Serial.println(N_OWN);
 }
 
-// direction for one junction id in the reply: ..."id":"J(0,1)","dir":"N"...  ("" if missing)
-String junctionDir(const String& resp, const char* id) {
-  int p = resp.indexOf(String("\"id\":\"") + id + "\",\"dir\":\"");
-  if (p < 0) return "";
-  p += strlen(id) + 15; int q = resp.indexOf('"', p);
-  return q < 0 ? "" : resp.substring(p, q);
+// log every display change on the serial port: [OLED J(1,1)] -> W
+void logChanges(const Sign* before) {
+  for (int k = 0; k < N_OWN; k++)
+    if (oled.sign(k) != before[k]) { Serial.print("[OLED "); Serial.print(own[k].id); Serial.print("] -> "); Serial.println(signName(oled.sign(k))); }
 }
 
 // ---------- camera: channel 0 = small JPEG for snapshots, channel 1 = RGB for the NPU ----------
@@ -141,22 +142,24 @@ void loop() {
   body += "]}";
   String resp = httpPost(String("/api/dev/") + macStr + "/detections", "application/json", (const uint8_t*)body.c_str(), body.length());
 
-  if (resp.length()) {
-    lastReply = millis();
+  Sign before[MAX_OWN];
+  for (int k = 0; k < N_OWN; k++) before[k] = oled.sign(k);
+  if (resp.indexOf("\"slot\":") >= 0) {
     String slot = jStr(resp, "slot");
     if (slot != mySlot) defineSlot(slot);
-    if (jInt(resp, "blink")) for (int k = 0; k < N_OWN; k++) setDisplay(k, (millis() / 250) % 2 ? "BLINK" : "--");   // "閃燈"
-    else if (!slot.length()) for (int k = 0; k < N_OWN; k++) setDisplay(k, "WAIT");
-    else for (int k = 0; k < N_OWN; k++) {
-      String d = junctionDir(resp, OLED_MAP[own[k]].junction);
-      setDisplay(k, d.length() ? d : "--");
-    }
+    if (!slot.length()) oled.setAll(Sign::Off);                                   // not assigned yet: dark
+    int n = slot.length() ? oled.applyJson(resp.c_str()) : 0;                    // picks out our junction id(s)
+    if (!slot.length() || n >= N_OWN) { lastReply = millis(); linkLost = false; } // a cut-off reply doesn't count
+    bool blink = jInt(resp, "blink");                                            // "閃燈": current sign blinks
+    for (int k = 0; k < N_OWN; k++) oled.setIndex(k, blink && oled.sign(k) == Sign::Off ? Sign::Blocked : oled.sign(k), blink);
     if (jInt(resp, "snap") && millis() - lastSnap > 700) {                         // snapshot only when the console asks
       uint32_t addr = 0, len = 0; Camera.getImage(0, &addr, &len);
       if (len) httpPost(String("/api/dev/") + macStr + "/frame", "image/jpeg", (const uint8_t*)addr, len);
       lastSnap = millis();
     }
   }
-  if (millis() - lastReply > LINK_TIMEOUT_MS) for (int k = 0; k < N_OWN; k++) setDisplay(k, "--");
+  if (millis() - lastReply > LINK_TIMEOUT_MS && !linkLost) { linkLost = true; oled.setAll(Sign::Off); Serial.println("link lost"); }
+  logChanges(before);
+  oled.update();
   delay(150);
 }

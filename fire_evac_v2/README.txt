@@ -7,6 +7,8 @@
   firmware/hub_model_test/     【第二步】本組模型上機測試（要先放 yolov7_tiny.nb）
   firmware/hub_node/           正式節點程式：4 塊（或 8 塊）板子燒同一份
                                1F 9 個路口的方向協定與 OLED 設定表見 firmware/hub_node/README.md
+  firmware/hub_oled5/          第 5 台 HUB（H5）：只驅動 1F 中心＋4 個邊中點共 5 塊 OLED（TCA9548A），不跑鏡頭
+                               兩份都要用 --library ../oled_fw/libraries/EvacOled 編譯
   model/best_reparam.pt        訓練好的 YOLOv7-tiny（6 類，以 416 訓練、已重參數化；轉 .nb 時輸入尺寸填 576×320）
   model/yolov7-tiny-fire-deploy.yaml   上面權重對應的模型結構
   sim/                         路徑規劃核心（evac.py）與模擬
@@ -48,7 +50,7 @@ Arduino IDE → 工具：
      還沒指派位置時，序列埠印 slot (none)（之後 OLED 顯示「等待指派」）
   3. 指派位置，三種方式任選：
      a. 下拉選單直接選 1F 北／西／南／東（同一位置只能一塊，選了會把原本的擠掉）
-     b. 不知道哪塊是哪塊 → 按「閃燈」，那塊板子的 OLED 閃 6 秒（OLED 韌體完成前只有序列埠訊息）
+     b. 不知道哪塊是哪塊 → 按「閃燈」，那塊板子的角落 OLED 閃 6 秒
      c. 遮鏡頭自動指認：按下後依提示「請用手遮住 1F 北 的鏡頭」，
         用手蓋住那個位置的鏡頭約 2 秒，畫面變暗的板子就自動被指派過去，接著下一個位置
   4. 「畫面」可看該板目前拍到的影像；「移除」把板子從清單刪掉

@@ -6,6 +6,8 @@ HUBs   -> POST /api/hub/{hub}/detections   (legacy, fixed position in the sketch
        -> POST /api/hub/{hub}/frame        a JPEG snapshot (for the live-view button)
        <- GET  /api/hub/{hub}/leds         directions for the 2-3 LEDs this HUB drives (legacy)
 Any    <- GET  /api/junctions              1F: one direction per junction, [{"id":"J(-1,1)","dir":"N"}, ...]
+H5     <- GET  /api/junctions?node=H5&seq=N&fw=..   same reply; the query is the display node's heartbeat
+Any    <- GET  /api/displays               display-only nodes (H5): online, age, loss, ip, fw (also "displays" in the state)
 Every detections reply carries both "junctions" (new, for the ceiling OLEDs) and "leds" (old, kept for compatibility).
 Phones <-> WS /ws                          state broadcast, position / role updates, developer commands
 
@@ -26,7 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 HUB_LEDS = {"N": [(0, 1), (-1, 1)], "W": [(-1, 0), (-1, -1)], "S": [(0, -1), (1, -1)], "E": [(1, 0), (1, 1), (0, 0)]}
 
 app = FastAPI()
-S = dict(dets={}, hubs={}, frames={}, clients={}, people={}, edits={}, cams_off=set(), stairs={"W": True, "E": True},
+S = dict(dets={}, hubs={}, displays={}, frames={}, clients={}, people={}, edits={}, cams_off=set(), stairs={"W": True, "E": True},
          sim=None, step=0, note="即時模式", t0=time.time(), state=None, prev=None)
 COV = None
 SLOTS = [f"{fl}{c}" for fl in (1, 2) for c in ("N", "W", "S", "E")]
@@ -129,7 +131,7 @@ def compute():
     step = dict(t=time.strftime("%M:%S", time.gmtime(time.time() - S["t0"])) if not S["sim"] else S["sim"][S["step"]]["t"], note=S["note"])
     js = ST.to_json(step, st, leds, online, people=people, net=net_stats())
     js["dets"] = {f"{k[0]}{k[1]}": v for k, v in S["dets"].items()}
-    js["devices"] = dev_list(); js["wizard"] = wiz_state(); js["junctions"] = E.junctions(leds)
+    js["devices"] = dev_list(); js["wizard"] = wiz_state(); js["junctions"] = E.junctions(leds); js["displays"] = display_list()
     S["state"], S["leds"] = js, leds
     return js
 
@@ -229,9 +231,25 @@ def hub_leds(hub):
     return {"leds": [leds.get((fl,) + ij, ("X", None))[0] for ij in HUB_LEDS[c]], "junctions": E.junctions(leds)}
 
 
+def display_list():
+    now = time.time()
+    return {n: dict(online=now - d["last"] < 5, age=round(now - d["last"], 1), loss=round(100 * d["lost"] / max(1, d["n"] + d["lost"]), 1),
+                    n=d["n"], ip=d["ip"], fw=d["fw"]) for n, d in S["displays"].items()}
+
+
 @app.get("/api/junctions")
-async def get_junctions():
+async def get_junctions(req: Request, node: str = "", seq: int = -1, fw: str = ""):
+    if node:                            # a display-only node (H5) polling: remember it as a heartbeat
+        d = S["displays"].setdefault(node[:16], dict(n=0, lost=0, seq=None, last=0, ip="", fw=""))
+        if d["seq"] is not None and seq > d["seq"] + 1:
+            d["lost"] += seq - d["seq"] - 1
+        d.update(n=d["n"] + 1, seq=seq, last=time.time(), fw=fw[:16], ip=req.client.host if req.client else "")
     return JSONResponse({"junctions": E.junctions(S.get("leds") or {})})
+
+
+@app.get("/api/displays")
+async def get_displays():
+    return JSONResponse({"displays": display_list()})
 
 
 @app.get("/api/hub/{hub}/leds")

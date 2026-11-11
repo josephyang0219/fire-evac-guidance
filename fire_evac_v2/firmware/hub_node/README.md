@@ -1,8 +1,19 @@
 # 路口方向協定（1F 天花板 9 塊 OLED）
 
 舊版是「每台 HUB 驅動 2～3 個路口的 LED」，伺服器依照板子位置回傳固定順序的 `leds` 陣列。
-新版改成**伺服器只回傳 9 個路口各自的方向**，每台 HUB 用韌體裡的設定表 `OLED_MAP`，
-自己挑出要顯示的那幾個路口。OLED 怎麼分配給 HUB 還沒定案，所以分配只寫在設定表裡，伺服器不用改。
+新版改成**伺服器只回傳 9 個路口各自的方向**，每台板子用韌體裡的設定表自己挑出要顯示的路口，伺服器不管分配。
+
+1F 定案布置（2026-11-10）：
+
+| 板子 | 韌體 | 顯示的路口 | 接法 |
+|---|---|---|---|
+| 鏡頭 HUB 1N | `hub_node` | J(-1,1) 西北 | Wire 直接接 1 塊，0x3C |
+| 鏡頭 HUB 1E | `hub_node` | J(1,1) 東北 | 同上 |
+| 鏡頭 HUB 1S | `hub_node` | J(1,-1) 東南 | 同上 |
+| 鏡頭 HUB 1W | `hub_node` | J(-1,-1) 西南 | 同上 |
+| **H5**（只驅動 OLED，不跑鏡頭和模型） | `hub_oled5` | J(0,0) 中、J(0,1) 北、J(1,0) 東、J(0,-1) 南、J(-1,0) 西 | Wire 上的 TCA9548A（0x70），ch0..ch4，全部 0x3C |
+
+螢幕都由 EvacOled 函式庫驅動（`oled_fw/libraries/EvacOled`，從 8735-oled 的 ad032855 帶進來，沒有修改）。
 
 ## 1. 路口編號
 
@@ -29,14 +40,21 @@
 | `UP` / `DOWN` | 從這裡的樓梯上樓／下樓（只會出現在兩個樓梯路口） | 樓梯圖示＋上／下 |
 | `X` | 沒有安全路線（例如兩個出口都被封住） | 叉叉，或「原地待援」 |
 
-另外有兩個韌體自己產生的狀態，伺服器不會送：
+### 沒有方向時的預設畫面：全黑
 
-- `--`：超過 3 秒（`LINK_TIMEOUT_MS`）沒收到伺服器回應。顯示「連線中斷」，不要停在舊的箭頭。
-- `WAIT`：這塊板子還沒在中控台被指派位置。
-- `BLINK`：中控台按了「閃燈」，跟 `--` 每 250 ms 交替，用來找出是哪塊板子。
+| 情況 | 鏡頭 HUB（`hub_node`） | H5（`hub_oled5`） |
+|---|---|---|
+| 開機、還沒收到第一筆回應 | 全黑 | 全黑 |
+| 超過 3 秒（`LINK_TIMEOUT_MS`）沒有有效回應：Wi-Fi 斷、伺服器關掉、回應不完整 | 全黑（回應裡要找得到自己的路口才算有效） | 全黑（5 個路口要全部找得到才算有效） |
+| 還沒在中控台指派位置 | 全黑 | —（H5 不用指派） |
+| 中控台按「閃燈」 | 目前的方向閃爍；還沒有方向就閃 X | — |
 
-> 注意：OLED 裝在天花板上，人是**從下面往上看**。韌體裡的 N/S/E/W 是地圖方位；
-> 要依照每塊 OLED 實際的安裝方向，把它換算成螢幕上的箭頭方向（左右會鏡像），這件事交給 OLED 韌體處理。
+選全黑的理由：斷線時伺服器已經看不到現場。如果停在舊的箭頭，可能把人帶往斷線後才起火的地方；
+如果顯示 X，又等於告訴大家「沒有出路」，可能讓人原地不動。全黑代表「這裡沒有指引」，大家會改看其他還亮著的螢幕。
+序列埠會印 `link lost`，方便除錯。
+
+> 注意：OLED 裝在天花板上，人是**從下面往上看**。伺服器的 N/S/E/W 是地圖方位；換算成螢幕上的箭頭由 EvacOled 處理，
+> 依據是每塊的 `top`（螢幕上緣朝哪個方位）和 `ceiling`（朝下裝，左右鏡像）。目前全部先假設上緣朝北、朝下裝，裝好後要逐塊確認。
 
 ## 3. HTTP
 
@@ -71,47 +89,77 @@
 `GET /api/junctions` → `{"junctions":[...]}`（格式同上）。給不做偵測的顯示節點、或除錯用。
 WebSocket 廣播的 state 也多了 `junctions` 欄位。
 
-## 4. 韌體設定表（`hub_node.ino` 的 `OLED_MAP`）
+### H5 輪詢與心跳
 
-每塊 OLED 一列：`{位置, 路口 id, I²C 匯流排, 位址}`。匯流排 0 = `Wire`，1 = `Wire1`（目前沒有用到，欄位留著備用）；SSD1306 只能設 0x3C 或 0x3D。
-每個位置最多 `MAX_OWN`（4）塊。換分配方式只要改這張表，不用改程式也不用改伺服器。
+H5 每 300 ms 送 `GET /api/junctions?node=H5&seq=<遞增>&fw=<版本>`，回應跟上面一樣。
+有帶 `node` 時，伺服器會把它記成顯示節點的心跳；不帶參數時行為不變。
+`GET /api/displays` → `{"displays":{"H5":{"online":true,"age":0.1,"loss":0.0,"n":123,"ip":"…","fw":"h5-1.0"}}}`
+（5 秒內有輪詢就算 online；loss 由 seq 的跳號計算），WebSocket 的 state 也多了 `displays`。
+**4 台鏡頭 HUB 的協定完全沒變。**
 
-目前的內容是**暫定**的，照 1f-9-oled 的配置（分支 `claude/oled-ceiling-1f`）：
+## 4. 韌體設定表
 
-| 位置 | 0x3C（Wire） | 0x3D（Wire） |
-|---|---|---|
-| 1N | J(0,1) 北 | J(-1,1) 西北 |
-| 1E | J(1,0) 東 | J(1,1) 東北 |
-| 1S | J(0,-1) 南 | J(1,-1) 東南 |
-| 1W | J(-1,0) 西 | J(-1,-1) 西南 |
+### 鏡頭 HUB：`hub_node.ino` 的 `OLED_MAP`
 
-**中心路口 `J(0,0)` 不裝 OLED**（2026-11-05 決定），所以 8 塊 OLED 全部接在各台的 `Wire` 上，不需要 `Wire1`。
-伺服器的 `junctions` 仍然輸出 9 個路口，中心的方向給中控台和簡報用；韌體設定表裡沒有它，就不會顯示。
+每塊 OLED 一列：`{位置, SlotConfig}`。`SlotConfig` 是 EvacOled 的格式：`{路口 id, bus, addr, muxChannel, panel, top, ceiling}`，
+路口 id 直接用伺服器的 `J(i,j)`，所以回應交給 `oled.applyJson()` 就會挑出自己的路口。4 台燒同一份，位置在執行時由中控台決定。
 
-2F 的位置（`2N`…）目前沒有列，伺服器也只送 1F 的路口；2F 的板子照樣回報偵測，只是不顯示方向。
-
-### 顯示掛勾
-
-這版韌體還沒有接 OLED，只把方向變化印到序列埠（115200），例如：
-
-```
-slot 1E, OLEDs 2
-[OLED 0 0x3C] J(1,0) -> S
-[OLED 0 0x3D] J(1,1) -> W
+```cpp
+{"1N", OLED("J(-1,1)",  Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
+{"1E", OLED("J(1,1)",   Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
+{"1S", OLED("J(1,-1)",  Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
+{"1W", OLED("J(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
 ```
 
-OLED 韌體只要改寫 `showDirection(const OledSlot& o, const String& dir)` 這一個函式（依 `o.bus`／`o.addr` 選螢幕、畫 `dir`），
-再在 `setup()` 裡初始化 `Wire` 和各塊螢幕。`showDirection` 只有在顯示內容改變時才會被呼叫。
+`EVAC_CORNER_ADDR` 預設 0x3C（每條匯流排只有一塊，用出廠位址就好，不用改焊電阻）。要改回 0x3D 時，編譯加
+下面這個參數（實測可編譯）：
+
+```
+--build-property "build.extra_flags=-DARDUINO_SDK -DARDUINO_AMBPRO2 -DBOARD_AMB82_HUB8735 -DBOARD_AMB82_HUB8735_ULTRA {build.usb_flags} {build.menu_flags} -DEVAC_CORNER_ADDR=0x3D"
+```
+
+AmebaPro2 的 C++ 編譯規則只讀 `build.extra_flags`，用 `compiler.cpp.extra_flags` 會被默默忽略。另外要保留板子原本的旗標（`boards.txt` 第 108 行），
+只加 `-DEVAC_CORNER_ADDR=0x3D` 的話，`Arduino.h` 會報「Please choose between Flash or SD card」。
+比較簡單的做法是直接改 `hub_node.ino` 開頭的 `#define EVAC_CORNER_ADDR`。每個位置最多 `MAX_OWN`（4）塊。
+2F 的位置（`2N`…）沒有列：2F 板子照樣回報偵測，只是不顯示。
+
+### H5：`hub_oled5.ino` 的 `SLOTS`
+
+```cpp
+OLED("J(0,0)",  Bus::Wire0, 0x3C, 0),   // 中
+OLED("J(0,1)",  Bus::Wire0, 0x3C, 1),   // 北
+OLED("J(1,0)",  Bus::Wire0, 0x3C, 2),   // 東
+OLED("J(0,-1)", Bus::Wire0, 0x3C, 3),   // 南
+OLED("J(-1,0)", Bus::Wire0, 0x3C, 4),   // 西
+```
+
+多工器 `MuxConfig{Bus::Wire0, 0x70}`。TCA9548A 沒回應時，EvacOled 會讓這 5 塊離線，每 2 秒重試一次。
+
+### 序列埠（115200）
+
+```
+slot 1E, OLEDs 1/1
+[OLED J(1,1)] -> W
+link lost
+```
+
+H5 會印 `H5 OLED online 5/5`、`[OLED ch2 J(1,0)] -> S`、`link ok` 或 `link lost -> dark`。
 
 ## 5. 驗證
 
-- 模擬：`cd fire_evac_v2/sim && python junction_check.py`（需要 numpy）。8 種火／煙／障礙物配置，
-  檢查每個路口的箭頭沒有指向牆、沒有指向被封住的走廊、有其他路時不指向起火走廊、
-  跟著箭頭走會到出口或樓梯而且不會繞圈；只有真的無路可走才顯示 X。輸出存在 `sim/junction_check_output.md`。
-- 編譯：
+- 路線規則：`cd fire_evac_v2/sim && python junction_check.py`（需要 numpy）。共 8 種火、煙、障礙物配置，檢查每個路口：
+  箭頭沒有指向牆或被封住的走廊；有其他路時不指向起火走廊；跟著箭頭走會到出口或樓梯，而且不會繞圈；
+  只有真的無路可走才顯示 X。輸出在 `sim/junction_check_output.md`。
+- 伺服器 HTTP：`python server_smoke_test.py`（伺服器要先跑在 8765），輸出在 `sim/server_smoke_test_output.md`。
+- **9 塊 OLED 端對端**：`python server_oled_test.py`，會自己啟動伺服器（8766），測完關掉。
+  - 用暫時的 `devices.json` 把 4 個假 MAC 指派到 1N/1E/1S/1W，走跟韌體相同的 `/api/dev/<MAC>/detections`；H5 則用 `?node=H5` 輪詢。
+  - 每塊板子的回應照 `applyJson()` 的規則套到自己的螢幕；OLED 設定表直接從兩份 `.ino` 讀出來。
+  - 結果和本機 evac、`junction_check_output.md` 對照。輸出在 `sim/server_oled_test_output.md`。
+- 編譯（EvacOled 用 `--library` 帶入）：
 
   ```
-  arduino-cli compile --config-file <yaml，directories.data = %LOCALAPPDATA%\Arduino15> --fqbn ideasHatch:AmebaPro2:Ameba_HUB-8735_ultra fire_evac_v2/firmware/hub_node
+  arduino-cli compile --config-file <yaml，directories.data = %LOCALAPPDATA%\Arduino15> --fqbn ideasHatch:AmebaPro2:Ameba_HUB-8735_ultra --library oled_fw/libraries/EvacOled fire_evac_v2/firmware/hub_node
+  arduino-cli compile （同上） fire_evac_v2/firmware/hub_oled5
   ```
 
-  模型用 `DEFAULT_YOLOV7TINY`，讀的是 SDK 裡已經換成本組模型的 `yolov7_tiny.nb`（跟 hub_model_test、people_flow 相同的做法）。
+  hub_node 的模型用 `DEFAULT_YOLOV7TINY`，讀的是 SDK 裡已經換成本組模型的 `yolov7_tiny.nb`（跟 hub_model_test、people_flow 相同的做法）。
