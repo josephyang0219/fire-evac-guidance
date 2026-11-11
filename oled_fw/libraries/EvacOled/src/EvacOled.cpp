@@ -145,7 +145,8 @@ bool EvacOled::select(const SlotConfig &c) {
   w.write(want < 0 ? 0 : (uint8_t)(1u << want));
   if (w.endTransmission() != 0) {
     muxSelected_ = -2;
-    return false;
+    // 多工器沒回應（沒接或壞掉）時通道必然都關著，直接接在匯流排上的螢幕照常可用
+    return want < 0;
   }
   muxSelected_ = want;
   return true;

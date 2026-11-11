@@ -2,7 +2,7 @@
 
 一台 HUB-8735 Ultra 同時驅動多塊 SSD1306，每塊顯示一個路口的避難方向。本專題 9 塊**全部用 0.96 吋 128×64**；函式庫也保留 0.91 吋 128×32 的支援（可混用），但範例預設都是 0.96 吋。1.3 吋（SH1106 控制器）**不支援**，本專題也不用。介面直接吃伺服器的 `{id, dir}` 回應。
 
-> 狀態（2026-11-05）：arduino-cli 編譯通過（3 種接法 × MultiOledDemo、4 台 HUB × Hub1FCeiling）。**還沒上板子實測**，接腳、0x3D、TCA9548A 都只照 SDK 原始碼和規格推定。
+> 狀態（2026-11-10）：arduino-cli 編譯通過（3 種接法 × MultiOledDemo、5 台 HUB 與第 5 台的 Wire1 備案 × Hub1FCeiling）。**還沒上板子實測**，接腳、0x3D、TCA9548A 都只照 SDK 原始碼和規格推定。
 
 ```
 oled_fw/
@@ -11,7 +11,7 @@ oled_fw/
 │   ├── src/EvacIconData.h       圖示點陣（自動產生，勿手改）
 │   └── examples/
 │       ├── MultiOledDemo/       三種接法輪播＋序列埠指令
-│       └── Hub1FCeiling/        1F 九塊的建議分配（每台 HUB 一個設定）
+│       └── Hub1FCeiling/        1F 九塊（4 台角落 HUB＋第 5 台 OLED 專用 HUB）
 ├── tools/gen_icons.py           產生 EvacIconData.h 與 PNG 預覽
 ├── tools/compile_all.sh         一次編譯全部組合
 └── preview/                     圖示預覽（contact_sheet.png 是總覽）
@@ -61,16 +61,18 @@ oled_fw/
 4. 檢查 **0x78 那一側已經完全斷開**、沒有殘錫連著。兩側都通的話，位址不會是 0x3D。
 5. 接上 HUB，燒 `MultiOledDemo`（`EVAC_WIRING=1`），開序列埠輸入 `scan`，應該會看到 `Wire: 0x3D`。只接這一塊時，若掃到 0x3C 就表示沒改成功。
 
-**要改焊的模組（4 塊，每台 HUB 一塊）**：
+**要改焊的模組（4 塊角落）**：
 
-| HUB | 改焊成 0x3D | 保持 0x3C（不用動） |
-|---|---|---|
-| HUB_N | **NW** | N |
-| HUB_E | **NE** | E |
-| HUB_S | **SE** | S |
-| HUB_W | **SW** | W、C（C 在 Wire1，獨占一條匯流排） |
+| HUB | 改焊成 0x3D |
+|---|---|
+| HUB_N | **NW** |
+| HUB_E | **NE** |
+| HUB_S | **SE** |
+| HUB_W | **SW** |
 
-其餘 5 塊（N、E、S、W、C）維持出廠的 0x3C。
+其餘 5 塊（C、N、E、S、W）接在第 5 台 TCA9548A 的各通道，維持出廠 0x3C，不用動。
+
+（角落 HUB 現在各只接一塊，嚴格說不改焊、用 0x3C 也行：編譯時加 `-DEVAC_CORNER_ADDR=0x3C`。照目前規劃仍用 0x3D。）
 
 ### 更新速度（SDK 限制）
 
@@ -151,24 +153,120 @@ oled.set("N", Sign::Up, /*blink=*/true);
 - `scan(Serial)` 會列出每組匯流排（和多工器每個通道）看得到的位址，接線除錯用。
 - 函式庫只用 flash 裡的點陣直接串流，不佔 RAM 畫面緩衝。
 
-## 1F 九塊的分配
+## 1F 九塊的分配（5 台 HUB）
 
 ```
-NW ── N ── NE     HUB_N（北邊中央）：Wire  N 0x3C ＋ NW 0x3D
-│     │     │     HUB_E（東邊中央）：Wire  E 0x3C ＋ NE 0x3D
-W ─── C ─── E     HUB_S（南邊中央）：Wire  S 0x3C ＋ SE 0x3D
-│     │     │     HUB_W（西邊中央）：Wire  W 0x3C ＋ SW 0x3D；Wire1  C 0x3C
+NW ── N ── NE     HUB_N、HUB_E、HUB_S、HUB_W（跑鏡頭＋模型）：
+│     │     │       各自 Wire 0x3D 接一個角落：N→NW、E→NE、S→SE、W→SW
+W ─── C ─── E     HUB_OLED（第 5 台，只驅動 OLED）：
+│     │     │       Wire 上的 TCA9548A（0x70），通道 0..4 = C、N、E、S、W，全部 0x3C
 SW ── S ── SE
 ```
 
-全部 0.96 吋 128×64。理由：
+全部 0.96 吋 128×64。第 5 台怎麼從伺服器拿到這 5 個路口的方向屬於 `hub_node` 的範圍，這裡只做 OLED 驅動（`applyJson()` 收 `{"id":"C","dir":"E"}` 這種格式就能直接用）。
 
-1. **不需要多工器**：每台最多 3 塊，Wire＋Wire1 就夠，少一顆 TCA9548A、少一組焊線。
-2. **每塊都接最近的 HUB**：邊中點接自己那台，角落各配一台相鄰的 HUB，中心接 W，線都走天花板溝槽、不跨越整層。
-3. **每台只改焊一塊**：4 塊 0x3D 各在不同 HUB，備品只要準備 1 塊 0x3C、1 塊 0x3D 就能換任何位置。
-4. **單台故障影響小**：任一台當掉最多黑掉 3 塊，而且是相鄰的。
+### 編譯時選擇（`examples/Hub1FCeiling`）
 
-對應的設定已寫在 `examples/Hub1FCeiling`（`-DEVAC_HUB=0..3` 代表 N/E/S/W）。
+| 巨集 | 值 | 意思 |
+|---|---|---|
+| `EVAC_HUB` | 0/1/2/3 | 角落 HUB N/E/S/W，只驅動 1 塊角落 |
+| `EVAC_HUB` | 4 | 第 5 台 HUB_OLED |
+| `EVAC_CORNER_ADDR` | 預設 `0x3D` | 角落螢幕位址。每台角落 HUB 只有一塊，其實用出廠 0x3C 也行（就不必改焊） |
+| `EVAC_HUB5_BUS` | 2（預設）= TCA9548A、1 = Wire＋Wire1 備案 | 第 5 台的接法 |
+| `EVAC_WIRE1_COUNT` | 1 或 2（預設 2） | 備案時 Wire1 上接幾塊 |
+
+對應表每一格本來就有 `bus` 和 `muxChannel` 欄位（`SlotConfig`），原本只接 Wire 的寫法（`Bus::Wire0`、`kNoMux`）不用改；接在多工器後面就把 `muxChannel` 填 0..7，並在 `begin()` 傳 `MuxConfig{Bus::Wire0, 0x70}`：
+
+```cpp
+{"C", Bus::Wire0, 0x3C, 0, Panel::P128x64, Compass::N, true},   // TCA9548A 通道 0
+{"N", Bus::Wire0, 0x3C, 1, Panel::P128x64, Compass::N, true},   // 通道 1 …
+```
+
+函式庫每次寫入前會先把 TCA9548A 切到該塊的通道（同一通道連續寫入時不重切）。TCA9548A 沒回應時，直接接在 Wire 上的螢幕照常運作，多工器後面的螢幕離線並每 2 秒重試。
+
+### 第 5 台接線（TCA9548A，主要做法）
+
+```
+ HUB-8735 Ultra（第 5 台）        TCA9548A 模組
+ ┌──────────┐                    ┌───────────────────────┐
+ │ 3.3V     ├────────────────────┤ VIN                   │
+ │ GND      ├────────────────────┤ GND                   │
+ │ Pin 4    ├──── SCL ───────────┤ SCL                   │
+ │ Pin 3    ├──── SDA ───────────┤ SDA                   │
+ └──────────┘          GND ──────┤ A0  A1  A2  → 0x70    │
+                                 │ RST（模組已上拉，空著）│
+                                 │ SD0/SC0 ──────────────┼── C  中心
+                                 │ SD1/SC1 ──────────────┼── N  北邊中點
+                                 │ SD2/SC2 ──────────────┼── E  東邊中點
+                                 │ SD3/SC3 ──────────────┼── S  南邊中點
+                                 │ SD4/SC4 ──────────────┼── W  西邊中點
+                                 │ SD5..7/SC5..7  空著    │
+                                 └───────────────────────┘
+```
+
+| TCA9548A | 接到 |
+|---|---|
+| VIN | HUB 3.3V |
+| GND | HUB GND |
+| SDA | HUB Pin 3（Wire SDA） |
+| SCL | HUB Pin 4（Wire SCL） |
+| A0、A1、A2 | GND（位址 0x70） |
+| SDn / SCn（n = 0..4） | 該通道 OLED 的 SDA / SCL；OLED 的 VCC、GND 接 HUB 3.3V、GND |
+
+| 通道 | OLED | 位址 |
+|---|---|---|
+| 0 | C 中心 | 0x3C |
+| 1 | N 北邊中點 | 0x3C |
+| 2 | E 東邊中點 | 0x3C |
+| 3 | S 南邊中點 | 0x3C |
+| 4 | W 西邊中點 | 0x3C |
+
+- 5 塊全部出廠 0x3C，不用改焊；每個通道是獨立的匯流排，同位址不會相撞。
+- 每個 OLED 模組自帶上拉電阻，通道之間互不影響。
+- 速度：5 塊同時換方向最差約 1 秒（每塊整頁 0.21 秒，見「更新速度」）；只換其中幾塊時更快。
+- 序列埠輸入 `scan` 會逐通道列出看到的位址：`Wire:` 那行應有 `0x70`，`mux ch0..4` 各應有 `0x3C`。
+
+### 第 5 台的備案：Wire＋Wire1（不夠 5 塊）
+
+每條匯流排只有 0x3C、0x3D 兩個位址，Wire 2 塊＋Wire1 2 塊 = **最多 4 塊，不夠 5 塊**。`EVAC_HUB5_BUS=1` 時排成 C、N 在 Wire（0x3C、0x3D），E、S 在 Wire1（0x3C、0x3D），**W 沒有螢幕**，而且 N、S 要改焊成 0x3D。只在 TCA9548A 臨時缺貨、或要先用 Wire1 測試時使用。
+
+SDK 4.0.15 裡 `Wire1` 的實際定義：
+
+- `libraries/Wire/src/Wire.cpp` 第 320–322 行：
+  ```cpp
+  #ifdef HUB8735_ULTRA
+  TwoWire Wire  = TwoWire((void *)(&i2cwire0), I2C_SDA, I2C_SCL);
+  TwoWire Wire1  = TwoWire((void *)(&i2cwire1), I2C1_SDA, I2C1_SCL);
+  ```
+- `variants/ameba_hub8735_ultra/variant.h` 第 44 行 `#define HUB8735_ULTRA`；第 126–127 行 `I2C1_SDA = AMB_D0 // PF_2`、`I2C1_SCL = AMB_D1 // PF_1`。
+- 所以 **Wire1：SDA = Pin 0（PF2）、SCL = Pin 1（PF1）**。
+
+**和光感測器衝突**：同一檔第 89–90 行 `A1 = AMB_D1 (PF_1)`、`A2 = AMB_D0 (PF_2)`。課程的光感測器 AO 接在 Pin 0、程式讀 `A2`（見 `oled_light_sensor_wire34`、`015_MQTT_Basic_測試`）。用了 Wire1，Pin 0 就不能再讀光感測器，Pin 1 也不能當類比輸入；光感測器要改接別的類比腳（例如 `A0` = Pin 2 / PF0）。
+
+```
+ HUB-8735 Ultra                0.96" OLED（排針 GND、VCC、SCL、SDA）
+ ┌──────────┐
+ │ GND      ├──── GND ─┐
+ │ 3.3V     ├──── VCC ─┤（所有模組並聯）
+ │ Pin 1    ├──── SCL ─┬── E (0x3C) ── S (0x3D)     Wire1
+ │ Pin 0    ├──── SDA ─┘
+ │ Pin 4    ├──── SCL ─┬── C (0x3C) ── N (0x3D)     Wire
+ │ Pin 3    ├──── SDA ─┘
+ └──────────┘
+```
+
+### 桌上實測 Wire1（約 10 分鐘）
+
+只測 Wire1 能不能點亮一塊 OLED：
+
+1. 拿一塊出廠 0x3C 的 0.96 吋模組，只接 Wire1：GND→GND、VCC→3.3V、SCL→**Pin 1**、SDA→**Pin 0**。光感測器先拔掉。
+2. 燒錄 `Hub1FCeiling`，設定 `EVAC_HUB=4`、`EVAC_HUB5_BUS=1`（用 IDE 的話改檔案開頭這兩個 `#define`）。
+3. 開序列埠 115200，應看到 `HUB_OLED (Wire+Wire1 backup) OLED online 1/4`（只有 Wire1 的 E 在線）。
+4. 輸入 `scan`，`Wire1:` 那行應該有 `0x3C`。
+5. 輸入一行 `{"id":"E","dir":"E"}`，回 `applied 1`，OLED 出現箭頭。再試 `{"id":"E","dir":"X","blink":true}`，應該是閃爍的 X。
+6. 不亮時：檢查 SCL/SDA 是否接反（排針順序是 SCL 在前）、VCC 是否接 3.3V。
+
+TCA9548A 到貨後用同樣方法測主要做法：`EVAC_HUB=4`、`EVAC_HUB5_BUS=2`。
 
 ## 編譯
 
@@ -190,6 +288,7 @@ bash oled_fw/tools/compile_all.sh <arduino-cli.exe> <arduino-cli.yaml> <輸出�
 
 ## 待實測
 
-- 0x3D 模組、Wire1（Pin 0/1）、TCA9548A 在實板上是否都正常。
+- 0x3D 模組、Wire1（Pin 0/1）、TCA9548A 在實板上是否都正常（Wire1 照「桌上實測 Wire1」）。
+- 第 5 台 TCA9548A 的 5 個通道（照「第 5 台接線」）。
 - 天花板上每塊螢幕的 `top` 方向（裝好後逐塊確認）。
 - 從模型外 1:40 人偶視角看，箭頭大小與閃爍頻率是否合適。
