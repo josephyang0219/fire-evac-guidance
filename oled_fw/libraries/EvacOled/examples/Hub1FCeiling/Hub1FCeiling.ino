@@ -1,14 +1,16 @@
-// 1F 天花板 9 塊 OLED：4 台角落 HUB 各 1 塊，第 5 台（只驅動 OLED）負責中心＋4 個邊中點。
+// 1F 天花板 9 塊 OLED（方案 D）：4 台鏡頭 HUB 各 1 塊角落，3 台只驅動 OLED 的 HUB 負責中心＋4 個邊中點。
+// 全部只用 Wire（Pin3 SDA / Pin4 SCL），不用多工器、不用 Wire1。
 //
-//   NW ── N ── NE        EVAC_HUB=0..3（N/E/S/W 四台，跑鏡頭＋模型）：
-//   │     │     │          Wire 0x3D 接一個角落：N→NW、E→NE、S→SE、W→SW
-//   W ─── C ─── E        EVAC_HUB=4（第 5 台，只驅動 OLED）：
-//   │     │     │          EVAC_HUB5_BUS=2（預設）：Wire 上的 TCA9548A（0x70），
-//   SW ── S ── SE            通道 0..4 = C、N、E、S、W，全部 0x3C，不用改焊
-//                          EVAC_HUB5_BUS=1（備案）：Wire 0x3C/0x3D ＋ Wire1 0x3C/0x3D，
-//                            最多 4 塊，不夠 5 塊，W 會沒有螢幕
+//   NW ── N ── NE        EVAC_HUB=0..3（鏡頭 HUB N/E/S/W）：Wire 0x3C 接一個角落 NW/NE/SE/SW
+//   │     │     │        EVAC_HUB=5（H5）：S 0x3C ＋ E 0x3D
+//   W ─── C ─── E        EVAC_HUB=6（H6）：W 0x3C ＋ N 0x3D
+//   │     │     │        EVAC_HUB=7（H7）：C 0x3C
+//   SW ── S ── SE        同一台的兩塊經洞洞板分接板並聯；E、N 兩塊要改焊成 0x3D。
 //
-// 全部 0.96 吋 128x64。接線與步驟見 README。
+// 備案（EVAC_HUB=4，一台驅動 C/N/E/S/W）：EVAC_HUB5_BUS=2 → TCA9548A 通道 0..4；
+//   EVAC_HUB5_BUS=1 → Wire＋Wire1，最多 4 塊、不夠 5 塊。
+//
+// 全部 0.96 吋 128x64。接線、供電與步驟見 README。
 //
 // 伺服器回應：{"oled":[{"id":"N","dir":"W"},{"id":"NW","dir":"S","blink":true}]}
 // 這裡沒有網路，改成從序列埠一次貼一行 JSON（或輸入 scan）；接上 hub_node 時把 HTTP 回應字串交給
@@ -18,11 +20,11 @@
 #ifndef EVAC_HUB
 #define EVAC_HUB 0
 #endif
-// 角落螢幕的位址。每台角落 HUB 只有一塊，用出廠 0x3C 也行（就不必改焊）；照目前規劃用 0x3D。
+// 角落螢幕的位址：鏡頭 HUB 各只接一塊，用出廠 0x3C，不必改焊
 #ifndef EVAC_CORNER_ADDR
-#define EVAC_CORNER_ADDR 0x3D
+#define EVAC_CORNER_ADDR 0x3C
 #endif
-// 第 5 台的接法：2 = TCA9548A（主要做法），1 = Wire＋Wire1（備案，最多 4 塊）
+// 只有備案 EVAC_HUB=4 會用到：2 = TCA9548A，1 = Wire＋Wire1（最多 4 塊）
 #ifndef EVAC_HUB5_BUS
 #define EVAC_HUB5_BUS 2
 #endif
@@ -54,8 +56,27 @@ const char *kHubName = "HUB_W";
 const SlotConfig kSlots[] = {OLED("SW", Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)};
 const MuxConfig *const kMux = nullptr;
 
+#elif EVAC_HUB == 5
+const char *kHubName = "H5";
+const SlotConfig kSlots[] = {
+    OLED("S", Bus::Wire0, 0x3C, kNoMux),
+    OLED("E", Bus::Wire0, 0x3D, kNoMux),
+};
+const MuxConfig *const kMux = nullptr;
+#elif EVAC_HUB == 6
+const char *kHubName = "H6";
+const SlotConfig kSlots[] = {
+    OLED("W", Bus::Wire0, 0x3C, kNoMux),
+    OLED("N", Bus::Wire0, 0x3D, kNoMux),
+};
+const MuxConfig *const kMux = nullptr;
+#elif EVAC_HUB == 7
+const char *kHubName = "H7";
+const SlotConfig kSlots[] = {OLED("C", Bus::Wire0, 0x3C, kNoMux)};
+const MuxConfig *const kMux = nullptr;
+
 #elif EVAC_HUB == 4 && EVAC_HUB5_BUS == 2
-const char *kHubName = "HUB_OLED (TCA9548A)";
+const char *kHubName = "HUB_OLED (TCA9548A backup)";
 const SlotConfig kSlots[] = {
     OLED("C", Bus::Wire0, 0x3C, 0),
     OLED("N", Bus::Wire0, 0x3C, 1),
@@ -81,7 +102,7 @@ const SlotConfig kSlots[] = {
 const MuxConfig *const kMux = nullptr;
 
 #else
-#error "EVAC_HUB 只能是 0..4；EVAC_HUB5_BUS 只能是 1 或 2"
+#error "EVAC_HUB 只能是 0..3、5..7（方案 D）或 4（備案）；EVAC_HUB5_BUS 只能是 1 或 2"
 #endif
 
 constexpr uint8_t kCount = sizeof(kSlots) / sizeof(kSlots[0]);
