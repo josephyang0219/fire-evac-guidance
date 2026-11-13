@@ -7,7 +7,7 @@
   firmware/hub_model_test/     【第二步】本組模型上機測試（要先放 yolov7_tiny.nb）
   firmware/hub_node/           正式節點程式：4 塊（或 8 塊）板子燒同一份
                                1F 9 個路口的方向協定與 OLED 設定表見 firmware/hub_node/README.md
-  firmware/hub_oled5/          第 5 台 HUB（H5）：只驅動 1F 中心＋4 個邊中點共 5 塊 OLED（TCA9548A），不跑鏡頭
+  firmware/hub_oled/           只驅動 OLED 的 HUB（H5/H6/H7 燒同一份，改開頭的 NODE_ID）：1F 中心＋4 個十字臂中點，不跑鏡頭
                                兩份都要用 --library ../oled_fw/libraries/EvacOled 編譯
   model/best_reparam.pt        訓練好的 YOLOv7-tiny（6 類，以 416 訓練、已重參數化；轉 .nb 時輸入尺寸填 576×320）
   model/yolov7-tiny-fire-deploy.yaml   上面權重對應的模型結構

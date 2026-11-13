@@ -20,7 +20,7 @@ FLOORS = {               # floor index -> geometry
 STAIRS = {"W": (-1, 1), "E": (1, -1)}        # tower -> junction (i,j) it opens onto, same on both floors
 EXITS = {"EXIT_E": ((1, 0), (1, 1)), "EXIT_W": ((-1, 0), (-1, -1))}   # on floor 1, middle of that segment
 BLOCK_RATE = 0.55        # a segment more blocked than this is treated as impassable
-HALF_H = {"cabinet": 12.0, "boxes": 8.0, "furniture": 9.0, "rubble": 6.0, "gate": 50.0}   # typical half height (mm)
+HALF_H = {"cabinet": 12.0, "boxes": 8.0, "furniture": 9.0, "rubble": 6.0, "gate": 47.0}   # typical half height (mm); gate block 94 mm tall (2026-11-13)
 
 
 def rot(rz):

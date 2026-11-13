@@ -15,7 +15,7 @@
 
   Which junction OLED a board drives is the OLED_MAP table below (by slot), not the server. 1F layout (2026-11-10):
   each camera HUB drives ONE corner OLED on Wire (N -> J(-1,1), E -> J(1,1), S -> J(1,-1), W -> J(-1,-1));
-  the centre and the 4 edge middles are on the 5th, display-only HUB (firmware/hub_oled5). See README.md.
+  the centre and the 4 cross-arm middles are on the display-only HUBs H5/H6/H7 (firmware/hub_oled). See README.md.
   Displays are drawn by the EvacOled library (oled_fw/libraries/EvacOled, pass it with --library).
 
   Board package: Realtek AmebaPro2 (Arduino IDE). Model: our yolov7_tiny.nb swapped into the SDK (DEFAULT_YOLOV7TINY), Tools -> NN Model Load from: Flash.

@@ -1,11 +1,11 @@
-"""End-to-end test of the 9 1F ceiling OLEDs: real server + emulated firmware (4 camera HUBs + H5).
+"""End-to-end test of the 9 1F ceiling OLEDs: real server + emulated firmware (4 camera HUBs + H5/H6/H7).
 
 python server_oled_test.py [port]        default 8766; starts app/server.py itself, prints a markdown report
 
-- OLED tables are read from the sketches themselves (hub_node.ino OLED_MAP, hub_oled5.ino SLOTS), so the test
+- OLED tables are read from the sketches themselves (hub_node.ino OLED_MAP, hub_oled.ino SLOTS per NODE_ID), so the test
   breaks if the tables stop covering the 9 junctions exactly once.
 - The 4 camera HUBs post like the firmware does (POST /api/dev/<MAC>/detections); their positions come from a
-  temporary app/devices.json (backed up and restored). H5 polls GET /api/junctions?node=H5&seq=N.
+  temporary app/devices.json (backed up and restored). H5/H6/H7 poll GET /api/junctions?node=Hn&seq=N.
 - Each board's reply is applied the way EvacOled::applyJson() does (innermost {"id","dir"} objects, matching id).
 - Scenarios and YOLO boxes are the ones of server_smoke_test.py; expected directions = evac in-process on the same
   boxes, and junction_check_output.md.
@@ -19,18 +19,22 @@ T.BASE = f"http://127.0.0.1:{PORT}"
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..")
 APP = os.path.join(ROOT, "app")
+DISPLAYS = ("H5", "H6", "H7")
 MACS = {"1N": "0000000000A1", "1E": "0000000000A2", "1S": "0000000000A3", "1W": "0000000000A4"}
 SIGNS = {"OFF", "N", "NE", "E", "SE", "S", "SW", "W", "NW", "UP", "DOWN", "X", "", "NONE", "BLOCKED"}
 
 
 def read_tables():
     node = open(os.path.join(ROOT, "firmware", "hub_node", "hub_node.ino"), encoding="utf-8").read()
-    h5 = open(os.path.join(ROOT, "firmware", "hub_oled5", "hub_oled5.ino"), encoding="utf-8").read()
+    ho = open(os.path.join(ROOT, "firmware", "hub_oled", "hub_oled.ino"), encoding="utf-8").read()
     corner = re.search(r"#define EVAC_CORNER_ADDR (0x\w+)", node).group(1)
     cams = [dict(board=s, id=j, bus=b, addr=a.replace("EVAC_CORNER_ADDR", corner), ch=c)
             for s, j, b, a, c in re.findall(r'\{"(\w+)", OLED\("(J\([-0-9,]+\))",\s*Bus::(\w+),\s*(\w+),\s*(\w+)\)\}', node)]
-    mux = re.findall(r'OLED\("(J\([-0-9,]+\))",\s*Bus::(\w+),\s*(0x\w+),\s*(\d+)\)', h5)
-    return cams + [dict(board="H5", id=j, bus=b, addr=a, ch=c) for j, b, a, c in mux]
+    nodes = []                                       # one SLOTS[] per "#if / #elif NODE_ID == n" block
+    for n, block in re.findall(r"#(?:el)?if NODE_ID == (\d+)\n(.*?)(?=\n#)", ho, re.S):
+        nodes += [dict(board=f"H{n}", id=j, bus="Wire0", addr=a, ch="kNoMux")
+                  for j, a in re.findall(r'OLED\("(J\([-0-9,]+\))",\s*(0x\w+)\)', block)]
+    return cams + nodes
 
 
 def apply_json(body, ids, shown):
@@ -82,6 +86,13 @@ def main():
     proc, devf, backup = start_server(log)
     try:
         seq = 100
+        hseq = {n: 0 for n in DISPLAYS}
+        _, raw = T.http("GET", "/api/displays")
+        before = json.loads(raw)["displays"]
+        pre_ok = all(n in before and not before[n]["online"] for n in DISPLAYS)
+        ok &= pre_ok
+        out.append(f"還沒有顯示節點輪詢時，`GET /api/displays` 列出 {sorted(before)}，全部 offline：{'是' if pre_ok else '**否**'}")
+        out.append("")
         for k, title, items in T.SCENARIOS:
             dets = {h: [] for h in T.HUBS}
             for name, seg, strength in items:
@@ -103,10 +114,14 @@ def main():
                 resp = json.loads(raw)
                 mine = [r["id"] for r in rows if r["board"] == resp["slot"]]
                 apply_json(raw.decode(), mine, shown)
-            st, raw = T.http("GET", f"/api/junctions?node=H5&seq={seq}&fw=h5-1.0")
-            h5_ids = [r["id"] for r in rows if r["board"] == "H5"]
-            n5 = apply_json(raw.decode(), h5_ids, shown)
-            ok &= keys_ok and st == 200 and n5 == len(h5_ids)
+            napplied = {}
+            for node in DISPLAYS:
+                hseq[node] += 2 if (node == "H7" and k == T.SCENARIOS[-1][0]) else 1   # H7 skips one seq at the end
+                st, raw = T.http("GET", f"/api/junctions?node={node}&seq={hseq[node]}&fw=holed-1.0")
+                mine = [r["id"] for r in rows if r["board"] == node]
+                napplied[node] = (apply_json(raw.decode(), mine, shown), len(mine))
+                ok &= st == 200 and napplied[node][0] == len(mine)
+            ok &= keys_ok
 
             stl = E.fuse({(1, h[1]): [tuple(b) for b in v] for h, v in dets.items()})
             leds, _ = E.plan(stl, fire=ST.fire_estimate(stl))
@@ -128,22 +143,28 @@ def main():
             for ij in E.JUNCTION_ORDER:
                 i = E.junction_id(ij)
                 r = by_id[i]
-                out.append(f"| {i} {J.NAMES[ij]} | {r['board']}{'' if r['ch'] == 'kNoMux' else ' ch' + r['ch']} | {shown[i]} | {local[i]} | {table[i]}{'' if shown[i] == table[i] else ' ≠'} |")
+                out.append(f"| {i} {J.NAMES[ij]} | {r['board']} {r['addr']} | {shown[i]} | {local[i]} | {table[i]}{'' if shown[i] == table[i] else ' ≠'} |")
             out.append("")
-            out.append(f"鏡頭 HUB 回應欄位不變（blink junctions leds node slot snap）：{'是' if keys_ok else '**否**'}；H5 套用 {n5}/{len(h5_ids)} 筆")
+            out.append(f"鏡頭 HUB 回應欄位不變（blink junctions leds node slot snap）：{'是' if keys_ok else '**否**'}；顯示節點套用 " + "、".join(f"{n} {a}/{b}" for n, (a, b) in napplied.items()))
             out.append(f"9 塊螢幕＝本機 evac：{'一致' if same else '**不一致**'}；＝junction_check 表：{'一致' if same_t else '有差異'}；"
                        f"規則檢查：{'通過' if not errs else '失敗：' + '；'.join(errs)}")
             out.append("")
 
         _, raw = T.http("GET", "/api/displays")
-        d = json.loads(raw)["displays"].get("H5")
-        hb = bool(d) and d["online"] and d["n"] == len(T.SCENARIOS) and d["loss"] > 0
-        out.append("## H5 心跳（`GET /api/displays`）")
+        disp = json.loads(raw)["displays"]
+        n_sc = len(T.SCENARIOS)
+        want = {"H5": 0.0, "H6": 0.0, "H7": round(100 * 1 / (n_sc + 1), 1)}    # H7 skipped one seq -> 1 lost
+        out.append("## 顯示節點心跳（`GET /api/displays`）")
         out.append("")
-        out.append(f"`{json.dumps(d, ensure_ascii=False)}`")
+        out.append("| 節點 | online | 輪詢次數 n | loss % | 預期 loss % |\n|---|---|---|---|---|")
+        hb = True
+        for node in DISPLAYS:
+            d = disp.get(node) or {}
+            good = d.get("online") and d.get("n") == n_sc and d.get("loss") == want[node]
+            hb &= bool(good)
+            out.append(f"| {node} | {d.get('online')} | {d.get('n')} | {d.get('loss')} | {want[node]}{'' if good else ' ≠'} |")
         out.append("")
-        out.append("測試時 H5 的 seq 每個情境跳 8（中間是鏡頭 HUB 的請求），所以 loss 不是 0 是預期的：這證明伺服器有從 seq 算掉包。"
-                   f" 判定：{'正確' if hb else '**不正確**'}")
+        out.append(f"H7 在最後一個情境故意跳過一個 seq，用來確認伺服器有從 seq 算掉包。判定：{'正確' if hb else '**不正確**'}")
         ok &= hb
         out.append("")
     finally:
@@ -160,7 +181,7 @@ def main():
         reach = f"連不上（{type(e).__name__}）"
     out.append("## 伺服器停掉之後")
     out.append("")
-    out.append(f"H5 輪詢：{reach}。韌體規則：超過 LINK_TIMEOUT_MS = 3000 ms 沒有有效回應 → 5 塊全部 Off（全黑）；"
+    out.append(f"顯示節點輪詢：{reach}。韌體規則：超過 LINK_TIMEOUT_MS = 3000 ms 沒有有效回應 → H5/H6/H7 的螢幕全部 Off（全黑）；"
                "鏡頭 HUB 同樣在 3 秒後把自己的角落螢幕關掉。")
     out.append("")
     srv = open(logpath, encoding="utf-8").read()

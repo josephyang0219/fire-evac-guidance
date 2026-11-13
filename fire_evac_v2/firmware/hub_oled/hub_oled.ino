@@ -1,15 +1,16 @@
 /*
-  HUB 8735 Ultra "H5" — the 5th, display-only node of 1F (draft, not yet tested on hardware)
+  HUB 8735 Ultra display-only node H5 / H6 / H7 — ONE sketch for the three (draft, not yet tested on hardware)
 
-  No camera, no model: it only shows the directions of the 5 junctions the camera HUBs don't drive
-  (centre + 4 edge middles), on 5 SSD1306 behind a TCA9548A (0x70) on Wire, all at 0x3C.
+  No camera, no model: they show the directions of the 5 junctions the camera HUBs don't drive
+  (centre + 4 cross-arm middles). Each node drives up to 2 SSD1306 directly on Wire (0x3C + 0x3D), no multiplexer.
+  Pick the board with NODE_ID below (or build with -DNODE_ID=6, see README.md).
 
   Every POLL_MS:  GET /api/junctions?node=H5&seq=N&fw=..
   Server answers: {"junctions":[{"id":"J(-1,1)","dir":"S"},...9 items]}   dir = N/S/E/W/UP/DOWN/X
-  The query is the heartbeat: the console lists H5 under "displays" (online, loss). Picking our 5 ids out of the
-  reply is done by EvacOled::applyJson() (oled_fw/libraries/EvacOled, pass it with --library).
+  The query is the heartbeat: the console lists H5/H6/H7 under "displays" (online, loss). Picking this node's ids out
+  of the reply is done by EvacOled::applyJson() (oled_fw/libraries/EvacOled, pass it with --library).
 
-  No data for LINK_TIMEOUT_MS (Wi-Fi down, server stopped, bad reply): all 5 displays go dark.
+  No valid reply for LINK_TIMEOUT_MS (Wi-Fi down, server stopped, reply missing one of our ids): the displays go dark.
   Dark = "no guidance from here", rather than a stale arrow (could lead into a fire that started since)
   or X (would tell people there is no way out). Before the first reply the displays are dark as well.
 */
@@ -17,27 +18,37 @@
 #include <EvacOled.h>
 using namespace evac;
 
+// ---------- which node this is (EDIT HERE): 5 = H5, 6 = H6, 7 = H7 ----------
+#ifndef NODE_ID
+#define NODE_ID 5
+#endif
+
+// ---------- displays per node (EDIT HERE): id = junction id from the server; Wire, 0x3C / 0x3D, no mux ----------
+// Final grouping (plan D, 1f-9-oled 094610bb, by where the OLEDs sit on the ceiling).
+// top / ceiling: screen top edge points north and the panel faces down (seen from below) -- fix once mounted
+#define OLED(id, addr) {id, Bus::Wire0, addr, kNoMux, Panel::P128x64, Compass::N, true}
+#if NODE_ID == 5
+const SlotConfig SLOTS[] = {OLED("J(0,-1)", 0x3C), OLED("J(1,0)", 0x3D)};    // S, E
+#elif NODE_ID == 6
+const SlotConfig SLOTS[] = {OLED("J(-1,0)", 0x3C), OLED("J(0,1)", 0x3D)};    // W, N
+#elif NODE_ID == 7
+const SlotConfig SLOTS[] = {OLED("J(0,0)", 0x3C)};                           // centre
+#else
+#error "NODE_ID must be 5, 6 or 7"
+#endif
+const uint8_t N_SLOTS = sizeof(SLOTS) / sizeof(SlotConfig);
+
+#define STR2(x) #x
+#define STR(x) STR2(x)
+const char* NODE = "H" STR(NODE_ID);
+
 const char* SSID = "FireDemo";          // laptop hotspot (same as hub_node)
 const char* PASS = "firedemo123";
 const char* SERVER = "192.168.137.1";
 const int   PORT = 8000;
-const char* NODE = "H5";
-const char* FW = "h5-1.0";
+const char* FW = "holed-1.0";
 const unsigned long POLL_MS = 300;
 const unsigned long LINK_TIMEOUT_MS = 3000;
-
-// ---------- the 5 displays (EDIT HERE): id = junction id from the server, muxChannel = TCA9548A channel ----------
-// top / ceiling: screen top edge points north and the panel faces down (seen from below) -- fix once mounted
-#define OLED(id, bus, addr, ch) {id, bus, addr, ch, Panel::P128x64, Compass::N, true}
-const SlotConfig SLOTS[] = {
-  OLED("J(0,0)",  Bus::Wire0, 0x3C, 0),   // centre
-  OLED("J(0,1)",  Bus::Wire0, 0x3C, 1),   // N
-  OLED("J(1,0)",  Bus::Wire0, 0x3C, 2),   // E
-  OLED("J(0,-1)", Bus::Wire0, 0x3C, 3),   // S
-  OLED("J(-1,0)", Bus::Wire0, 0x3C, 4),   // W
-};
-const uint8_t N_SLOTS = sizeof(SLOTS) / sizeof(SlotConfig);
-const MuxConfig MUX = {Bus::Wire0, 0x70};
 
 EvacOled oled;
 WiFiClient client;
@@ -63,8 +74,8 @@ void connectWiFi() {
 
 void setup() {
   Serial.begin(115200);
-  uint8_t ok = oled.begin(SLOTS, N_SLOTS, &MUX);
-  Serial.print("H5 OLED online "); Serial.print(ok); Serial.print("/"); Serial.println(N_SLOTS);
+  uint8_t ok = oled.begin(SLOTS, N_SLOTS);
+  Serial.print(NODE); Serial.print(" OLED online "); Serial.print(ok); Serial.print("/"); Serial.println(N_SLOTS);
   oled.setAll(Sign::Off);
   oled.update();
   connectWiFi();
@@ -77,12 +88,12 @@ void loop() {
     String body = httpGet(String("/api/junctions?node=") + NODE + "&seq=" + (++seq) + "&fw=" + FW);
     Sign before[N_SLOTS];
     for (uint8_t k = 0; k < N_SLOTS; k++) before[k] = oled.sign(k);
-    if (body.length() && oled.applyJson(body.c_str()) == N_SLOTS) {   // all 5 ids present = a valid reply
+    if (body.length() && oled.applyJson(body.c_str()) == N_SLOTS) {   // all our ids present = a valid reply
       lastReply = millis();
       if (linkLost) { linkLost = false; Serial.println("link ok"); }
     }
     for (uint8_t k = 0; k < N_SLOTS; k++)
-      if (oled.sign(k) != before[k]) { Serial.print("[OLED ch"); Serial.print(SLOTS[k].muxChannel); Serial.print(" "); Serial.print(SLOTS[k].id); Serial.print("] -> "); Serial.println(signName(oled.sign(k))); }
+      if (oled.sign(k) != before[k]) { Serial.print("[OLED 0x"); Serial.print(SLOTS[k].addr, HEX); Serial.print(" "); Serial.print(SLOTS[k].id); Serial.print("] -> "); Serial.println(signName(oled.sign(k))); }
   }
   if (!linkLost && millis() - lastReply > LINK_TIMEOUT_MS) { linkLost = true; oled.setAll(Sign::Off); Serial.println("link lost -> dark"); }
   oled.update();

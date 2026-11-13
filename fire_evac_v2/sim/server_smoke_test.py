@@ -36,7 +36,7 @@ def box_for(name, seg, fl=1, t=0.5, strength=1.0):
                 pts = [(x + s * 25 * ux + q * 0.8 * hw * nx, y + s * 25 * uy + q * 0.8 * hw * ny, z)
                        for s in (-1, 1) for q in (-1, 1) for z in (30, 60)]
             elif name == "gate":
-                pts = [(x + q * hw * nx, y + q * hw * ny, z) for q in (-1, 1) for z in (8, 60)]
+                pts = [(x + q * hw * nx, y + q * hw * ny, z) for q in (-1, 1) for z in (8, 8 + 2 * E.HALF_H["gate"])]   # whole 94 mm block
             else:                                          # obstacle across `strength` of the corridor width
                 w = strength * hw
                 pts = [(x + q * w * nx, y + q * w * ny, z) for q in (-1, 1) for z in (8, 8 + 2 * E.HALF_H[name])]

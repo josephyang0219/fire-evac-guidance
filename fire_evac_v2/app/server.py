@@ -6,8 +6,8 @@ HUBs   -> POST /api/hub/{hub}/detections   (legacy, fixed position in the sketch
        -> POST /api/hub/{hub}/frame        a JPEG snapshot (for the live-view button)
        <- GET  /api/hub/{hub}/leds         directions for the 2-3 LEDs this HUB drives (legacy)
 Any    <- GET  /api/junctions              1F: one direction per junction, [{"id":"J(-1,1)","dir":"N"}, ...]
-H5     <- GET  /api/junctions?node=H5&seq=N&fw=..   same reply; the query is the display node's heartbeat
-Any    <- GET  /api/displays               display-only nodes (H5): online, age, loss, ip, fw (also "displays" in the state)
+H5-H7  <- GET  /api/junctions?node=H5&seq=N&fw=..   same reply; the query is the display node's heartbeat
+Any    <- GET  /api/displays               display-only nodes H5 H6 H7: online, age, loss, ip, fw (also "displays" in the state)
 Every detections reply carries both "junctions" (new, for the ceiling OLEDs) and "leds" (old, kept for compatibility).
 Phones <-> WS /ws                          state broadcast, position / role updates, developer commands
 
@@ -231,15 +231,21 @@ def hub_leds(hub):
     return {"leds": [leds.get((fl,) + ij, ("X", None))[0] for ij in HUB_LEDS[c]], "junctions": E.junctions(leds)}
 
 
+DISPLAY_NODES = ("H5", "H6", "H7")     # display-only HUBs of 1F (hub_oled.ino); always listed, offline until they poll
+
+
 def display_list():
-    now = time.time()
-    return {n: dict(online=now - d["last"] < 5, age=round(now - d["last"], 1), loss=round(100 * d["lost"] / max(1, d["n"] + d["lost"]), 1),
-                    n=d["n"], ip=d["ip"], fw=d["fw"]) for n, d in S["displays"].items()}
+    now, out = time.time(), {}
+    for n in DISPLAY_NODES + tuple(k for k in S["displays"] if k not in DISPLAY_NODES):
+        d = S["displays"].get(n)
+        out[n] = dict(online=False, age=None, loss=0.0, n=0, ip="", fw="") if not d else             dict(online=now - d["last"] < 5, age=round(now - d["last"], 1), loss=round(100 * d["lost"] / max(1, d["n"] + d["lost"]), 1),
+                 n=d["n"], ip=d["ip"], fw=d["fw"])
+    return out
 
 
 @app.get("/api/junctions")
 async def get_junctions(req: Request, node: str = "", seq: int = -1, fw: str = ""):
-    if node:                            # a display-only node (H5) polling: remember it as a heartbeat
+    if node:                            # a display-only node (H5/H6/H7) polling: remember it as a heartbeat
         d = S["displays"].setdefault(node[:16], dict(n=0, lost=0, seq=None, last=0, ip="", fw=""))
         if d["seq"] is not None and seq > d["seq"] + 1:
             d["lost"] += seq - d["seq"] - 1
