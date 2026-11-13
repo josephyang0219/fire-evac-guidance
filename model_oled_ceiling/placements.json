@@ -31,8 +31,104 @@
   "slot_long_axis": "北－南",
   "hub": "N",
   "bus": "Wire",
-  "addr": "0x3D",
-  "wire_cm": 17.7
+  "addr": "0x3C",
+  "wire_cm": 16.2,
+  "resolder_to_0x3D": false,
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     -85.0,
+     103.5
+    ],
+    [
+     -85.0,
+     104.0
+    ],
+    [
+     -34.0,
+     104.0
+    ],
+    [
+     -34.0,
+     42.0
+    ],
+    [
+     -18.0,
+     42.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED NW 排針 GND",
+     "end": "鏡頭 HUB N 的 GND（N 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 159.2,
+     "need_mm": 249.2,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED NW 排針 VCC",
+     "end": "鏡頭 HUB N 的 3V3（N 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 157.3,
+     "need_mm": 247.3,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED NW 排針 SCL",
+     "end": "鏡頭 HUB N 的 SCL（Pin4）（N 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 158.7,
+     "need_mm": 248.7,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED NW 排針 SDA",
+     "end": "鏡頭 HUB N 的 SDA（Pin3）（N 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 161.9,
+     "need_mm": 251.9,
+     "dupont_mm": 300
+    }
+   ],
+   "plug_crossings": [],
+   "fixings": [
+    {
+     "at": [
+      -45.0,
+      104.0
+     ],
+     "tape": true,
+     "one_side": true
+    },
+    {
+     "at": [
+      -34.0,
+      104.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      -34.0,
+      64.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      -34.0,
+      42.0
+     ],
+     "tape": false,
+     "one_side": false
+    }
+   ],
+   "end": "鏡頭 HUB 麵包板座窗口"
+  }
  },
  {
   "id": "NE",
@@ -66,8 +162,104 @@
   "slot_long_axis": "東－西",
   "hub": "E",
   "bus": "Wire",
-  "addr": "0x3D",
-  "wire_cm": 17.1
+  "addr": "0x3C",
+  "wire_cm": 16.2,
+  "resolder_to_0x3D": false,
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     103.5,
+     85.0
+    ],
+    [
+     104.0,
+     85.0
+    ],
+    [
+     104.0,
+     34.0
+    ],
+    [
+     42.0,
+     34.0
+    ],
+    [
+     42.0,
+     18.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED NE 排針 GND",
+     "end": "鏡頭 HUB E 的 GND（E 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 159.2,
+     "need_mm": 249.2,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED NE 排針 VCC",
+     "end": "鏡頭 HUB E 的 3V3（E 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 157.3,
+     "need_mm": 247.3,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED NE 排針 SCL",
+     "end": "鏡頭 HUB E 的 SCL（Pin4）（E 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 158.7,
+     "need_mm": 248.7,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED NE 排針 SDA",
+     "end": "鏡頭 HUB E 的 SDA（Pin3）（E 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 161.9,
+     "need_mm": 251.9,
+     "dupont_mm": 300
+    }
+   ],
+   "plug_crossings": [],
+   "fixings": [
+    {
+     "at": [
+      104.0,
+      45.0
+     ],
+     "tape": true,
+     "one_side": true
+    },
+    {
+     "at": [
+      104.0,
+      34.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      64.0,
+      34.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      42.0,
+      34.0
+     ],
+     "tape": false,
+     "one_side": false
+    }
+   ],
+   "end": "鏡頭 HUB 麵包板座窗口"
+  }
  },
  {
   "id": "SE",
@@ -101,8 +293,116 @@
   "slot_long_axis": "東－西",
   "hub": "S",
   "bus": "Wire",
-  "addr": "0x3D",
-  "wire_cm": 21.0
+  "addr": "0x3C",
+  "wire_cm": 21.2,
+  "resolder_to_0x3D": false,
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     103.5,
+     -113.0
+    ],
+    [
+     104.0,
+     -113.0
+    ],
+    [
+     104.0,
+     -35.0
+    ],
+    [
+     30.0,
+     -35.0
+    ],
+    [
+     30.0,
+     -41.0
+    ],
+    [
+     18.0,
+     -41.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED SE 排針 GND",
+     "end": "鏡頭 HUB S 的 GND（S 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 211.6,
+     "need_mm": 301.6,
+     "dupont_mm": 400
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED SE 排針 VCC",
+     "end": "鏡頭 HUB S 的 3V3（S 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 203.1,
+     "need_mm": 293.1,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED SE 排針 SCL",
+     "end": "鏡頭 HUB S 的 SCL（Pin4）（S 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 195.9,
+     "need_mm": 285.9,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED SE 排針 SDA",
+     "end": "鏡頭 HUB S 的 SDA（Pin3）（S 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 192.3,
+     "need_mm": 282.3,
+     "dupont_mm": 300
+    }
+   ],
+   "plug_crossings": [],
+   "fixings": [
+    {
+     "at": [
+      104.0,
+      -73.0
+     ],
+     "tape": true,
+     "one_side": true
+    },
+    {
+     "at": [
+      104.0,
+      -35.0
+     ],
+     "tape": true,
+     "one_side": true
+    },
+    {
+     "at": [
+      64.0,
+      -35.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      30.0,
+      -35.0
+     ],
+     "tape": true,
+     "one_side": false
+    },
+    {
+     "at": [
+      30.0,
+      -41.0
+     ],
+     "tape": true,
+     "one_side": true
+    }
+   ],
+   "end": "鏡頭 HUB 麵包板座窗口"
+  }
  },
  {
   "id": "SW",
@@ -136,8 +436,100 @@
   "slot_long_axis": "西－東",
   "hub": "W",
   "bus": "Wire",
-  "addr": "0x3D",
-  "wire_cm": 15.7
+  "addr": "0x3C",
+  "wire_cm": 14.8,
+  "resolder_to_0x3D": false,
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     -100.0,
+     -80.0
+    ],
+    [
+     -100.0,
+     -34.0
+    ],
+    [
+     -43.0,
+     -34.0
+    ],
+    [
+     -43.0,
+     -18.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED SW 排針 GND",
+     "end": "鏡頭 HUB W 的 GND（W 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 148.0,
+     "need_mm": 238.0,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED SW 排針 VCC",
+     "end": "鏡頭 HUB W 的 3V3（W 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 147.9,
+     "need_mm": 237.9,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED SW 排針 SCL",
+     "end": "鏡頭 HUB W 的 SCL（Pin4）（W 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 147.9,
+     "need_mm": 237.9,
+     "dupont_mm": 300
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED SW 排針 SDA",
+     "end": "鏡頭 HUB W 的 SDA（Pin3）（W 麵包板座內，經座內側端窗口；母－公杜邦，公頭插麵包板同一列）",
+     "length_mm": 148.0,
+     "need_mm": 238.0,
+     "dupont_mm": 300
+    }
+   ],
+   "plug_crossings": [],
+   "fixings": [
+    {
+     "at": [
+      -100.0,
+      -40.0
+     ],
+     "tape": true,
+     "one_side": true
+    },
+    {
+     "at": [
+      -100.0,
+      -34.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      -60.0,
+      -34.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      -43.0,
+      -34.0
+     ],
+     "tape": false,
+     "one_side": false
+    }
+   ],
+   "end": "鏡頭 HUB 麵包板座窗口"
+  }
  },
  {
   "id": "C",
@@ -169,10 +561,10 @@
    3.4
   ],
   "slot_long_axis": "東－西",
-  "hub": "H5",
-  "bus": "Wire→TCA9548A",
-  "addr": "TCA9548A ch0／0x3C",
-  "wire_cm": 7.8,
+  "hub": "H7",
+  "bus": "Wire",
+  "addr": "0x3C",
+  "wire_cm": 15.2,
   "covers_from_below_mm2": {
    "實心天花板": 380.6,
    "ArmN 塞子": 137.4,
@@ -181,6 +573,110 @@
    "ArmE 塞子": 46.3,
    "(11,11) 路口孔": 29.8,
    "塞子與孔之間的縫": 6.9
+  },
+  "resolder_to_0x3D": false,
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     -5.0,
+     -6.0
+    ],
+    [
+     -9.0,
+     -6.0
+    ],
+    [
+     -9.0,
+     -12.0
+    ],
+    [
+     -35.0,
+     -12.0
+    ],
+    [
+     -35.0,
+     -67.0
+    ],
+    [
+     -47.0,
+     -67.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED C 排針 GND",
+     "end": "H7 的 GND 排針（母－母杜邦）",
+     "length_mm": 149.3,
+     "need_mm": 179.3,
+     "dupont_mm": 200
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED C 排針 VCC",
+     "end": "H7 的 3V3 排針（母－母杜邦）",
+     "length_mm": 147.4,
+     "need_mm": 177.4,
+     "dupont_mm": 200
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED C 排針 SCL",
+     "end": "H7 的 SCL（Pin4） 排針（母－母杜邦）",
+     "length_mm": 152.1,
+     "need_mm": 182.1,
+     "dupont_mm": 200
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED C 排針 SDA",
+     "end": "H7 的 SDA（Pin3） 排針（母－母杜邦）",
+     "length_mm": 151.2,
+     "need_mm": 181.2,
+     "dupont_mm": 200
+    }
+   ],
+   "plug_crossings": [
+    {
+     "start": [
+      -9,
+      -10
+     ],
+     "end": [
+      -11,
+      -12
+     ],
+     "mm": 5
+    }
+   ],
+   "fixings": [
+    {
+     "at": [
+      -35.0,
+      -12.0
+     ],
+     "tape": true,
+     "one_side": true
+    },
+    {
+     "at": [
+      -35.0,
+      -52.0
+     ],
+     "tape": false,
+     "one_side": false
+    },
+    {
+     "at": [
+      -35.0,
+      -67.0
+     ],
+     "tape": false,
+     "one_side": false
+    }
+   ],
+   "end": "HUB 排針"
   }
  },
  {
@@ -213,18 +709,94 @@
    3.4
   ],
   "slot_long_axis": "東－西",
-  "hub": "H5",
-  "bus": "Wire→TCA9548A",
-  "addr": "TCA9548A ch1／0x3C",
-  "wire_cm": 6.1,
+  "hub": "H6",
+  "bus": "Wire",
+  "addr": "0x3D",
+  "wire_cm": 5.2,
   "covers_from_below_mm2": {
    "實心天花板": 509.6,
    "ArmN 塞子": 131.6,
    "排線溝（只從下方蓋住，不切）": 120.4,
    "塞子與孔之間的縫": 8.4
   },
+  "resolder_to_0x3D": true,
   "arm_slot_covered_length_mm": 9.8,
-  "slot_through": "十字臂插槽塞子（封孔板的一部分）"
+  "slot_through": "十字臂插槽塞子（封孔板的一部分）",
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     2.0,
+     29.9
+    ],
+    [
+     2.0,
+     9.0
+    ],
+    [
+     -12.0,
+     9.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED N 排針 GND",
+     "end": "H6 分接板輸入 B 的 GND 公針（再由共用段接 H6 GND）",
+     "length_mm": 42.6,
+     "need_mm": 72.6,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED N 排針 VCC",
+     "end": "H6 分接板輸入 B 的 VCC 公針（再由共用段接 H6 3V3）",
+     "length_mm": 45.5,
+     "need_mm": 75.5,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED N 排針 SCL",
+     "end": "H6 分接板輸入 B 的 SCL 公針（再由共用段接 H6 SCL（Pin4））",
+     "length_mm": 48.5,
+     "need_mm": 78.5,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED N 排針 SDA",
+     "end": "H6 分接板輸入 B 的 SDA 公針（再由共用段接 H6 SDA（Pin3））",
+     "length_mm": 51.6,
+     "need_mm": 81.6,
+     "dupont_mm": 100
+    }
+   ],
+   "plug_crossings": [
+    {
+     "start": [
+      0,
+      35
+     ],
+     "end": [
+      1,
+      35
+     ],
+     "mm": 2
+    }
+   ],
+   "fixings": [
+    {
+     "at": [
+      2.0,
+      9.0
+     ],
+     "tape": true,
+     "one_side": true
+    }
+   ],
+   "end": "分接板"
+  }
  },
  {
   "id": "E",
@@ -257,9 +829,9 @@
   ],
   "slot_long_axis": "南－北",
   "hub": "H5",
-  "bus": "Wire→TCA9548A",
-  "addr": "TCA9548A ch2／0x3C",
-  "wire_cm": 10.7,
+  "bus": "Wire",
+  "addr": "0x3D",
+  "wire_cm": 5.2,
   "covers_from_below_mm2": {
    "實心天花板": 509.6,
    "ArmE 塞子": 129.2,
@@ -267,8 +839,84 @@
    "塞子與孔之間的縫": 8.4,
    "ArmN 塞子": 2.4
   },
+  "resolder_to_0x3D": true,
   "arm_slot_covered_length_mm": 9.8,
-  "slot_through": "十字臂插槽塞子（封孔板的一部分）"
+  "slot_through": "十字臂插槽塞子（封孔板的一部分）",
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     29.9,
+     2.0
+    ],
+    [
+     9.0,
+     2.0
+    ],
+    [
+     9.0,
+     -12.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED E 排針 GND",
+     "end": "H5 分接板輸入 B 的 GND 公針（再由共用段接 H5 GND）",
+     "length_mm": 51.6,
+     "need_mm": 81.6,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED E 排針 VCC",
+     "end": "H5 分接板輸入 B 的 VCC 公針（再由共用段接 H5 3V3）",
+     "length_mm": 48.5,
+     "need_mm": 78.5,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED E 排針 SCL",
+     "end": "H5 分接板輸入 B 的 SCL 公針（再由共用段接 H5 SCL（Pin4））",
+     "length_mm": 45.5,
+     "need_mm": 75.5,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED E 排針 SDA",
+     "end": "H5 分接板輸入 B 的 SDA 公針（再由共用段接 H5 SDA（Pin3））",
+     "length_mm": 42.6,
+     "need_mm": 72.6,
+     "dupont_mm": 100
+    }
+   ],
+   "plug_crossings": [
+    {
+     "start": [
+      35,
+      0
+     ],
+     "end": [
+      35,
+      1
+     ],
+     "mm": 2
+    }
+   ],
+   "fixings": [
+    {
+     "at": [
+      9.0,
+      2.0
+     ],
+     "tape": true,
+     "one_side": true
+    }
+   ],
+   "end": "分接板"
+  }
  },
  {
   "id": "S",
@@ -301,17 +949,80 @@
   ],
   "slot_long_axis": "西－東",
   "hub": "H5",
-  "bus": "Wire→TCA9548A",
-  "addr": "TCA9548A ch3／0x3C",
-  "wire_cm": 10.7,
+  "bus": "Wire",
+  "addr": "0x3C",
+  "wire_cm": 1.2,
   "covers_from_below_mm2": {
    "實心天花板": 509.6,
    "ArmS 塞子": 131.6,
    "排線溝（只從下方蓋住，不切）": 120.4,
    "塞子與孔之間的縫": 8.4
   },
+  "resolder_to_0x3D": false,
   "arm_slot_covered_length_mm": 9.8,
-  "slot_through": "十字臂插槽塞子（封孔板的一部分）"
+  "slot_through": "十字臂插槽塞子（封孔板的一部分）",
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     2.0,
+     -32.5
+    ],
+    [
+     2.0,
+     -32.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED S 排針 GND",
+     "end": "H5 分接板輸入 A 的 GND 公針（再由共用段接 H5 GND）",
+     "length_mm": 11.1,
+     "need_mm": 41.1,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED S 排針 VCC",
+     "end": "H5 分接板輸入 A 的 VCC 公針（再由共用段接 H5 3V3）",
+     "length_mm": 11.3,
+     "need_mm": 41.3,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED S 排針 SCL",
+     "end": "H5 分接板輸入 A 的 SCL 公針（再由共用段接 H5 SCL（Pin4））",
+     "length_mm": 11.5,
+     "need_mm": 41.5,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED S 排針 SDA",
+     "end": "H5 分接板輸入 A 的 SDA 公針（再由共用段接 H5 SDA（Pin3））",
+     "length_mm": 11.9,
+     "need_mm": 41.9,
+     "dupont_mm": 100
+    }
+   ],
+   "plug_crossings": [
+    {
+     "start": [
+      0,
+      -35
+     ],
+     "end": [
+      1,
+      -35
+     ],
+     "mm": 2
+    }
+   ],
+   "fixings": [],
+   "end": "分接板"
+  }
  },
  {
   "id": "W",
@@ -343,10 +1054,10 @@
    3.4
   ],
   "slot_long_axis": "北－南",
-  "hub": "H5",
-  "bus": "Wire→TCA9548A",
-  "addr": "TCA9548A ch4／0x3C",
-  "wire_cm": 5.1,
+  "hub": "H6",
+  "bus": "Wire",
+  "addr": "0x3C",
+  "wire_cm": 1.2,
   "covers_from_below_mm2": {
    "實心天花板": 509.6,
    "ArmW 塞子": 129.2,
@@ -354,12 +1065,279 @@
    "塞子與孔之間的縫": 8.4,
    "ArmN 塞子": 2.4
   },
+  "resolder_to_0x3D": false,
   "arm_slot_covered_length_mm": 9.8,
-  "slot_through": "十字臂插槽塞子（封孔板的一部分）"
+  "slot_through": "十字臂插槽塞子（封孔板的一部分）",
+  "wiring": {
+   "layer_z": 118.4,
+   "path": [
+    [
+     -32.5,
+     2.0
+    ],
+    [
+     -32.0,
+     2.0
+    ]
+   ],
+   "conductors": [
+    {
+     "conductor": "GND",
+     "start": "OLED W 排針 GND",
+     "end": "H6 分接板輸入 A 的 GND 公針（再由共用段接 H6 GND）",
+     "length_mm": 11.9,
+     "need_mm": 41.9,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "VCC",
+     "start": "OLED W 排針 VCC",
+     "end": "H6 分接板輸入 A 的 VCC 公針（再由共用段接 H6 3V3）",
+     "length_mm": 11.5,
+     "need_mm": 41.5,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SCL",
+     "start": "OLED W 排針 SCL",
+     "end": "H6 分接板輸入 A 的 SCL 公針（再由共用段接 H6 SCL（Pin4））",
+     "length_mm": 11.3,
+     "need_mm": 41.3,
+     "dupont_mm": 100
+    },
+    {
+     "conductor": "SDA",
+     "start": "OLED W 排針 SDA",
+     "end": "H6 分接板輸入 A 的 SDA 公針（再由共用段接 H6 SDA（Pin3））",
+     "length_mm": 11.1,
+     "need_mm": 41.1,
+     "dupont_mm": 100
+    }
+   ],
+   "plug_crossings": [
+    {
+     "start": [
+      -35,
+      0
+     ],
+     "end": [
+      -35,
+      1
+     ],
+     "mm": 2
+    }
+   ],
+   "fixings": [],
+   "end": "分接板"
+  }
  },
  {
-  "id": "HUB5",
-  "role": "第 5 台 HUB-8735，只驅動中心與 4 個邊中點 OLED",
+  "id": "H5",
+  "role": "只驅動 OLED 的 HUB-8735（Wire）",
+  "board_center": [
+   52.0,
+   -84.0
+  ],
+  "board_size": [
+   40.5,
+   27.0
+  ],
+  "oleds": {
+   "E": "0x3D",
+   "S": "0x3C"
+  },
+  "power": "USB 轉杜邦 5V/GND（短邊淨空不足，USB-C 插不進）",
+  "power_exit_side": "S",
+  "power_route": [
+   [
+    52.0,
+    -100.0
+   ],
+   [
+    35.0,
+    -100.0
+   ],
+   [
+    35.0,
+    -113.0
+   ]
+  ],
+  "power_cm": 26.9,
+  "end_clearance_mm": {
+   "E": 3.4,
+   "W": 2.2
+  },
+  "bus_side": "N",
+  "bus_pins": {
+   "3V3": [
+    55.81,
+    -73.0
+   ],
+   "GND": [
+    53.27,
+    -73.0
+   ],
+   "SDA": [
+    50.73,
+    -73.0
+   ],
+   "SCL": [
+    48.19,
+    -73.0
+   ]
+  },
+  "power_pins": {
+   "5V": [
+    50.73,
+    -95.0
+   ],
+   "GND": [
+    53.27,
+    -95.0
+   ]
+  },
+  "splitter_board": {
+   "center": [
+    13.0,
+    -22.0
+   ],
+   "size": [
+    20,
+    14
+   ],
+   "common_len_mm": {
+    "GND": 109.2,
+    "VCC": 109.0,
+    "SCL": 102.5,
+    "SDA": 102.4
+   },
+   "common_path": [
+    [
+     13.0,
+     -30.0
+    ],
+    [
+     13.0,
+     -32.0
+    ],
+    [
+     35.0,
+     -32.0
+    ],
+    [
+     35.0,
+     -67.0
+    ],
+    [
+     47.0,
+     -67.0
+    ]
+   ]
+  }
+ },
+ {
+  "id": "H6",
+  "role": "只驅動 OLED 的 HUB-8735（Wire）",
+  "board_center": [
+   -84.0,
+   52.0
+  ],
+  "board_size": [
+   27.0,
+   40.5
+  ],
+  "oleds": {
+   "N": "0x3D",
+   "W": "0x3C"
+  },
+  "power": "USB 轉杜邦 5V/GND（短邊淨空不足，USB-C 插不進）",
+  "power_exit_side": "W",
+  "power_route": [
+   [
+    -100.0,
+    52.0
+   ],
+   [
+    -100.0,
+    113.0
+   ]
+  ],
+  "power_cm": 36.5,
+  "end_clearance_mm": {
+   "N": 3.4,
+   "S": 2.2
+  },
+  "bus_side": "E",
+  "bus_pins": {
+   "3V3": [
+    -73.0,
+    48.19
+   ],
+   "GND": [
+    -73.0,
+    50.73
+   ],
+   "SDA": [
+    -73.0,
+    53.27
+   ],
+   "SCL": [
+    -73.0,
+    55.81
+   ]
+  },
+  "power_pins": {
+   "5V": [
+    -95.0,
+    53.27
+   ],
+   "GND": [
+    -95.0,
+    50.73
+   ]
+  },
+  "splitter_board": {
+   "center": [
+    -22.0,
+    13.0
+   ],
+   "size": [
+    14,
+    20
+   ],
+   "common_len_mm": {
+    "GND": 103.8,
+    "VCC": 104.7,
+    "SCL": 111.2,
+    "SDA": 111.4
+   },
+   "common_path": [
+    [
+     -30.0,
+     13.0
+    ],
+    [
+     -34.0,
+     13.0
+    ],
+    [
+     -34.0,
+     35.0
+    ],
+    [
+     -67.0,
+     35.0
+    ],
+    [
+     -67.0,
+     47.0
+    ]
+   ]
+  }
+ },
+ {
+  "id": "H7",
+  "role": "只驅動 OLED 的 HUB-8735（Wire）",
   "board_center": [
    -52.0,
    -84.0
@@ -368,11 +1346,164 @@
    40.5,
    27.0
   ],
-  "mux": "TCA9548A",
-  "mux_center": [
-   -30.0,
-   23.0
+  "oleds": {
+   "C": "0x3C"
+  },
+  "power": "USB 轉杜邦 5V/GND（短邊淨空不足，USB-C 插不進）",
+  "power_exit_side": "S",
+  "power_route": [
+   [
+    -52.0,
+    -100.0
+   ],
+   [
+    -35.0,
+    -100.0
+   ],
+   [
+    -35.0,
+    -113.0
+   ]
   ],
-  "trunk_cm": 15.5
+  "power_cm": 26.9,
+  "end_clearance_mm": {
+   "E": 2.2,
+   "W": 3.4
+  },
+  "bus_side": "N",
+  "bus_pins": {
+   "3V3": [
+    -48.19,
+    -73.0
+   ],
+   "GND": [
+    -50.73,
+    -73.0
+   ],
+   "SDA": [
+    -53.27,
+    -73.0
+   ],
+   "SCL": [
+    -55.81,
+    -73.0
+   ]
+  },
+  "power_pins": {
+   "5V": [
+    -53.27,
+    -95.0
+   ],
+   "GND": [
+    -50.73,
+    -95.0
+   ]
+  }
+ },
+ {
+  "id": "POWER",
+  "outlets": {
+   "S": [
+    0.0,
+    -182.0
+   ],
+   "N": [
+    0.0,
+    182.0
+   ]
+  },
+  "cables": [
+   {
+    "hub": "H5",
+    "kind": "USB 轉杜邦（5V／GND）",
+    "outlet": "S",
+    "inside_mm": 36.0,
+    "total_mm": 269.4,
+    "exit": [
+     35.0,
+     -121.0
+    ],
+    "path": "(52,-100) → (35,-100) → (35,-113) → (35,-121) → (35,-126) → (35,-126) → (35,-156) → (6,-156) → (6,-171)",
+    "plug_runs": []
+   },
+   {
+    "hub": "H6",
+    "kind": "USB 轉杜邦（5V／GND）",
+    "outlet": "N",
+    "inside_mm": 67.0,
+    "total_mm": 365.3,
+    "exit": [
+     -100.0,
+     121.0
+    ],
+    "path": "(-100,52) → (-100,113) → (-100,121) → (-100,126) → (-100,126) → (-100,156) → (-6,156) → (-6,171)",
+    "plug_runs": []
+   },
+   {
+    "hub": "H7",
+    "kind": "USB 轉杜邦（5V／GND）",
+    "outlet": "S",
+    "inside_mm": 36.0,
+    "total_mm": 269.4,
+    "exit": [
+     -35.0,
+     -121.0
+    ],
+    "path": "(-52,-100) → (-35,-100) → (-35,-113) → (-35,-121) → (-35,-126) → (-35,-126) → (-35,-156) → (-6,-156) → (-6,-171)",
+    "plug_runs": []
+   },
+   {
+    "hub": "鏡頭 HUB S",
+    "kind": "USB-A → USB-C",
+    "outlet": "S",
+    "inside_mm": null,
+    "total_mm": 152.2,
+    "exit": [
+     0,
+     -147
+    ],
+    "path": "(0,-142) → (0,-147) → (0,-147) → (0,-171)",
+    "plug_runs": []
+   },
+   {
+    "hub": "鏡頭 HUB W",
+    "kind": "USB-A → USB-C",
+    "outlet": "S",
+    "inside_mm": null,
+    "total_mm": 434.2,
+    "exit": [
+     -147,
+     0
+    ],
+    "path": "(-142,0) → (-147,0) → (-147,0) → (-147,-161) → (-12,-161) → (-12,-171)",
+    "plug_runs": []
+   },
+   {
+    "hub": "鏡頭 HUB N",
+    "kind": "USB-A → USB-C",
+    "outlet": "N",
+    "inside_mm": null,
+    "total_mm": 152.2,
+    "exit": [
+     0,
+     147
+    ],
+    "path": "(0,142) → (0,147) → (0,147) → (0,171)",
+    "plug_runs": []
+   },
+   {
+    "hub": "鏡頭 HUB E",
+    "kind": "USB-A → USB-C",
+    "outlet": "N",
+    "inside_mm": null,
+    "total_mm": 440.2,
+    "exit": [
+     147,
+     0
+    ],
+    "path": "(142,0) → (147,0) → (147,0) → (147,161) → (6,161) → (6,171)",
+    "plug_runs": []
+   }
+  ]
  }
 ]

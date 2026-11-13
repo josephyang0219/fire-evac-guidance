@@ -10,7 +10,7 @@ sc = bpy.context.scene
 sc.render.engine = "BLENDER_WORKBENCH"
 sh = sc.display.shading; sh.light = "STUDIO"; sh.color_type = "OBJECT"; sh.show_cavity = True; sh.show_object_outline = True
 T = json.load(open(os.path.join(os.path.dirname(bpy.data.filepath), "placements.json"), encoding="utf-8"))
-HUBC = {"N": (0.9, 0.2, 0.2, 1), "E": (0.2, 0.7, 0.2, 1), "S": (0.95, 0.75, 0.1, 1), "W": (0.6, 0.3, 0.9, 1), "H5": (0.1, 0.8, 0.85, 1)}
+HUBC = {"N": (0.9, 0.2, 0.2, 1), "E": (0.2, 0.7, 0.2, 1), "S": (0.95, 0.75, 0.1, 1), "W": (0.6, 0.3, 0.9, 1), "H5": (0.1, 0.8, 0.85, 1), "H6": (0.95, 0.4, 0.75, 1), "H7": (0.55, 0.85, 0.25, 1)}
 COL = {"1F_天花板": (0.82, 0.82, 0.80, 1), "1F_天花板封孔板": (0.62, 0.68, 0.85, 1), "1F_樓層": (0.25, 0.25, 0.27, 1)}
 for o in sc.objects:
     if o.name in COL: o.color = COL[o.name]
@@ -35,14 +35,14 @@ def outline(cx, cy, hx, hy, z, w, color, tag):
     bm.to_mesh(me); bm.free(); ob = bpy.data.objects.new("ol", me); sc.collection.objects.link(ob); ob.color = color; ob["tag"] = tag; extra.append(ob)
 
 # 平面圖標註（放在封孔板頂面上方）
-DEV = next((t for t in T if t["id"] == "HUB5"), None)
+DEVS = [t for t in T if t["id"] in ("H5", "H6", "H7")]
 T = [t for t in T if "junction" in t]
-if DEV:
-    outline(*DEV["board_center"], DEV["board_size"][0] / 2, DEV["board_size"][1] / 2, 141.0, 0.8, (0.1, 0.8, 0.85, 1), "plan")
-    text("HUB5 (OLED only)", (DEV["board_center"][0], DEV["board_center"][1] + 3, 141.2), 3.4, (0.05, 0.05, 0.05, 1), tag="plan")
-    text(f"trunk {DEV['trunk_cm']} cm", (DEV["board_center"][0], DEV["board_center"][1] - 3, 141.2), 3.0, (0.05, 0.05, 0.05, 1), tag="plan")
-    outline(*DEV["mux_center"], 30.5 / 2, 17.8 / 2, 141.0, 0.8, (0.2, 0.3, 0.75, 1), "plan")
-    text("TCA9548A", (DEV["mux_center"][0], DEV["mux_center"][1], 141.2), 3.0, (0.05, 0.05, 0.05, 1), tag="plan")
+for D_ in DEVS:
+    bx, by = D_["board_center"]; bw, bh = D_["board_size"]
+    outline(bx, by, bw / 2, bh / 2, 141.0, 0.8, HUBC[D_["id"]], "plan")
+    text(f"{D_['id']} (OLED only)", (bx, by + 4, 141.2), 3.4, (0.05, 0.05, 0.05, 1), tag="plan")
+    text("  ".join(f"{k} {v}" for k, v in D_["oleds"].items()), (bx, by - 2, 141.2), 2.8, (0.05, 0.05, 0.05, 1), tag="plan")
+    text(f"power {D_['power_cm']} cm", (bx, by - 7, 141.2), 2.6, (0.05, 0.05, 0.05, 1), tag="plan")
 for t in T:
     J = t["junction"]
     if t["feasible"]:
@@ -50,7 +50,7 @@ for t in T:
         hx, hy = (27.3 / 2, 27.8 / 2) if long_y else (27.8 / 2, 27.3 / 2)
         outline(cx, cy, hx, hy, 118.6, 0.8, HUBC[t["hub"]], "plan")
         sx, sy = t["slot_center"]
-        text(f"{t['id']}  HUB {t['hub']} " + (t['addr'] if t['hub'] != 'H5' else t['addr'].split('／')[0].replace('TCA9548A ', 'mux ')) + f"  {t.get('wire_cm', '')} cm", (cx, cy + (6 if cy < 0 else -6), 119), 3.6, (0.05, 0.05, 0.05, 1), tag="plan")
+        text(f"{t['id']}  HUB {t['hub']} " + t['addr'] + f"  {t.get('wire_cm', '')} cm", (cx, cy + (6 if cy < 0 else -6), 119), 3.6, (0.05, 0.05, 0.05, 1), tag="plan")
         text(f"slot {t['slot_size'][0]}x{t['slot_size'][1]}", (cx, cy + (1 if cy < 0 else -1), 119), 3.0, (0.05, 0.05, 0.05, 1), tag="plan")
         text(f"AA {t['offset_mm']} mm", (cx, cy + (-4 if cy < 0 else 4), 119), 3.0, (0.05, 0.05, 0.05, 1), tag="plan")
     else:
@@ -112,7 +112,7 @@ for t_ in T:
         text(f"{t_['id']}  s50 / 49 mm from C", (t_["pcb_center"][0], t_["pcb_center"][1] + (16 if t_['id'] in 'EW' else 0) + (0 if t_['id'] in 'EW' else (16 if t_['id'] == 'N' else -16)), 116.8), 2.6, (0.05, 0.05, 0.05, 1), tag="cplan")
 for (x, y, s, sz) in ((-17, 30, "ArmN slot", 3.0), (-28, -16, "ArmW slot", 3.0), (28, -16, "ArmE slot", 3.0), (-18, -30, "ArmS slot", 3.0),
                       (cx, cy + 9, "C  0.96in 27.8x27.3", 2.6), (csx, csy - 4, "slot 11.4x3.4 (solid ceiling)", 2.4),
-                      (cx, cy + 5, "HUB5 via TCA9548A ch0", 2.4), (0, -1.0, "+ junction (0,0)", 2.2), (-30, 23, "TCA9548A", 2.6)):
+                      (cx, cy + 5, "H7  Wire 0x3C", 2.4), (0, -1.0, "+ junction (0,0)", 2.2)):
     text(s, (x, y, 116.8), sz, (0.05, 0.05, 0.05, 1), tag="cplan")
 shot("平面圖_十字臂與中心放大_拿掉封孔板", (0, 0, 400), (0, 0, 0), ortho=150, hide=UP_HIDE + ("1F_天花板封孔板", "Breadboard", "HUB8735", "銷"), tag="cplan")
 # 5. 中心剖面：剖面 y = 長條孔中心，從南往北看（4 支排針與杜邦母座排成一列穿過天花板＋封孔板頂板）
