@@ -7,10 +7,16 @@
 
 ## 0. 在 Blender 裡的成品
 
-`blender_build_wiring.py` 在已開啟的 `fire_model.blend`（11/04 另存的那份，和 `physical_model/` 相同）上分三步執行：切孔（側窗、長條孔）→ 放 18 塊 OLED（用 GitHub `model_oled_ceiling/fire_model_oled_through_hole.blend` 的穿孔版 0.96 吋模組：玻璃、顯示區、PCB、背面零件、雙面膠、排針、排針塑膠座、杜邦母座）→ 拉 72 條實體杜邦線（每條一個 curve，黑 GND、紅 VCC、黃 SCL、綠 SDA，線排順序和排針一致不交叉）。2026-11-18 已在使用者電腦的 Blender 5.2 上實際執行，存成 `fire_model_8hub_wiring.blend`：切孔零件非流形邊 0；72 條線（含 15 mm 服務環）62～177 mm，全部沒壓到塞子。
+`blender_build_wiring.py` 在已開啟的 `fire_model.blend`（11/04 另存的那份，和 `physical_model/` 相同）上分三步執行：
+1. **切孔**：麵包板座側窗、天花板與封孔板的長條孔。
+2. **放 OLED**：18 塊，用 GitHub `model_oled_ceiling/fire_model_oled_through_hole.blend` 的穿孔版 0.96 吋模組（玻璃、顯示區、PCB、背面零件、雙面膠、排針、排針塑膠座、杜邦母座）。
+3. **拉 72 條實體杜邦線**：每條一個 curve，黑 GND、紅 VCC、黃 SCL、綠 SDA，線排順序和排針一致不交叉。**每條都是 20 cm**（母頭 14＋線身 166＋公頭 20 mm），走線用不到的長度（3.8～118.8 mm）在線排正上方收成直立線圈或小拱，模型裡的長度就是實際買的線。
+
+2026-11-18 已在使用者電腦的 Blender 5.2 上實際執行，存成 `fire_model_8hub_wiring.blend`：切孔零件非流形邊 0；72 條線全部 200.0 mm、沒有一條不夠長、沒有壓到塞子。逐條數據在 `blender_build_report.json`、`接線表_72條.md`。
 
 ![2F 全景](renders/2F_overview.png)
 ![2F 西北角特寫](renders/2F_NW_closeup.png)
+![2F 中心與十字臂特寫](renders/2F_center_closeup.png)
 
 ## 1. 分配
 
@@ -45,7 +51,7 @@
 
 | 項目 | 結果 |
 |---|---|
-| 72 條線的需要長度 | 105～190 mm，全部 ≤ 200 mm。最緊的是東南角 190 mm（餘裕 10 mm，座內段已用最遠排針估） |
+| 72 條線 | 全部用 20 cm 線建模（線身 166 mm），走線需要 47～162 mm，多餘 3.8～118.8 mm 收成線圈；最緊的是 2F 東南角（多餘 3.8 mm）。第 3 節以下的「需要長度」是早先的保守估算（座內段用最遠排針） |
 | 模組下方有沒有高到天花板的牆（模組外擴 0.6 mm） | 2F 全部 0。1F 西南角有 2/225 個邊界取樣點碰到，是隊友原本的位置，實際間隙約 0.35～0.6 mm，量實物時注意 |
 | 長條孔外擴 0.8 mm 是否從 z 108.2 到 117.6 連續實心 | 18 個孔全部通過 |
 | 鏡頭可見像素（同層 4 台、576×320、等立體角魚眼） | 18 塊 × 4 台全部 0 像素 |
