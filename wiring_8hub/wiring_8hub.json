@@ -1,0 +1,2191 @@
+{
+ "source": "/tmp/claude-0/-home-claude/864ac11e-cc7b-56b0-b783-94d888562689/scratchpad/work_fire_model.blend",
+ "floors": {},
+ "checks": {
+  "2F_same_as_1F": {
+   "天花板": true,
+   "天花板封孔板": true,
+   "麵包版座_N": true,
+   "麵包版座_E": true,
+   "麵包版座_S": true,
+   "麵包版座_W": true,
+   "HUB8735_Lens_N": true,
+   "HUB8735_Headers_N": true,
+   "Breadboard_N": true
+  },
+  "seat_windows": {
+   "1N": {
+    "lo": [
+     -32.5,
+     68.0,
+     122.0
+    ],
+    "hi": [
+     -23.5,
+     87.0,
+     129.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   },
+   "1E": {
+    "lo": [
+     68.0,
+     23.5,
+     122.0
+    ],
+    "hi": [
+     87.0,
+     32.5,
+     129.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   },
+   "1S": {
+    "lo": [
+     23.5,
+     -87.0,
+     122.0
+    ],
+    "hi": [
+     32.5,
+     -68.0,
+     129.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   },
+   "1W": {
+    "lo": [
+     -87.0,
+     -32.5,
+     122.0
+    ],
+    "hi": [
+     -68.0,
+     -23.5,
+     129.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   },
+   "2N": {
+    "lo": [
+     -32.5,
+     68.0,
+     272.0
+    ],
+    "hi": [
+     -23.5,
+     87.0,
+     279.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   },
+   "2E": {
+    "lo": [
+     68.0,
+     23.5,
+     272.0
+    ],
+    "hi": [
+     87.0,
+     32.5,
+     279.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   },
+   "2S": {
+    "lo": [
+     23.5,
+     -87.0,
+     272.0
+    ],
+    "hi": [
+     32.5,
+     -68.0,
+     279.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   },
+   "2W": {
+    "lo": [
+     -87.0,
+     -32.5,
+     272.0
+    ],
+    "hi": [
+     -68.0,
+     -23.5,
+     279.0
+    ],
+    "nonmanifold": 0,
+    "first_obstacle_mm_from_outer_face": 16.0,
+    "clear_ge_10mm": "27/27"
+   }
+  },
+  "ceiling_slots": {
+   "1F_天花板": {
+    "volume_mm3": 317711.3,
+    "nonmanifold": 0,
+    "repo_stl_volume_mm3": 317711.3
+   },
+   "1F_天花板封孔板": {
+    "volume_mm3": 148392.6,
+    "nonmanifold": 0,
+    "repo_stl_volume_mm3": 148392.6
+   },
+   "2F_天花板": {
+    "volume_mm3": 317711.3,
+    "nonmanifold": 0,
+    "stl": "2F_天花板_穿孔.stl"
+   },
+   "2F_天花板封孔板": {
+    "volume_mm3": 148392.8,
+    "nonmanifold": 0,
+    "stl": "2F_天花板封孔板_穿孔.stl"
+   }
+  }
+ },
+ "oleds": [
+  {
+   "oid": "1F-NW",
+   "floor": 1,
+   "id": "NW",
+   "J": [
+    -1,
+    1
+   ],
+   "hub": "1N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "E",
+   "entry": "side",
+   "slot": [
+    -85.0,
+    100.0
+   ],
+   "path": [
+    [
+     -85,
+     100
+    ],
+    [
+     -85,
+     104
+    ],
+    [
+     -35,
+     104
+    ],
+    [
+     -35,
+     83
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 82.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 170.9
+   },
+   "margin": 29.1,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    -97.0,
+    100.0
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-NE",
+   "floor": 1,
+   "id": "NE",
+   "J": [
+    1,
+    1
+   ],
+   "hub": "1E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "S",
+   "entry": "side",
+   "slot": [
+    100.0,
+    85.0
+   ],
+   "path": [
+    [
+     100,
+     85
+    ],
+    [
+     104,
+     85
+    ],
+    [
+     104,
+     35
+    ],
+    [
+     83,
+     35
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 82.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 170.9
+   },
+   "margin": 29.1,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    100.0,
+    97.0
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-SE",
+   "floor": 1,
+   "id": "SE",
+   "J": [
+    1,
+    -1
+   ],
+   "hub": "1S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "S",
+   "entry": "side",
+   "slot": [
+    99.0,
+    -113.0
+   ],
+   "path": [
+    [
+     99,
+     -113
+    ],
+    [
+     99,
+     -91
+    ],
+    [
+     35,
+     -91
+    ],
+    [
+     35,
+     -83
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 101.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 189.9
+   },
+   "margin": 10.1,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    99.0,
+    -101.0
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-SW",
+   "floor": 1,
+   "id": "SW",
+   "J": [
+    -1,
+    -1
+   ],
+   "hub": "1W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "N",
+   "entry": "side",
+   "slot": [
+    -100.0,
+    -85.0
+   ],
+   "path": [
+    [
+     -100,
+     -85
+    ],
+    [
+     -100,
+     -35
+    ],
+    [
+     -83,
+     -35
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 74.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 162.9
+   },
+   "margin": 37.1,
+   "plug_mm": 0,
+   "wall_below_samples": 2,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    -100.0,
+    -97.0
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-C",
+   "floor": 1,
+   "id": "C",
+   "J": [
+    0,
+    0
+   ],
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "up": "S",
+   "entry": "inner",
+   "slot": [
+    0.0,
+    -6.5
+   ],
+   "path": [
+    [
+     0,
+     -6
+    ],
+    [
+     9,
+     -6
+    ],
+    [
+     9,
+     -41
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 54.8,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 145.6
+   },
+   "margin": 54.4,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    0.0,
+    5.5
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-N",
+   "floor": 1,
+   "id": "N",
+   "J": [
+    0,
+    1
+   ],
+   "hub": "1N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "S",
+   "entry": "inner",
+   "slot": [
+    0.0,
+    34.9
+   ],
+   "path": [
+    [
+     0,
+     35
+    ],
+    [
+     2,
+     35
+    ],
+    [
+     2,
+     41
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 14.3,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 105.1
+   },
+   "margin": 94.9,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    0.0,
+    46.85
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-E",
+   "floor": 1,
+   "id": "E",
+   "J": [
+    1,
+    0
+   ],
+   "hub": "1E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "W",
+   "entry": "inner",
+   "slot": [
+    34.9,
+    0.0
+   ],
+   "path": [
+    [
+     35,
+     0
+    ],
+    [
+     35,
+     2
+    ],
+    [
+     41,
+     2
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 14.3,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 105.1
+   },
+   "margin": 94.9,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    46.85,
+    0.0
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-S",
+   "floor": 1,
+   "id": "S",
+   "J": [
+    0,
+    -1
+   ],
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "N",
+   "entry": "inner",
+   "slot": [
+    0.0,
+    -34.9
+   ],
+   "path": [
+    [
+     0,
+     -35
+    ],
+    [
+     5,
+     -35
+    ],
+    [
+     5,
+     -41
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 18.8,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 109.6
+   },
+   "margin": 90.4,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    0.0,
+    -46.85
+   ],
+   "shift": null
+  },
+  {
+   "oid": "1F-W",
+   "floor": 1,
+   "id": "W",
+   "J": [
+    -1,
+    0
+   ],
+   "hub": "1W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "E",
+   "entry": "inner",
+   "slot": [
+    -34.9,
+    0.0
+   ],
+   "path": [
+    [
+     -35,
+     0
+    ],
+    [
+     -35,
+     2
+    ],
+    [
+     -41,
+     2
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 14.3,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 105.1
+   },
+   "margin": 94.9,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "1FN": 0,
+    "1FW": 0,
+    "1FE": 0,
+    "1FS": 0
+   },
+   "center": [
+    -46.85,
+    0.0
+   ],
+   "shift": null
+  },
+  {
+   "oid": "2F-NW",
+   "floor": 2,
+   "id": "NW",
+   "J": [
+    -1,
+    1
+   ],
+   "hub": "2N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "E",
+   "entry": "side",
+   "slot": [
+    -85.0,
+    101.5
+   ],
+   "path": [
+    [
+     -85,
+     102
+    ],
+    [
+     -85,
+     83
+    ],
+    [
+     -35,
+     83
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 76.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 164.9
+   },
+   "margin": 35.1,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    -97.0,
+    101.5
+   ],
+   "shift": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "oid": "2F-NE",
+   "floor": 2,
+   "id": "NE",
+   "J": [
+    1,
+    1
+   ],
+   "hub": "2E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "S",
+   "entry": "side",
+   "slot": [
+    101.5,
+    85.0
+   ],
+   "path": [
+    [
+     102,
+     85
+    ],
+    [
+     83,
+     85
+    ],
+    [
+     83,
+     35
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 76.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 164.9
+   },
+   "margin": 35.1,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    101.5,
+    97.0
+   ],
+   "shift": [
+    1.5,
+    0.0
+   ]
+  },
+  {
+   "oid": "2F-SE",
+   "floor": 2,
+   "id": "SE",
+   "J": [
+    1,
+    -1
+   ],
+   "hub": "2S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "S",
+   "entry": "side",
+   "slot": [
+    99.0,
+    -113.5
+   ],
+   "path": [
+    [
+     99,
+     -113
+    ],
+    [
+     99,
+     -83
+    ],
+    [
+     35,
+     -83
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 101.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 189.9
+   },
+   "margin": 10.1,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    99.0,
+    -101.5
+   ],
+   "shift": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "oid": "2F-SW",
+   "floor": 2,
+   "id": "SW",
+   "J": [
+    -1,
+    -1
+   ],
+   "hub": "2W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "up": "N",
+   "entry": "side",
+   "slot": [
+    -101.8,
+    -85.0
+   ],
+   "path": [
+    [
+     -102,
+     -85
+    ],
+    [
+     -83,
+     -85
+    ],
+    [
+     -83,
+     -35
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 76.8,
+    "rise": 7.1,
+    "inside_max": 57.0,
+    "service": 15.0,
+    "total": 164.9
+   },
+   "margin": 35.1,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    -101.75,
+    -97.0
+   ],
+   "shift": [
+    -1.75,
+    0.0
+   ]
+  },
+  {
+   "oid": "2F-C",
+   "floor": 2,
+   "id": "C",
+   "J": [
+    0,
+    0
+   ],
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "up": "S",
+   "entry": "inner",
+   "slot": [
+    0.0,
+    -6.5
+   ],
+   "path": [
+    [
+     0,
+     -6
+    ],
+    [
+     9,
+     -6
+    ],
+    [
+     9,
+     -41
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 54.8,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 145.6
+   },
+   "margin": 54.4,
+   "plug_mm": 0,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    0.0,
+    5.5
+   ],
+   "shift": null
+  },
+  {
+   "oid": "2F-N",
+   "floor": 2,
+   "id": "N",
+   "J": [
+    0,
+    1
+   ],
+   "hub": "2N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "S",
+   "entry": "inner",
+   "slot": [
+    0.0,
+    34.9
+   ],
+   "path": [
+    [
+     0,
+     35
+    ],
+    [
+     2,
+     35
+    ],
+    [
+     2,
+     41
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 14.3,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 105.1
+   },
+   "margin": 94.9,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    0.0,
+    46.85
+   ],
+   "shift": null
+  },
+  {
+   "oid": "2F-E",
+   "floor": 2,
+   "id": "E",
+   "J": [
+    1,
+    0
+   ],
+   "hub": "2E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "W",
+   "entry": "inner",
+   "slot": [
+    34.9,
+    0.0
+   ],
+   "path": [
+    [
+     35,
+     0
+    ],
+    [
+     35,
+     2
+    ],
+    [
+     41,
+     2
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 14.3,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 105.1
+   },
+   "margin": 94.9,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    46.85,
+    0.0
+   ],
+   "shift": null
+  },
+  {
+   "oid": "2F-S",
+   "floor": 2,
+   "id": "S",
+   "J": [
+    0,
+    -1
+   ],
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "N",
+   "entry": "inner",
+   "slot": [
+    0.0,
+    -34.9
+   ],
+   "path": [
+    [
+     0,
+     -35
+    ],
+    [
+     5,
+     -35
+    ],
+    [
+     5,
+     -41
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 18.8,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 109.6
+   },
+   "margin": 90.4,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    0.0,
+    -46.85
+   ],
+   "shift": null
+  },
+  {
+   "oid": "2F-W",
+   "floor": 2,
+   "id": "W",
+   "J": [
+    -1,
+    0
+   ],
+   "hub": "2W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "up": "E",
+   "entry": "inner",
+   "slot": [
+    -34.9,
+    0.0
+   ],
+   "path": [
+    [
+     -35,
+     0
+    ],
+    [
+     -35,
+     2
+    ],
+    [
+     -41,
+     2
+    ]
+   ],
+   "len": {
+    "up": 9.1,
+    "route": 14.3,
+    "rise": 9.6,
+    "inside_max": 57.1,
+    "service": 15.0,
+    "total": 105.1
+   },
+   "margin": 94.9,
+   "plug_mm": 2,
+   "wall_below_samples": 0,
+   "hole_bad": "0/91",
+   "cam": {
+    "2FN": 0,
+    "2FW": 0,
+    "2FE": 0,
+    "2FS": 0
+   },
+   "center": [
+    -46.85,
+    0.0
+   ],
+   "shift": null
+  }
+ ],
+ "wires": [
+  {
+   "floor": 1,
+   "oled": "NW",
+   "junction": "J(-1,1)",
+   "hub": "1N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "NW",
+   "junction": "J(-1,1)",
+   "hub": "1N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "NW",
+   "junction": "J(-1,1)",
+   "hub": "1N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "NW",
+   "junction": "J(-1,1)",
+   "hub": "1N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "N",
+   "junction": "J(0,1)",
+   "hub": "1N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "N",
+   "junction": "J(0,1)",
+   "hub": "1N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "N",
+   "junction": "J(0,1)",
+   "hub": "1N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "N",
+   "junction": "J(0,1)",
+   "hub": "1N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "NE",
+   "junction": "J(1,1)",
+   "hub": "1E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "NE",
+   "junction": "J(1,1)",
+   "hub": "1E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "NE",
+   "junction": "J(1,1)",
+   "hub": "1E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "NE",
+   "junction": "J(1,1)",
+   "hub": "1E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 170.9,
+   "margin": 29.1
+  },
+  {
+   "floor": 1,
+   "oled": "E",
+   "junction": "J(1,0)",
+   "hub": "1E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "E",
+   "junction": "J(1,0)",
+   "hub": "1E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "E",
+   "junction": "J(1,0)",
+   "hub": "1E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "E",
+   "junction": "J(1,0)",
+   "hub": "1E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "SE",
+   "junction": "J(1,-1)",
+   "hub": "1S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 1,
+   "oled": "SE",
+   "junction": "J(1,-1)",
+   "hub": "1S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 1,
+   "oled": "SE",
+   "junction": "J(1,-1)",
+   "hub": "1S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 1,
+   "oled": "SE",
+   "junction": "J(1,-1)",
+   "hub": "1S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 1,
+   "oled": "S",
+   "junction": "J(0,-1)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 1,
+   "oled": "S",
+   "junction": "J(0,-1)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 1,
+   "oled": "S",
+   "junction": "J(0,-1)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 1,
+   "oled": "S",
+   "junction": "J(0,-1)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 1,
+   "oled": "C",
+   "junction": "J(0,0)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 1,
+   "oled": "C",
+   "junction": "J(0,0)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 1,
+   "oled": "C",
+   "junction": "J(0,0)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 1,
+   "oled": "C",
+   "junction": "J(0,0)",
+   "hub": "1S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 1,
+   "oled": "SW",
+   "junction": "J(-1,-1)",
+   "hub": "1W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 162.9,
+   "margin": 37.1
+  },
+  {
+   "floor": 1,
+   "oled": "SW",
+   "junction": "J(-1,-1)",
+   "hub": "1W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 162.9,
+   "margin": 37.1
+  },
+  {
+   "floor": 1,
+   "oled": "SW",
+   "junction": "J(-1,-1)",
+   "hub": "1W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 162.9,
+   "margin": 37.1
+  },
+  {
+   "floor": 1,
+   "oled": "SW",
+   "junction": "J(-1,-1)",
+   "hub": "1W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 162.9,
+   "margin": 37.1
+  },
+  {
+   "floor": 1,
+   "oled": "W",
+   "junction": "J(-1,0)",
+   "hub": "1W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "W",
+   "junction": "J(-1,0)",
+   "hub": "1W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "W",
+   "junction": "J(-1,0)",
+   "hub": "1W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 1,
+   "oled": "W",
+   "junction": "J(-1,0)",
+   "hub": "1W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "NW",
+   "junction": "J2(-1,1)",
+   "hub": "2N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "NW",
+   "junction": "J2(-1,1)",
+   "hub": "2N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "NW",
+   "junction": "J2(-1,1)",
+   "hub": "2N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "NW",
+   "junction": "J2(-1,1)",
+   "hub": "2N",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "N",
+   "junction": "J2(0,1)",
+   "hub": "2N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "N",
+   "junction": "J2(0,1)",
+   "hub": "2N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "N",
+   "junction": "J2(0,1)",
+   "hub": "2N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "N",
+   "junction": "J2(0,1)",
+   "hub": "2N",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "NE",
+   "junction": "J2(1,1)",
+   "hub": "2E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "NE",
+   "junction": "J2(1,1)",
+   "hub": "2E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "NE",
+   "junction": "J2(1,1)",
+   "hub": "2E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "NE",
+   "junction": "J2(1,1)",
+   "hub": "2E",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "E",
+   "junction": "J2(1,0)",
+   "hub": "2E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "E",
+   "junction": "J2(1,0)",
+   "hub": "2E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "E",
+   "junction": "J2(1,0)",
+   "hub": "2E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "E",
+   "junction": "J2(1,0)",
+   "hub": "2E",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "SE",
+   "junction": "J2(1,-1)",
+   "hub": "2S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 2,
+   "oled": "SE",
+   "junction": "J2(1,-1)",
+   "hub": "2S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 2,
+   "oled": "SE",
+   "junction": "J2(1,-1)",
+   "hub": "2S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 2,
+   "oled": "SE",
+   "junction": "J2(1,-1)",
+   "hub": "2S",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 189.9,
+   "margin": 10.1
+  },
+  {
+   "floor": 2,
+   "oled": "S",
+   "junction": "J2(0,-1)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 2,
+   "oled": "S",
+   "junction": "J2(0,-1)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 2,
+   "oled": "S",
+   "junction": "J2(0,-1)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 2,
+   "oled": "S",
+   "junction": "J2(0,-1)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 109.6,
+   "margin": 90.4
+  },
+  {
+   "floor": 2,
+   "oled": "C",
+   "junction": "J2(0,0)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 2,
+   "oled": "C",
+   "junction": "J2(0,0)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 2,
+   "oled": "C",
+   "junction": "J2(0,0)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 2,
+   "oled": "C",
+   "junction": "J2(0,0)",
+   "hub": "2S",
+   "bus": "Wire1",
+   "addr": "0x3d",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 145.6,
+   "margin": 54.4
+  },
+  {
+   "floor": 2,
+   "oled": "SW",
+   "junction": "J2(-1,-1)",
+   "hub": "2W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "SW",
+   "junction": "J2(-1,-1)",
+   "hub": "2W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "SW",
+   "junction": "J2(-1,-1)",
+   "hub": "2W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin4（Wire SCL）",
+   "color": "黃",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "SW",
+   "junction": "J2(-1,-1)",
+   "hub": "2W",
+   "bus": "Wire0",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin3（Wire SDA）",
+   "color": "綠",
+   "entry": "側窗",
+   "length": 164.9,
+   "margin": 35.1
+  },
+  {
+   "floor": 2,
+   "oled": "W",
+   "junction": "J2(-1,0)",
+   "hub": "2W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "GND",
+   "hub_end": "GND（藍軌）",
+   "color": "黑",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "W",
+   "junction": "J2(-1,0)",
+   "hub": "2W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "VCC",
+   "hub_end": "3V3（紅軌）",
+   "color": "紅",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "W",
+   "junction": "J2(-1,0)",
+   "hub": "2W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SCL",
+   "hub_end": "Pin1（Wire1 SCL）",
+   "color": "黃",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  },
+  {
+   "floor": 2,
+   "oled": "W",
+   "junction": "J2(-1,0)",
+   "hub": "2W",
+   "bus": "Wire1",
+   "addr": "0x3c",
+   "oled_pin": "SDA",
+   "hub_end": "Pin0（Wire1 SDA）",
+   "color": "綠",
+   "entry": "朝中心窗口",
+   "length": 105.1,
+   "margin": 94.9
+  }
+ ],
+ "files": {
+  "blend": "fire_model_8hub_wiring.blend",
+  "seat_stl": "麵包板座_側窗_N方向.stl"
+ }
+}
