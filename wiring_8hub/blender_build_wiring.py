@@ -185,8 +185,47 @@ def offset_poly(pts2, off):
         cosv = max(0.5, n.dot(ns[0])); out.append(p + n * (off / cosv))
     return out
 
+CABLE = 200.0 - 14.0 - 20.0          # 20 cm 杜邦線的線身（母頭外殼 14 mm，公頭外殼＋針 20 mm）
+H_MAX = 28.0                          # 線圈高度上限：1F 設備層到 2F 樓板只有 32 mm
+def plen3(pts):
+    return sum((pts[i + 1] - pts[i]).length for i in range(len(pts) - 1))
+def slack_shape(P, t, slack, mode=None, turns=None):
+    """在 P 點、沿水平方向 t 的直立平面內，做出長度剛好多 slack 的線圈或小拱（二分搜尋尺寸）"""
+    up = Vector((0, 0, 1))
+    def bump(h, w=10.0, n=24):
+        return [P + t * (w * k / n) + up * (h * math.sin(math.pi * k / n)) for k in range(n + 1)]
+    def coil(r, turns, pitch=3.0, n=40):
+        out = []
+        for k in range(int(n * turns) + 1):
+            ph = 2 * math.pi * k / n
+            out.append(P + t * (r * math.sin(ph) + pitch * ph / (2 * math.pi)) + up * (r * (1 - math.cos(ph))))
+        return out
+    def extra(pts):                    # 插入後比原本直線多出的長度
+        return plen3(pts) - (pts[-1] - pts[0]).length
+    if mode is None: mode, turns = choose_shape(slack)
+    if mode == "bump":
+        lo, hi = 0.0, H_MAX; f = lambda h: bump(h)
+    else:
+        lo, hi = 0.5, H_MAX / 2; f = lambda r: coil(r, turns)
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        if extra(f(mid)) < slack: lo = mid
+        else: hi = mid
+    pts = f((lo + hi) / 2)
+    return pts[1:-1] if len(pts) > 2 else pts
+
+def choose_shape(slack):
+    """同一組 4 條線用同一種收法：小拱（多出 < 約 14 mm）或 n 圈線圈"""
+    w, h = 10.0, H_MAX * 0.5
+    bump_max = sum(math.hypot(w / 24, h * (math.sin(math.pi * (k + 1) / 24) - math.sin(math.pi * k / 24))) for k in range(24)) - w
+    if slack < bump_max * 0.9: return "bump", 0
+    return "coil", max(1, math.ceil(slack / (math.pi * H_MAX * 0.9)))
+
 def step_wires():
-    C = coll("杜邦線_72條"); used = {}
+    C = coll("杜邦線_72條"); used = {}; over = []
+    for o in list(C.objects):                 # 重跑時先清掉舊的線
+        cu = o.data; bpy.data.objects.remove(o)
+        if cu and cu.users == 0: bpy.data.curves.remove(cu)
     mats = {p: mat(f"杜邦線_{p}", PIN_COLOR[p]) for p in PINS}
     wires = []
     for fl in (1, 2):
@@ -239,7 +278,33 @@ def step_wires():
                 along = (win_in - win_out).normalized(); side = Vector((-along.y, along.x, 0))
                 pts3 += [win_out + side * lane + Vector((0, 0, zwin + dz)), win_in + side * lane + Vector((0, 0, zwin + dz)),
                          tgt + side * (lane * 1.6) + Vector((0, 0, 131.0 + dz))]
-                L = sum((pts3[i + 1] - pts3[i]).length for i in range(len(pts3) - 1)) + 15.0
+                # 每條線都是 20 cm：線身 CABLE = 200 − 母頭外殼 14 − 公頭外殼＋針 20 = 166 mm。多出來的長度在封孔板上方
+                # 收成「垂直線圈」（在線排正上方的直立平面內，不多佔地板面積）；剩很少時做成小拱。
+                n_lid = len(lp); i0 = 2                       # pts3[2 .. 2+n_lid-1] 是封孔板頂面上的點
+                L0 = plen3(pts3); slack = CABLE - L0
+                if k == 0:                              # 整組（4 條）共用：收法、圈數、線圈方向
+                    q["_shape"] = choose_shape(slack + 6.0)
+                    tb = Vector((win_out.x - q["slot"].x, win_out.y - q["slot"].y, 0)); q["_t"] = tb.normalized()
+                if slack < 0:
+                    over.append(f"{q['name']}_{pin} 少 {-slack:.1f} mm")
+                else:
+                    segs = [(i, (pts3[i + 1] - pts3[i]).length) for i in range(i0, i0 + n_lid - 1)]
+                    segs = [x for x in segs if x[1] >= 8] or [(i0, 0.0)]
+                    last = segs[-1] if segs[-1][1] >= 12 else max(segs, key=lambda x: x[1])
+                    i, sl = last
+                    if sl > 0:
+                        A, B = pts3[i], pts3[i + 1]; t = (B - A).normalized(); P = A + t * min(sl * 0.5, sl - 6)
+                        ins = lambda target, i=i, P=P, t=t, base=pts3: base[:i + 1] + [P] + slack_shape(P, t, target, *q["_shape"]) + base[i + 1:]
+                    else:                              # 路徑很短（十字臂）：線圈放在出孔後第一個點，朝向座的水平方向
+                        t = q["_t"]
+                        ins = lambda target, t=t, base=pts3: base[:i0 + 1] + slack_shape(base[i0], t, target, *q["_shape"]) + base[i0 + 1:]
+                    target = slack
+                    for _ in range(12):                # 插入後量實際長度，修正到線身剛好 CABLE
+                        cand = ins(target); err = CABLE - plen3(cand)
+                        if abs(err) < 0.05: break
+                        target += err
+                    pts3 = cand
+                L = plen3(pts3)
                 cu = bpy.data.curves.new(f"{q['name']}_線_{pin}", "CURVE"); cu.dimensions = "3D"
                 cu.bevel_depth = R_WIRE; cu.bevel_resolution = 2; cu.use_fill_caps = True
                 sp = cu.splines.new("POLY"); sp.points.add(len(pts3) - 1)
@@ -249,10 +314,11 @@ def step_wires():
                 hub_end = {"GND": "GND（藍軌）", "VCC": "3V3（紅軌）"}.get(pin) or BUS_PIN[q["bus"]][pin]
                 wires.append(dict(floor=fl, oled=q["id"], junction=(f"J({q['J'][0]},{q['J'][1]})" if fl == 1 else f"J2({q['J'][0]},{q['J'][1]})"),
                                   hub=f"{fl}{q['seat']}", bus=q["bus"], addr=hex(q["addr"]), pin=pin, hub_end=hub_end,
-                                  entry=q["entry"], length_mm=round(L, 1), margin_mm=round(200 - L, 1), plug_mm=q["plug_mm"]))
+                                  entry=q["entry"], cable_mm=round(L, 1), total_mm=round(L + 34.0, 1), slack_mm=round(CABLE - L0, 1),
+                                  plug_mm=q["plug_mm"]))
     rep["wires"] = wires
-    L = [w["length_mm"] for w in wires]
-    return {"wires": len(wires), "min": min(L), "max": max(L), "over_200": sum(1 for x in L if x > 200)}
+    T = [w["total_mm"] for w in wires]; S = [w["slack_mm"] for w in wires]
+    return {"wires": len(wires), "total_min": min(T), "total_max": max(T), "slack_min": min(S), "slack_max": max(S), "too_short": over}
 
 res = {}
 if STEP in ("cut", "all"): res["cut"] = step_cut()
