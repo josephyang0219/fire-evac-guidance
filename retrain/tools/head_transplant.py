@@ -36,6 +36,8 @@ for k, v in sn.items():
     else:
         skipped.append(f"{k} {tuple(ov.shape)}->{tuple(v.shape)}")
 new.load_state_dict(sn)
+for prm in new.parameters():
+    prm.requires_grad_(False)  # 存檔時不帶梯度；否則 attempt_load 的 fuse() 會報 in-place 錯誤（train.py 只讀 state_dict，不受影響）
 new.names = ["cabinet", "boxes", "furniture", "rubble", "gate", "smoke", "person"]
 torch.save({"epoch": -1, "best_fitness": None, "training_results": None, "model": new.half(),
             "ema": None, "updates": None, "optimizer": None, "wandb_id": None}, dst)

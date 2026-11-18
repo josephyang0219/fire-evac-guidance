@@ -21,6 +21,7 @@ from mathutils import Vector, Matrix, Euler
 SMOKE_REL_DIFF = 0.15  # 有煙／無煙亮度相對差超過 15% 才算看得到煙（原本 6%：降噪後的渲染雜訊就會超過，框被雜訊撐大）
 SMOKE_MIN_FRAC = 0.25  # 看得到的部分至少要佔煙形狀範圍的 25%，太淡的煙不標（2026-11-18 小規模補訓：煙 AP 0.002 的主因）
 SMOKE_MIN_PIX = 150
+SMOKE_MAX_AREA = 0.45  # 框超過畫面 45%（鏡頭就在煙層裡）不標
 CLASSES = ['cabinet', 'boxes', 'furniture', 'rubble', 'gate', 'smoke', 'person']
 W, H = 576, 320
 ORIGINAL_NAME = 'fire_model.blend'
@@ -397,7 +398,8 @@ def make_smoke(name, rng, x, y):
     bmesh.ops.create_uvsphere(bm, u_segments=24, v_segments=12, radius=0.5)
     bm.to_mesh(me); bm.free()
     o = link(bpy.data.objects.new(name, me))
-    if rng.random() < 0.6:  # 從地板孔冒上來的煙柱
+    column = rng.random() < 0.6
+    if column:  # 從地板孔冒上來的煙柱
         d = rng.uniform(10, 35); hgt = rng.uniform(30, 95)
         o.scale = (d * rng.uniform(0.8, 1.3), d, hgt)
         o.location = (x, y, FLOOR_Z + hgt * 0.45)
@@ -431,9 +433,13 @@ def make_smoke(name, rng, x, y):
     nr.inputs['From Max'].default_value = 0.75
     mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'
     mul2 = nt.nodes.new('ShaderNodeMath'); mul2.operation = 'MULTIPLY'
-    mul2.inputs[1].default_value = math.exp(rng.uniform(math.log(0.03), math.log(0.15)))  # 原本 0.01～0.09：多半淡到看不見
+    # 密度（每 mm）：原本 0.01～0.09，v2 改 0.03～0.15 仍有 56% 太淡不標（11/18 第二輪）。
+    # 煙柱只有 10～35 mm 粗，要更濃才看得到；煙層很厚，維持中等。
+    lo, hi = (0.08, 0.4) if column else (0.03, 0.15)
+    mul2.inputs[1].default_value = math.exp(rng.uniform(math.log(lo), math.log(hi)))
     vol = nt.nodes.new('ShaderNodeVolumePrincipled')
-    g = rng.uniform(0.45, 0.95)
+    # 原本只有淺灰白（0.45～0.95），在白／灰 PLA 牆前對比很低。火場煙常是灰黑色，一半改成深灰。
+    g = rng.uniform(0.45, 0.95) if rng.random() < 0.5 else rng.uniform(0.06, 0.4)
     vol.inputs['Color'].default_value = (g, g, g * rng.uniform(0.92, 1.0), 1)
     vol.inputs['Anisotropy'].default_value = rng.uniform(0, 0.4)
     out = nt.nodes.new('ShaderNodeOutputMaterial')
@@ -874,6 +880,8 @@ def main():
                 ys, xs = np.nonzero(m)
                 if len(xs) < max(SMOKE_MIN_PIX, SMOKE_MIN_FRAC * full.sum()):
                     ys, xs = ys[:0], xs[:0]  # 太淡：不標（記在 meta 的 smoke_too_faint）
+                elif (xs.max() - xs.min()) * (ys.max() - ys.min()) > SMOKE_MAX_AREA * W * H:
+                    ys, xs = ys[:0], xs[:0]  # 鏡頭在煙層裡：整個畫面變霧，框沒有意義，不標
             else:
                 ys, xs = np.nonzero(mA == it['id'])
             rec = dict(id=it['id'], cls=it['cls'], name=CLASSES[it['cls']], pixels=int(len(xs)),
