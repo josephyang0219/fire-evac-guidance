@@ -1,4 +1,6 @@
 /*
+  ⚠ 2026-11-18 起不用：8 台鏡頭 HUB 直接驅動全部 18 塊 OLED（hub_node + wiring_8hub/），本檔只留作參考。
+
   HUB 8735 Ultra display-only node H5 / H6 / H7 — ONE sketch for the three (draft, not yet tested on hardware)
 
   No camera, no model: they show the directions of the 5 junctions the camera HUBs don't drive

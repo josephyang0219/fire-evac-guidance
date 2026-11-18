@@ -13,9 +13,11 @@
     blink      1 = flash the displays (console "閃燈" button, to find this board physically)
     snap       1 = also upload a JPEG snapshot (console preview / "遮鏡頭指認" wizard)
 
-  Which junction OLED a board drives is the OLED_MAP table below (by slot), not the server. 1F layout (2026-11-10):
-  each camera HUB drives ONE corner OLED on Wire (N -> J(-1,1), E -> J(1,1), S -> J(1,-1), W -> J(-1,-1));
-  the centre and the 4 cross-arm middles are on the display-only HUBs H5/H6/H7 (firmware/hub_oled). See README.md.
+  Which junction OLEDs a board drives is the OLED_MAP table below (by slot), not the server. Layout (2026-11-18, wiring_8hub/):
+  the 8 camera HUBs drive all 18 ceiling OLEDs (1F + 2F, 9 each), no display-only HUBs, no multiplexer:
+    corner OLED  -> Wire  0x3C (Pin3 SDA / Pin4 SCL)   enters the breadboard seat through the new side window
+    cross-arm    -> Wire1 0x3C (Pin0 SDA / Pin1 SCL)   enters through the seat's inner window
+    centre       -> the S board's Wire1 0x3D (resoldered) -> S boards drive 3, the others 2
   Displays are drawn by the EvacOled library (oled_fw/libraries/EvacOled, pass it with --library).
 
   Board package: Realtek AmebaPro2 (Arduino IDE). Model: our yolov7_tiny.nb swapped into the SDK (DEFAULT_YOLOV7TINY), Tools -> NN Model Load from: Flash.
@@ -32,23 +34,39 @@ const char* SSID = "FireDemo";          // laptop hotspot
 const char* PASS = "firedemo123";
 const char* SERVER = "192.168.137.1";   // laptop address on the hotspot
 const int   PORT = 8000;
-const char* FW = "2.2";
+const char* FW = "2.3";
 
-// ---------- junction OLEDs: which display this position drives (EDIT HERE) ----------
-// One row per OLED: slot = console position (1N 1W 1S 1E 2N ...) + an EvacOled SlotConfig whose id is the junction id
-// the server sends. One display per bus -> factory address 0x3C; build with -DEVAC_CORNER_ADDR=0x3D to go back.
+// ---------- junction OLEDs: which displays this position drives (EDIT HERE) ----------
+// One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
+// server sends (1F "J(i,j)", 2F "J2(i,j)"). top = where the screen's top edge (= the pin header side) points, from
+// wiring_8hub/wiring_8hub.json; ceiling = true (mounted face down, seen from below). Verify top once mounted.
 #ifndef EVAC_CORNER_ADDR
 #define EVAC_CORNER_ADDR 0x3C
 #endif
 using namespace evac;
-// top / ceiling: screen top edge points north and the panel faces down (seen from below) -- fix once mounted
-#define OLED(id, bus, addr, ch) {id, bus, addr, ch, Panel::P128x64, Compass::N, true}
+#define OLED(id, bus, addr, top) {id, bus, addr, kNoMux, Panel::P128x64, Compass::top, true}
 struct SlotOled { const char* slot; SlotConfig cfg; };
 const SlotOled OLED_MAP[] = {
-  {"1N", OLED("J(-1,1)",  Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
-  {"1E", OLED("J(1,1)",   Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
-  {"1S", OLED("J(1,-1)",  Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
-  {"1W", OLED("J(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
+  // 1F                    junction     bus         address            screen top
+  {"1N", OLED("J(-1,1)",  Bus::Wire0, EVAC_CORNER_ADDR, E)},    // NW corner
+  {"1N", OLED("J(0,1)",   Bus::Wire1, 0x3C,             S)},    // N cross-arm middle
+  {"1E", OLED("J(1,1)",   Bus::Wire0, EVAC_CORNER_ADDR, S)},    // NE corner
+  {"1E", OLED("J(1,0)",   Bus::Wire1, 0x3C,             W)},    // E cross-arm middle
+  {"1S", OLED("J(1,-1)",  Bus::Wire0, EVAC_CORNER_ADDR, S)},    // SE corner
+  {"1S", OLED("J(0,-1)",  Bus::Wire1, 0x3C,             N)},    // S cross-arm middle
+  {"1S", OLED("J(0,0)",   Bus::Wire1, 0x3D,             S)},    // centre (resoldered to 0x3D)
+  {"1W", OLED("J(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, N)},    // SW corner
+  {"1W", OLED("J(-1,0)",  Bus::Wire1, 0x3C,             E)},    // W cross-arm middle
+  // 2F: same layout (corners 0.5-1.75 mm further out, see wiring_8hub/README.md)
+  {"2N", OLED("J2(-1,1)",  Bus::Wire0, EVAC_CORNER_ADDR, E)},
+  {"2N", OLED("J2(0,1)",   Bus::Wire1, 0x3C,             S)},
+  {"2E", OLED("J2(1,1)",   Bus::Wire0, EVAC_CORNER_ADDR, S)},
+  {"2E", OLED("J2(1,0)",   Bus::Wire1, 0x3C,             W)},
+  {"2S", OLED("J2(1,-1)",  Bus::Wire0, EVAC_CORNER_ADDR, S)},
+  {"2S", OLED("J2(0,-1)",  Bus::Wire1, 0x3C,             N)},
+  {"2S", OLED("J2(0,0)",   Bus::Wire1, 0x3D,             S)},
+  {"2W", OLED("J2(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, N)},
+  {"2W", OLED("J2(-1,0)",  Bus::Wire1, 0x3C,             E)},
 };
 const int N_MAP = sizeof(OLED_MAP) / sizeof(SlotOled);
 const unsigned long LINK_TIMEOUT_MS = 3000;   // no reply this long -> displays go dark (no stale arrow)

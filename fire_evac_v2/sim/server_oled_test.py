@@ -1,4 +1,6 @@
-"""End-to-end test of the 9 1F ceiling OLEDs: real server + emulated firmware (4 camera HUBs + H5/H6/H7).
+"""⚠ 2026-11-18 起由 server_oled8_test.py 取代（H5/H6/H7 已取消，這支會失敗，只留作參考）。
+
+End-to-end test of the 9 1F ceiling OLEDs: real server + emulated firmware (4 camera HUBs + H5/H6/H7).
 
 python server_oled_test.py [port]        default 8766; starts app/server.py itself, prints a markdown report
 

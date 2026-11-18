@@ -5,8 +5,8 @@ Boards -> POST /api/dev/{mac}/detections   one sketch for all boards; the consol
 HUBs   -> POST /api/hub/{hub}/detections   (legacy, fixed position in the sketch) YOLO boxes from the on-board NPU
        -> POST /api/hub/{hub}/frame        a JPEG snapshot (for the live-view button)
        <- GET  /api/hub/{hub}/leds         directions for the 2-3 LEDs this HUB drives (legacy)
-Any    <- GET  /api/junctions              1F: one direction per junction, [{"id":"J(-1,1)","dir":"N"}, ...]
-H5-H7  <- GET  /api/junctions?node=H5&seq=N&fw=..   same reply; the query is the display node's heartbeat
+Any    <- GET  /api/junctions[?floor=2]    one direction per junction, [{"id":"J(-1,1)","dir":"N"}, ...] (2F ids "J2(i,j)")
+(old)   <- GET  /api/junctions?node=..&seq=N   same reply + heartbeat; was for H5-H7 (dropped 2026-11-18), kept for compatibility
 Any    <- GET  /api/displays               display-only nodes H5 H6 H7: online, age, loss, ip, fw (also "displays" in the state)
 Every detections reply carries both "junctions" (new, for the ceiling OLEDs) and "leds" (old, kept for compatibility).
 Phones <-> WS /ws                          state broadcast, position / role updates, developer commands
@@ -24,7 +24,7 @@ import evac as E, states as ST
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # legacy: which junction LEDs each camera HUB drives (9 per floor, 2-3 per HUB); only used for the old "leds" field.
-# The new "junctions" field lists all 9 1F junctions; each board picks its own from its OLED table (hub_node.ino).
+# The "junctions" field lists the 9 junctions of the board's own floor; each board picks its own 2-3 from OLED_MAP (hub_node.ino).
 HUB_LEDS = {"N": [(0, 1), (-1, 1)], "W": [(-1, 0), (-1, -1)], "S": [(0, -1), (1, -1)], "E": [(1, 0), (1, 1), (0, 0)]}
 
 app = FastAPI()
@@ -131,7 +131,7 @@ def compute():
     step = dict(t=time.strftime("%M:%S", time.gmtime(time.time() - S["t0"])) if not S["sim"] else S["sim"][S["step"]]["t"], note=S["note"])
     js = ST.to_json(step, st, leds, online, people=people, net=net_stats())
     js["dets"] = {f"{k[0]}{k[1]}": v for k, v in S["dets"].items()}
-    js["devices"] = dev_list(); js["wizard"] = wiz_state(); js["junctions"] = E.junctions(leds); js["displays"] = display_list()
+    js["devices"] = dev_list(); js["wizard"] = wiz_state(); js["junctions"] = E.junctions(leds); js["junctions2"] = E.junctions(leds, 2); js["displays"] = display_list()
     S["state"], S["leds"] = js, leds
     return js
 
@@ -228,10 +228,13 @@ async def dev_jpg(mac: str):
 def hub_leds(hub):
     fl, c = int(hub[0]), hub[1]
     leds = S.get("leds") or {}
-    return {"leds": [leds.get((fl,) + ij, ("X", None))[0] for ij in HUB_LEDS[c]], "junctions": E.junctions(leds)}
+    # junctions: only this board's floor (1F ids "J(i,j)", 2F ids "J2(i,j)"); each board picks its own 2-3 from OLED_MAP
+    return {"leds": [leds.get((fl,) + ij, ("X", None))[0] for ij in HUB_LEDS[c]], "junctions": E.junctions(leds, fl)}
 
 
-DISPLAY_NODES = ("H5", "H6", "H7")     # display-only HUBs of 1F (hub_oled.ino); always listed, offline until they poll
+# 2026-11-18: the 3 display-only HUBs (H5/H6/H7, plan D) are dropped -- the 8 camera HUBs drive all 18 OLEDs
+# (2-3 each, Wire + Wire1, see wiring_8hub/). /api/junctions?node=.. and /api/displays stay for compatibility.
+DISPLAY_NODES = ()
 
 
 def display_list():
@@ -244,13 +247,13 @@ def display_list():
 
 
 @app.get("/api/junctions")
-async def get_junctions(req: Request, node: str = "", seq: int = -1, fw: str = ""):
+async def get_junctions(req: Request, node: str = "", seq: int = -1, fw: str = "", floor: int = 1):
     if node:                            # a display-only node (H5/H6/H7) polling: remember it as a heartbeat
         d = S["displays"].setdefault(node[:16], dict(n=0, lost=0, seq=None, last=0, ip="", fw=""))
         if d["seq"] is not None and seq > d["seq"] + 1:
             d["lost"] += seq - d["seq"] - 1
         d.update(n=d["n"] + 1, seq=seq, last=time.time(), fw=fw[:16], ip=req.client.host if req.client else "")
-    return JSONResponse({"junctions": E.junctions(S.get("leds") or {})})
+    return JSONResponse({"junctions": E.junctions(S.get("leds") or {}, floor if floor in (1, 2) else 1)})
 
 
 @app.get("/api/displays")

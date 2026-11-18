@@ -6,7 +6,7 @@ detections (per camera, YOLO boxes) -> corridor-segment states (obstacle rate, g
 import math, heapq
 import numpy as np
 
-CLASSES = ["cabinet", "boxes", "furniture", "rubble", "gate", "smoke"]
+CLASSES = ["cabinet", "boxes", "furniture", "rubble", "gate", "smoke", "person"]   # 6 = person：7 類模型（retrain/）才有
 F_LENS, SW, SH = 2.9821, 5.6, 3.15          # equisolid fisheye, HFOV 112 / DFOV 130
 IMG_W, IMG_H = 640, 360
 TILT = 18.0
@@ -124,7 +124,11 @@ def fuse(dets_by_cam):
         for (c, cx, cy, w, h, conf) in dets:
             x0, x1 = (cx - w / 2) * IMG_W, (cx + w / 2) * IMG_W
             yb = (cy + h / 2) * IMG_H
+            if not 0 <= c < len(CLASSES):
+                continue                     # 不認得的類別（例如換錯模型時的 COCO 編號）：略過，不讓伺服器當掉
             name = CLASSES[c]
+            if name == "person":
+                continue                     # 人偶不是障礙物，不影響走廊狀態；交給人流計數
             if name == "smoke":
                 for (u, v, zl) in ((cx * IMG_W, cy * IMG_H, 60.0), (cx * IMG_W, yb, 30.0), (x0, cy * IMG_H, 60.0), (x1, cy * IMG_H, 60.0)):
                     q = unproject(fl, cam, u, v, zl)
@@ -245,13 +249,14 @@ JUNCTION_ORDER = [(i, j) for j in (1, 0, -1) for i in (-1, 0, 1)]   # NW N NE / 
 DIRS = ("N", "S", "E", "W", "UP", "DOWN", "X")
 
 
-def junction_id(ij):
-    return f"J({ij[0]},{ij[1]})"
+def junction_id(ij, floor=1):
+    """1F: "J(i,j)"（沿用，方案 D 起就是這個格式）；2F: "J2(i,j)"。韌體 OLED_MAP 用同一套代號"""
+    return f"J({ij[0]},{ij[1]})" if floor == 1 else f"J{floor}({ij[0]},{ij[1]})"
 
 
 def junctions(leds, floor=1):
-    """[{id:"J(-1,1)", dir:"N|S|E|W|UP|DOWN|X"}, ...] for the 9 junctions of one floor, NW..SE"""
-    return [dict(id=junction_id(ij), dir=leds.get((floor,) + ij, ("X", None))[0]) for ij in JUNCTION_ORDER]
+    """[{id:"J(-1,1)", dir:"N|S|E|W|UP|DOWN|X"}, ...] for the 9 junctions of one floor, NW..SE (2F ids: "J2(-1,1)" ...)"""
+    return [dict(id=junction_id(ij, floor), dir=leds.get((floor,) + ij, ("X", None))[0]) for ij in JUNCTION_ORDER]
 
 
 def direction(a, b):
