@@ -55,6 +55,7 @@ def setup():
     py = glob.glob(os.path.join(y7, "*.py")) + glob.glob(os.path.join(y7, "utils", "*.py")) + glob.glob(os.path.join(y7, "models", "*.py"))
     loss = os.path.join(y7, "utils", "loss.py")
     log("patch np.int", patch(r"np\.int\b", "int", py), "np.float", patch(r"np\.float\b", "float", py),
+        "np.trapz", patch(r"np\.trapz\(", "np.trapezoid(", py),
         "loss device", patch(r'torch\.zeros_like\(cost, device="cpu"\)', "torch.zeros_like(cost)", [loss]),
         "clamp", patch(r"gj\.clamp_\(0, gain\[3\] - 1\), gi\.clamp_\(0, gain\[2\] - 1\)",
                        "gj.clamp_(0, gain[3].long() - 1), gi.clamp_(0, gain[2].long() - 1)", [loss]))
