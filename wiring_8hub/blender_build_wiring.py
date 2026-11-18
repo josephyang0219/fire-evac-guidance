@@ -185,14 +185,17 @@ def offset_poly(pts2, off):
         cosv = max(0.5, n.dot(ns[0])); out.append(p + n * (off / cosv))
     return out
 
-CABLE = 200.0 - 14.0 - 20.0          # 20 cm 杜邦線的線身（母頭外殼 14 mm，公頭外殼＋針 20 mm）
+CABLE_20 = 200.0 - 14.0 - 20.0       # 20 cm 杜邦線的線身 166 mm（母頭外殼 14 mm，公頭外殼＋針 20 mm）
+CABLE_10 = 100.0 - 14.0 - 20.0       # 10 cm 杜邦線的線身 66 mm
+MARGIN_10 = 5.0                      # 用 10 cm 時至少留 5 mm（座內排針位置是示意，留一點誤差）
+CABLE = CABLE_20
 H_MAX = 28.0                          # 線圈高度上限：1F 設備層到 2F 樓板只有 32 mm
 def plen3(pts):
     return sum((pts[i + 1] - pts[i]).length for i in range(len(pts) - 1))
-def slack_shape(P, t, slack, mode=None, turns=None):
+def slack_shape(P, t, slack, mode=None, turns=None, w=10.0):
     """在 P 點、沿水平方向 t 的直立平面內，做出長度剛好多 slack 的線圈或小拱（二分搜尋尺寸）"""
     up = Vector((0, 0, 1))
-    def bump(h, w=10.0, n=24):
+    def bump(h, w=w, n=24):
         return [P + t * (w * k / n) + up * (h * math.sin(math.pi * k / n)) for k in range(n + 1)]
     def coil(r, turns, pitch=3.0, n=40):
         out = []
@@ -216,7 +219,7 @@ def slack_shape(P, t, slack, mode=None, turns=None):
 
 def choose_shape(slack):
     """同一組 4 條線用同一種收法：小拱（多出 < 約 14 mm）或 n 圈線圈"""
-    w, h = 10.0, H_MAX * 0.5
+    w, h = 10.0, H_MAX
     bump_max = sum(math.hypot(w / 24, h * (math.sin(math.pi * (k + 1) / 24) - math.sin(math.pi * k / 24))) for k in range(24)) - w
     if slack < bump_max * 0.9: return "bump", 0
     return "coil", max(1, math.ceil(slack / (math.pi * H_MAX * 0.9)))
@@ -246,7 +249,7 @@ def step_wires():
         PLf = [q for q in PL if q["floor"] == fl]
         slot_cells = {q["id"]: set(box_cells(q["slot"].x, q["slot"].y, *((SLOT_U / 2, SLOT_V / 2) if abs(q["right"].x) > 0.5 else (SLOT_V / 2, SLOT_U / 2)), 3)) for q in PLf}
         all_slots = set().union(*slot_cells.values())
-        for q in sorted(PLf, key=lambda q: (q["entry"] != "inner", q["id"])):
+        for q in sorted(PLf, key=lambda q: (q["entry"] != "inner", q["id"] == "C", q["id"])):   # 十字臂先繞（最短、可用 10 cm），中心再繞，角落最後
             key = f"{fl}{q['seat']}{q['bus']}"
             def cost(c, key=key):
                 k = 1.0; u = used.get(c)
@@ -268,6 +271,7 @@ def step_wires():
             d0 = (path[1] - path[0]) if len(path) > 1 else Vector((1, 0))
             n0 = Vector((-d0.y, d0.x)).normalized()
             sgn = 1.0 if Vector((q["right"].x, q["right"].y)).dot(n0) >= 0 else -1.0   # 線排左右順序跟排針一致，不交叉
+            bases = []
             for k, pin in enumerate(PINS):
                 lane = sgn * (k - 1.5) * 1.6
                 pin_xy = q["slot"] + q["right"] * ((k - 1.5) * 2.54)
@@ -278,8 +282,13 @@ def step_wires():
                 along = (win_in - win_out).normalized(); side = Vector((-along.y, along.x, 0))
                 pts3 += [win_out + side * lane + Vector((0, 0, zwin + dz)), win_in + side * lane + Vector((0, 0, zwin + dz)),
                          tgt + side * (lane * 1.6) + Vector((0, 0, 131.0 + dz))]
-                # 每條線都是 20 cm：線身 CABLE = 200 − 母頭外殼 14 − 公頭外殼＋針 20 = 166 mm。多出來的長度在封孔板上方
-                # 收成「垂直線圈」（在線排正上方的直立平面內，不多佔地板面積）；剩很少時做成小拱。
+                bases.append((k, pin, lp, pts3))
+            # 整組 4 條用同一種線長：最長那條也能留 ≥ MARGIN_10 的餘裕就用 10 cm，否則 20 cm
+            need = max(plen3(b_[3]) for b_ in bases)
+            CABLE = CABLE_10 if need <= CABLE_10 - MARGIN_10 else CABLE_20
+            q["wire_cm"] = 10 if CABLE == CABLE_10 else 20
+            for k, pin, lp, pts3 in bases:
+                # 多出來的長度在封孔板上方收成「垂直線圈」（在線排正上方的直立平面內，不多佔地板面積）；剩很少時做成小拱。
                 n_lid = len(lp); i0 = 2                       # pts3[2 .. 2+n_lid-1] 是封孔板頂面上的點
                 L0 = plen3(pts3); slack = CABLE - L0
                 if k == 0:                              # 整組（4 條）共用：收法、圈數、線圈方向
@@ -293,11 +302,16 @@ def step_wires():
                     last = segs[-1] if segs[-1][1] >= 12 else max(segs, key=lambda x: x[1])
                     i, sl = last
                     if sl > 0:
-                        A, B = pts3[i], pts3[i + 1]; t = (B - A).normalized(); P = A + t * min(sl * 0.5, sl - 6)
-                        ins = lambda target, i=i, P=P, t=t, base=pts3: base[:i + 1] + [P] + slack_shape(P, t, target, *q["_shape"]) + base[i + 1:]
+                        A, B = pts3[i], pts3[i + 1]; t = (B - A).normalized(); off = min(sl * 0.5, sl - 6); P = A + t * off
+                        wb = min(10.0, (sl - off) * 0.8)        # 小拱不能比剩下的那段長，否則會折返、多出量不掉的長度
+                        ins = lambda target, i=i, P=P, t=t, wb=wb, base=pts3: base[:i + 1] + [P] + slack_shape(P, t, target, *q["_shape"], w=wb) + base[i + 1:]
                     else:                              # 路徑很短（十字臂）：線圈放在出孔後第一個點，朝向座的水平方向
-                        t = q["_t"]
-                        ins = lambda target, t=t, base=pts3: base[:i0 + 1] + slack_shape(base[i0], t, target, *q["_shape"]) + base[i0 + 1:]
+                        # 找這條線自己最長的一段水平段（不只封孔板上，也含進窗口那段），小拱順著它長、寬度不超過該段，不會折返
+                        cand_i = max(range(i0, len(pts3) - 1), key=lambda j: Vector((pts3[j + 1].x - pts3[j].x, pts3[j + 1].y - pts3[j].y)).length)
+                        dv = pts3[cand_i + 1] - pts3[cand_i]; hv = Vector((dv.x, dv.y, 0))
+                        t, wb = hv.normalized(), min(10.0, hv.length * 0.8)
+                        A = pts3[cand_i]; P = A + dv * 0.1
+                        ins = lambda target, j=cand_i, P=P, t=t, wb=wb, base=pts3: base[:j + 1] + [P] + slack_shape(P, t, target, *q["_shape"], w=wb) + base[j + 1:]
                     target = slack
                     for _ in range(12):                # 插入後量實際長度，修正到線身剛好 CABLE
                         cand = ins(target); err = CABLE - plen3(cand)
@@ -314,11 +328,13 @@ def step_wires():
                 hub_end = {"GND": "GND（藍軌）", "VCC": "3V3（紅軌）"}.get(pin) or BUS_PIN[q["bus"]][pin]
                 wires.append(dict(floor=fl, oled=q["id"], junction=(f"J({q['J'][0]},{q['J'][1]})" if fl == 1 else f"J2({q['J'][0]},{q['J'][1]})"),
                                   hub=f"{fl}{q['seat']}", bus=q["bus"], addr=hex(q["addr"]), pin=pin, hub_end=hub_end,
-                                  entry=q["entry"], cable_mm=round(L, 1), total_mm=round(L + 34.0, 1), slack_mm=round(CABLE - L0, 1),
+                                  entry=q["entry"], wire_cm=q["wire_cm"], cable_mm=round(L, 1), total_mm=round(L + 34.0, 1), slack_mm=round(CABLE - L0, 1),
                                   plug_mm=q["plug_mm"]))
     rep["wires"] = wires
     T = [w["total_mm"] for w in wires]; S = [w["slack_mm"] for w in wires]
-    return {"wires": len(wires), "total_min": min(T), "total_max": max(T), "slack_min": min(S), "slack_max": max(S), "too_short": over}
+    n10 = sum(1 for w in wires if w["wire_cm"] == 10)
+    return {"wires": len(wires), "wires_10cm": n10, "wires_20cm": len(wires) - n10, "total_set": sorted(set(T)),
+            "slack_min": min(S), "slack_max": max(S), "too_short": over}
 
 res = {}
 if STEP in ("cut", "all"): res["cut"] = step_cut()
