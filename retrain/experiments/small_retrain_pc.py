@@ -77,7 +77,7 @@ def dataset():
     log(open(os.path.join(WORK, "logs", "dataset.log"), encoding="utf-8", errors="replace").read()[-400:])
 
 def train(ep=40):
-    y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONIOENCODING="utf-8")
+    y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
     sh([PY, "train.py", "--device", "0", "--workers", "2", "--batch-size", "16", "--data", os.path.join(WORK, "ds7", "data.yaml"),
         "--img", "576", "576", "--cfg", os.path.join(WORK, "cfg", "yolov7-tiny-fire7.yaml"), "--hyp", os.path.join(WORK, "cfg", "hyp.ft7.yaml"),
         "--weights", os.path.join(WORK, "weights", "best6.pt"), "--epochs", str(ep), "--project", os.path.join(WORK, "runs"),
@@ -85,7 +85,7 @@ def train(ep=40):
     log("train done")
 
 def evaluate():
-    y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONIOENCODING="utf-8")
+    y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
     w = os.path.join(WORK, "runs", "small7", "weights", "best.pt")
     lf = os.path.join(WORK, "logs", "eval.log")
     if os.path.exists(lf): os.remove(lf)
