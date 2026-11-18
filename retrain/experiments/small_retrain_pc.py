@@ -13,7 +13,7 @@ model_oled_ceiling/fire_model_oled_through_hole.blend（閘門已是 94 mm），
 import sys, os, subprocess, urllib.request, zipfile, shutil, re, glob, json, time
 sys.stdout.reconfigure(errors="replace")
 WORK = os.path.join(os.path.expanduser("~"), "fire_retrain7")
-RAW = "https://raw.githubusercontent.com/josephyang0219/fire-evac-guidance/claude/8hub-18oled-wiring/"
+RAW = "https://raw.githubusercontent.com/josephyang0219/fire-evac-guidance/main/"
 BLENDER = r"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
 PY = sys.executable
 FILES = {
