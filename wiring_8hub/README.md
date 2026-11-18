@@ -5,6 +5,13 @@
 
 ![平面接線圖](平面接線圖_1F_2F.png)
 
+## 0. 在 Blender 裡的成品
+
+`blender_build_wiring.py` 在已開啟的 `fire_model.blend`（11/04 另存的那份，和 `physical_model/` 相同）上分三步執行：切孔（側窗、長條孔）→ 放 18 塊 OLED（用 GitHub `model_oled_ceiling/fire_model_oled_through_hole.blend` 的穿孔版 0.96 吋模組：玻璃、顯示區、PCB、背面零件、雙面膠、排針、排針塑膠座、杜邦母座）→ 拉 72 條實體杜邦線（每條一個 curve，黑 GND、紅 VCC、黃 SCL、綠 SDA，線排順序和排針一致不交叉）。2026-11-18 已在使用者電腦的 Blender 5.2 上實際執行，存成 `fire_model_8hub_wiring.blend`：切孔零件非流形邊 0；72 條線（含 15 mm 服務環）62～177 mm，全部沒壓到塞子。
+
+![2F 全景](renders/2F_overview.png)
+![2F 西北角特寫](renders/2F_NW_closeup.png)
+
 ## 1. 分配
 
 | HUB | 角落（Wire 0x3C，Pin3 SDA／Pin4 SCL） | 十字臂中點（Wire1 0x3C，Pin0 SDA／Pin1 SCL） | 中心（Wire1 **0x3D**） |
