@@ -1,0 +1,32 @@
+# Generated into .local/mediamtx/mediamtx.yml by StartMediaMtx.ps1.
+# It stays loopback-only in the first deployment, so WebRTC/HLS are playable
+# from this Windows computer without opening new LAN firewall ports.
+logLevel: info
+logDestinations: [stdout]
+
+rtsp: false
+rtmp: false
+srt: false
+moq: false
+
+hls: true
+hlsAddress: 127.0.0.1:8888
+hlsAllowOrigins: ["http://127.0.0.1:8000", "http://192.168.137.1:8000"]
+hlsVariant: lowLatency
+hlsAlwaysRemux: false
+
+webrtc: true
+webrtcAddress: 127.0.0.1:8889
+webrtcAllowOrigins: ["http://127.0.0.1:8000", "http://192.168.137.1:8000"]
+webrtcLocalUDPAddress: 127.0.0.1:8189
+
+api: true
+apiAddress: 127.0.0.1:9997
+
+pathDefaults:
+  sourceOnDemand: true
+  sourceOnDemandStartTimeout: 10s
+
+paths:
+  camera-01:
+    source: "__RTSP_SOURCE__"
