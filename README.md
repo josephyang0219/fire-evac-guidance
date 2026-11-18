@@ -22,7 +22,7 @@
 HUB-8735 韌體
   ├─ YOLOv7-tiny（NPU，輸入 576×320）：櫃子、紙箱、桌椅、瓦礫、閘門、煙（6 類）
   ├─ 人流追蹤計數（people_flow/）
-  ├─ 方向指引輸出：OLED（SSD1306，I²C 0x3C，SDA Pin3／SCL Pin4）
+  ├─ 方向指引輸出：天花板 OLED，每台 2～3 塊（SSD1306；Wire Pin3/Pin4、Wire1 Pin0/Pin1）
   └─ Wi-Fi → 伺服器（POST 偵測結果，回應每個路口的方向）
   ▼
 伺服器 fire_evac_v2/app（FastAPI；evac.py 負責路網、出口、樓梯、最短安全路徑）
@@ -30,22 +30,21 @@ HUB-8735 韌體
 RTSP → MediaMTX → WebRTC（看鏡頭畫面）／中控台網頁
 ```
 
-## 目前進度（2026-11-05）
+## 目前進度（2026-11-18）
 
 | 子系統 | 狀態 | 下一步 |
 |---|---|---|
 | 火災偵測模型 | ✅ 轉檔、上板正常（載入 448 ms）　❌ 實景誤判嚴重（訓練圖是模擬渲染，sim-to-real 落差） | 補實景照片與空場景負樣本、加第 7 類 `6 = person`，重新訓練 |
 | 上機測試 | ⏸ 暫停 | 鏡頭對準實體模型與障礙物道具，做受控測試 |
 | 人流追蹤計數 | ✅ 程式完成，模擬準確率 97–100%，編譯通過　⏳ 尚未燒錄 | 重訓後上板，用人工計數加錄影驗證 |
-| OLED 方向指引 | ✅ 9 塊穿孔＋雙面膠；4 角由鏡頭 HUB 驅動，中心＋十字臂中點 4 塊由 3 台只驅動 OLED 的 HUB（H5/H6/H7）驅動，不用多工器；完整接線設計與線材清單見 `model_oled_ceiling/接線表.txt` | 量實物、試鑽孔、改焊 N/E 兩塊為 0x3D、實測排針 5V 供電；`model_oled/` 是舊方案，只留作參考 |
-| 節點韌體 hub_node | ✅ 已改為每路口方向，模擬通過；新增只驅動 OLED 的 H5/H6/H7 韌體（`fire_evac_v2/firmware/hub_oled/`） | 上板驗證 |
-| 伺服器／路網 | ✅ 已改為每路口方向，模擬通過；真 server 冒煙測試，72 個請求全部 200 | 與實機連線測試 |
+| OLED 方向指引 | ✅ **1F、2F 各 9 塊（共 18 塊）由 8 台鏡頭 HUB 直接驅動，每台 2～3 塊**，取消 H5/H6/H7（2026-11-18，`wiring_8hub/`）：72 條 20 cm 母－公線全部 ≤ 190 mm、麵包板座加側窗、2F 角落外移 0.5～1.75 mm（2F 天花板要印新 STL）、18 塊鏡頭 0 像素 | 桌上實測 Wire1、改焊兩層中心為 0x3D、量實物後切側窗；`model_oled_ceiling/` 的 OLED 位置沿用，接線部分（方案 D）已被取代 |
+| 節點韌體 hub_node | ✅ `OLED_MAP` 改成 8 台 × 2～3 塊（角落 Wire、十字臂與中心 Wire1）、畫面方向照模型填；設定表已用函式庫型別編譯通過　⏳ 完整 SDK 編譯、上板 | 有 SDK 的電腦上完整編譯、上板驗證；`hub_oled/` 已不用 |
+| 伺服器／路網 | ✅ 每台板子回傳自己樓層的 9 個路口（2F 代號 `J2(i,j)`）；8 板 × 18 塊端對端測試 4 情境全部一致（`fire_evac_v2/sim/server_oled8_test_output.md`）；可接受 7 類模型（人偶不算障礙） | 與實機連線測試 |
 | 多 OLED 韌體 `oled_fw/` | ✅ 一台 8735 驅動多塊 OLED 的韌體與圖示預覽 | 上板驗證（0x3D 需改位址，見其 README） |
 | 重訓資料準備 `retrain/` | ✅ 正式資料集 3400 張、Colab 筆記本已備妥 | 在 Colab 訓練 |
 | 互動式簡報 | ✅ 已上線 | 硬體定案後同步（目前寫的「地面 LED、1:100」與實體模型不符） |
 
-**待組內決定：**
-- 2F 要不要也裝 OLED？
+**已決定（2026-11-18）：** 2F 也裝 OLED；HUB 維持 8 台。燒錄方式的檢查見 `docs/燒錄方式檢查_2026-11-18.md`，下一階段（7 類重訓、人流）評估見 `docs/下一階段評估_7類重訓與人流_2026-11-18.md`。
 
 ## 資料夾
 
@@ -59,7 +58,8 @@ RTSP → MediaMTX → WebRTC（看鏡頭畫面）／中控台網頁
 | `fire_evac_v2/README.txt` | **上機步驟的詳細說明**（LED 燈號、序列埠訊息、轉檔參數） |
 | `model/` | 訓練用設定（classes、hyp）、訓練紀錄（混淆矩陣、PR 曲線）、原始權重 `best.pt` |
 | `people_flow/` | 人偶追蹤計數（`PeopleFlow.h`）與 PC 端模擬測試 |
-| `model_oled_ceiling/` | **現行方案**：1F 天花板 9 塊 OLED 穿孔＋雙面膠模型（.blend、STL、檢查圖、`arm_inward/` 評估）；舊的外殼凹槽方案在 `舊方案_外殼凹槽_d6d65a8e/` |
+| `wiring_8hub/` | **現行接線**：8 台鏡頭 HUB × 18 塊 OLED、72 條線逐條接線表、平面接線圖、麵包板座側窗與 2F 天花板 STL、檢查腳本 |
+| `model_oled_ceiling/` | 1F 天花板 9 塊 OLED 穿孔＋雙面膠的位置與 STL（沿用）；其中 H5/H6/H7 接線（方案 D）已被 `wiring_8hub/` 取代；舊的外殼凹槽方案在 `舊方案_外殼凹槽_d6d65a8e/` |
 | `model_oled/` | 舊方案：麵包板座外端面的 OLED 模型（0.96／0.91 吋各一份），只留作參考 |
 | `oled_fw/` | 一台 8735 驅動多塊 OLED 的 Arduino 函式庫與韌體 |
 | `retrain/` | 7 類模型重訓的資料準備（渲染腳本、設定、樣本、補拍清單） |
@@ -80,7 +80,7 @@ python server.py
 - Camera 選 PS5268，NN Model Load From 選 Flash。
 - Wi-Fi：把 `secrets.example.h` 複製成同資料夾的 `secrets.h` 再填入。沒有 `secrets.h` 時，程式會用預設的筆電熱點 `FireDemo`。**`secrets.h` 不要 commit。**
 - 燒錄前要手動進下載模式：按住 Function，按一下 RST，再放開。
-- 要跑本組模型，先把 `fire_evac_v2/model/yolov7_tiny_576x320.nb` 改名成 `yolov7_tiny.nb`，再放進 SDK 的 `variants/common_nn_models/`。
+- 要跑本組模型，先把 `fire_evac_v2/model/yolov7_tiny_576x320.nb` 改名成 `yolov7_tiny.nb`，再放進 SDK 的 `variants/common_nn_models/`。燒錄前用 `python fire_evac_v2/tools/check_sdk_model.py --expect-classes 6` 確認 SDK 裡真的是本組模型。
   因為 SDK 的 ino_validation 會拒絕 CUSTOMIZED 模型，所以用 DEFAULT 名稱繞過去。
   原本的 COCO 模型記得先備份；要跑官方範例時再換回來。
 
