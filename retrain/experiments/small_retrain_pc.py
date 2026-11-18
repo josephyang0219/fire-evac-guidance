@@ -6,6 +6,12 @@
   python small_retrain_pc.py dataset          合併、切 train/val
   python small_retrain_pc.py train   [EP]     從 6 類 best.pt 微調成 7 類（預設 40 輪）
   python small_retrain_pc.py eval             各類 AP、人偶依大小的召回率、舊 6 類有沒有退步
+  python small_retrain_pc.py fetch            只重新下載 scripts／cfg（渲染程式修正後用）
+  python small_retrain_pc.py transplant       把 6 類偵測頭搬到 7 類模型（weights/best6to7.pt），train 用 RT_INIT=transplant 時當起點
+  python small_retrain_pc.py baseline         舊 6 類 best.pt 直接在這份 val 上的 TP／FP／FN（conf 0.4），當對照
+
+環境變數 RT_TAG（例如 _v2）：渲染輸出、資料集、訓練結果都加上這個後綴，不會蓋掉前一輪。
+環境變數 RT_INIT=transplant：從 best6to7.pt 開始（偵測頭保留舊 6 類），不設就是 yolov7 預設（偵測頭重學）。
 
 工作資料夾 %USERPROFILE%\\fire_retrain7（英文路徑）。渲染來源用 GitHub 的
 model_oled_ceiling/fire_model_oled_through_hole.blend（閘門已是 94 mm），複製成 fire_model_dr.blend 後才給 Blender。
@@ -25,6 +31,9 @@ FILES = {
     "model/weights/best.pt": "weights/best6.pt",
     "model_oled_ceiling/fire_model_oled_through_hole.blend": "fire_model_dr.blend",
 }
+TAG = os.environ.get("RT_TAG", "")
+INIT = os.environ.get("RT_INIT", "")
+DSTAG = os.environ.get("RT_DSTAG", TAG)  # 用哪一份資料集（預設和 RT_TAG 相同）
 CLASSES = ["cabinet", "boxes", "furniture", "rubble", "gate", "smoke", "person"]
 
 def log(*a):
@@ -63,39 +72,52 @@ def setup():
        logf=os.path.join(WORK, "setup.log"))
     log("setup done")
 
+def fetch():
+    for src, dst in FILES.items():
+        if dst.endswith((".py", ".yaml")):
+            d = os.path.join(WORK, dst); urllib.request.urlretrieve(RAW + src, d); log("got", dst, os.path.getsize(d))
+    d = os.path.join(WORK, "yolov7", "head_transplant.py")
+    urllib.request.urlretrieve(RAW + "retrain/tools/head_transplant.py", d); log("got head_transplant.py")
+
+def transplant():
+    y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONUTF8="1")
+    sh([PY, "head_transplant.py", os.path.join(WORK, "weights", "best6.pt"), os.path.join(WORK, "cfg", "yolov7-tiny-fire7.yaml"),
+        os.path.join(WORK, "weights", "best6to7.pt")], cwd=y7, env=env, logf=os.path.join(WORK, "logs", "transplant.log"))
+    log(open(os.path.join(WORK, "logs", "transplant.log"), encoding="utf-8", errors="replace").read()[-600:])
+
 def render(n=600, e=80):
     os.makedirs(os.path.join(WORK, "logs"), exist_ok=True)
     blend = os.path.join(WORK, "fire_model_dr.blend"); scr = os.path.join(WORK, "scripts", "dr_render.py")
-    for args, tag in (([ "--count", str(n), "--seed", "101", "--out", os.path.join(WORK, "out", "dr_s101"), "--skip-existing"], "dr"),
-                      (["--count", str(e), "--seed", "102", "--mode", "empty", "--prefix", "empty", "--out", os.path.join(WORK, "out", "empty_s102"), "--skip-existing"], "empty")):
-        sh([BLENDER, "-b", blend, "--python", scr, "--"] + args, logf=os.path.join(WORK, "logs", f"render_{tag}.log"))
+    for args, tag in (([ "--count", str(n), "--seed", "101", "--out", os.path.join(WORK, "out", "dr_s101" + TAG), "--skip-existing"], "dr"),
+                      (["--count", str(e), "--seed", "102", "--mode", "empty", "--prefix", "empty", "--out", os.path.join(WORK, "out", "empty_s102" + TAG), "--skip-existing"], "empty")):
+        sh([BLENDER, "-b", blend, "--python", scr, "--"] + args, logf=os.path.join(WORK, "logs", f"render_{tag}{TAG}.log"))
     log("render done")
 
 def dataset():
-    ds = os.path.join(WORK, "ds7")
-    sh([PY, os.path.join(WORK, "scripts", "make_dataset.py"), "--out", ds, "--work", WORK, "--src", "out/dr_s101", "--src", "out/empty_s102",
-        "--val", "0.2", "--colab-path", ds.replace("\\", "/")], logf=os.path.join(WORK, "logs", "dataset.log"))
-    log(open(os.path.join(WORK, "logs", "dataset.log"), encoding="utf-8", errors="replace").read()[-400:])
+    ds = os.path.join(WORK, "ds7" + DSTAG)
+    sh([PY, os.path.join(WORK, "scripts", "make_dataset.py"), "--out", ds, "--work", WORK, "--src", "out/dr_s101" + TAG, "--src", "out/empty_s102" + TAG,
+        "--val", "0.2", "--colab-path", ds.replace("\\", "/")], logf=os.path.join(WORK, "logs", f"dataset{TAG}.log"))
+    log(open(os.path.join(WORK, "logs", f"dataset{TAG}.log"), encoding="utf-8", errors="replace").read()[-400:])
 
 def train(ep=40):
     y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
-    sh([PY, "train.py", "--device", "0", "--workers", "2", "--batch-size", "16", "--data", os.path.join(WORK, "ds7", "data.yaml"),
+    sh([PY, "train.py", "--device", "0", "--workers", "2", "--batch-size", "16", "--data", os.path.join(WORK, "ds7" + DSTAG, "data.yaml"),
         "--img", "576", "576", "--cfg", os.path.join(WORK, "cfg", "yolov7-tiny-fire7.yaml"), "--hyp", os.path.join(WORK, "cfg", "hyp.ft7.yaml"),
-        "--weights", os.path.join(WORK, "weights", "best6.pt"), "--epochs", str(ep), "--project", os.path.join(WORK, "runs"),
-        "--name", "small7", "--exist-ok", "--cache-images"], cwd=y7, env=env, logf=os.path.join(WORK, "logs", "train.log"))
+        "--weights", os.path.join(WORK, "weights", "best6to7.pt" if INIT == "transplant" else "best6.pt"), "--epochs", str(ep), "--project", os.path.join(WORK, "runs"),
+        "--name", "small7" + TAG, "--exist-ok", "--cache-images"], cwd=y7, env=env, logf=os.path.join(WORK, "logs", f"train{TAG}.log"))
     log("train done")
 
-def evaluate():
+def evaluate(weights=None, tagname=None):
     y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
-    w = os.path.join(WORK, "runs", "small7", "weights", "best.pt")
-    lf = os.path.join(WORK, "logs", "eval.log")
+    w = weights or os.path.join(WORK, "runs", "small7" + TAG, "weights", "best.pt")
+    lf = os.path.join(WORK, "logs", f"{tagname or 'eval'}{TAG}.log")
     if os.path.exists(lf): os.remove(lf)
-    sh([PY, "test.py", "--data", os.path.join(WORK, "ds7", "data.yaml"), "--img", "576", "--batch", "16", "--conf", "0.001", "--iou", "0.65",
-        "--weights", w, "--task", "val", "--verbose", "--project", os.path.join(WORK, "runs"), "--name", "small7_val", "--exist-ok"],
+    if not weights: sh([PY, "test.py", "--data", os.path.join(WORK, "ds7" + DSTAG, "data.yaml"), "--img", "576", "--batch", "16", "--conf", "0.001", "--iou", "0.65",
+        "--weights", w, "--task", "val", "--verbose", "--project", os.path.join(WORK, "runs"), "--name", "small7_val" + TAG, "--exist-ok"],
        cwd=y7, env=env, logf=lf)
     # 人偶依框高（像素）分組的召回率、各類在 conf 0.4 的 precision/recall（上板門檻）
     code = r'''
-import sys, os, glob, json, torch, numpy as np, cv2
+import sys, os, glob, json, torch, numpy as np, cv2, warnings; warnings.filterwarnings("ignore")
 sys.path.insert(0, os.getcwd())
 from models.experimental import attempt_load
 from utils.general import non_max_suppression, xywh2xyxy, box_iou
@@ -132,9 +154,13 @@ print(json.dumps({"person_recall_by_height_px": {f"{a}-{b}": h for (a, b), h in 
                   "at_conf_0.4": {n: dict(tp=tp[i], fp=fp[i], fn=fn[i]) for i, n in enumerate(["cabinet","boxes","furniture","rubble","gate","smoke","person"])}}))
 '''
     open(os.path.join(y7, "size_eval.py"), "w", encoding="utf-8").write(code)
-    sh([PY, "size_eval.py", w, os.path.join(WORK, "ds7")], cwd=y7, env=env, logf=lf)
+    sh([PY, "size_eval.py", w, os.path.join(WORK, "ds7" + DSTAG)], cwd=y7, env=env, logf=lf)
     log(open(lf, encoding="utf-8", errors="replace").read()[-3500:])
 
 if __name__ == "__main__":
     st = sys.argv[1]; a = [int(x) for x in sys.argv[2:]]
-    {"setup": setup, "render": render, "dataset": dataset, "train": train, "eval": evaluate}[st](*a)
+    if st == "baseline":
+        evaluate(os.path.join(WORK, "weights", "best6.pt"), "baseline6")
+    else:
+        {"setup": setup, "fetch": fetch, "transplant": transplant, "render": render, "dataset": dataset,
+         "train": train, "eval": evaluate}[st](*a)

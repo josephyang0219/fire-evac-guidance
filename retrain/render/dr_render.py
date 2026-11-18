@@ -18,7 +18,9 @@ import bpy, bmesh, sys, os, json, math, random, colorsys, time, argparse
 import numpy as np
 from mathutils import Vector, Matrix, Euler
 
-SMOKE_REL_DIFF = 0.06  # 有煙／無煙亮度相對差超過 6% 才算看得到煙
+SMOKE_REL_DIFF = 0.15  # 有煙／無煙亮度相對差超過 15% 才算看得到煙（原本 6%：降噪後的渲染雜訊就會超過，框被雜訊撐大）
+SMOKE_MIN_FRAC = 0.25  # 看得到的部分至少要佔煙形狀範圍的 25%，太淡的煙不標（2026-11-18 小規模補訓：煙 AP 0.002 的主因）
+SMOKE_MIN_PIX = 150
 CLASSES = ['cabinet', 'boxes', 'furniture', 'rubble', 'gate', 'smoke', 'person']
 W, H = 576, 320
 ORIGINAL_NAME = 'fire_model.blend'
@@ -429,7 +431,7 @@ def make_smoke(name, rng, x, y):
     nr.inputs['From Max'].default_value = 0.75
     mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'
     mul2 = nt.nodes.new('ShaderNodeMath'); mul2.operation = 'MULTIPLY'
-    mul2.inputs[1].default_value = math.exp(rng.uniform(math.log(0.01), math.log(0.09)))
+    mul2.inputs[1].default_value = math.exp(rng.uniform(math.log(0.03), math.log(0.15)))  # 原本 0.01～0.09：多半淡到看不見
     vol = nt.nodes.new('ShaderNodeVolumePrincipled')
     g = rng.uniform(0.45, 0.95)
     vol.inputs['Color'].default_value = (g, g, g * rng.uniform(0.92, 1.0), 1)
@@ -531,6 +533,19 @@ def build_frame(idx, rng):
             c = jitter_color(h['base'], rng) if rng.random() < 0.5 else \
                 hsv_lin(rng.random(), rng.uniform(0, 0.9), rng.uniform(0.2, 0.95))
             set_material(h, c, rng)
+        elif n == 'OB_Rubble':
+            # 原色是亮灰（線性 0.52），在自動曝光偏亮的畫面裡和白／灰 PLA 牆面分不開（補訓瓦礫 AP 0.24）。
+            # 改成混凝土／磚／碎木／焦黑色系，紋理加重；25% 仍是完全隨機色。
+            kind = rng.random()
+            if kind < 0.25:
+                c = hsv_lin(rng.random(), rng.uniform(0.1, 0.9), rng.uniform(0.2, 0.9))
+            elif kind < 0.5:
+                c = hsv_lin(rng.uniform(0.05, 0.15), rng.uniform(0.0, 0.15), rng.uniform(0.25, 0.55))  # 混凝土灰（較暗）
+            elif kind < 0.75:
+                c = hsv_lin(rng.uniform(0.0, 0.06), rng.uniform(0.45, 0.8), rng.uniform(0.3, 0.65))  # 紅磚
+            else:
+                c = hsv_lin(rng.uniform(0.05, 0.11), rng.uniform(0.3, 0.7), rng.uniform(0.1, 0.45))  # 碎木／焦黑
+            set_material(h, c, rng, noise_amt=rng.uniform(0.4, 0.9))
         else:
             set_material(h, jitter_color(h['base'], rng), rng)
 
@@ -835,6 +850,20 @@ def main():
             lb, ln = beauty.mean(2), nos.mean(2)
             rel = np.abs(lb - ln) / (np.maximum(lb, ln) + 0.02 * float(ln.mean()) + 1e-6)
             smoke_vis = rel > SMOKE_REL_DIFF
+            # 開運算（3×3 侵蝕再膨脹）去掉零星的雜訊點，框才不會被撐大
+            def _er(m):
+                o = m.copy()
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        o &= np.roll(np.roll(m, dy, 0), dx, 1)
+                return o
+            def _di(m):
+                o = m.copy()
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        o |= np.roll(np.roll(m, dy, 0), dx, 1)
+                return o
+            smoke_vis = _di(_er(smoke_vis))
         mA, mB = render_masks(tmp, insts)
         cam = SC.camera
         lines, objs = [], []
@@ -843,6 +872,8 @@ def main():
                 full = mB == it['id']
                 m = full & smoke_vis
                 ys, xs = np.nonzero(m)
+                if len(xs) < max(SMOKE_MIN_PIX, SMOKE_MIN_FRAC * full.sum()):
+                    ys, xs = ys[:0], xs[:0]  # 太淡：不標（記在 meta 的 smoke_too_faint）
             else:
                 ys, xs = np.nonzero(mA == it['id'])
             rec = dict(id=it['id'], cls=it['cls'], name=CLASSES[it['cls']], pixels=int(len(xs)),
@@ -852,6 +883,7 @@ def main():
             rec['proj_bbox'] = proj
             if it['cls'] == 5:
                 rec['smoke_mask_pixels'] = int(full.sum())  # 煙的形狀範圍；pixels 是其中看得到的部分
+                rec['smoke_too_faint'] = len(xs) == 0
             if len(xs):
                 x0, x1, y0, y1 = int(xs.min()), int(xs.max()) + 1, int(ys.min()), int(ys.max()) + 1
                 rec['mask_bbox'] = [x0, y0, x1, y1]
