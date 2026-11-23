@@ -37,10 +37,10 @@ RTSP → MediaMTX → WebRTC（看鏡頭畫面）／中控台網頁
 | 火災偵測模型 | ✅ 轉檔、上板正常（載入 448 ms）　❌ 實景誤判嚴重（訓練圖是模擬渲染，sim-to-real 落差） | 補實景照片與空場景負樣本、加第 7 類 `6 = person`，重新訓練 |
 | 上機測試 | ⏸ 暫停 | 鏡頭對準實體模型與障礙物道具，做受控測試 |
 | 人流追蹤計數 | ✅ 程式完成，模擬準確率 97–100%，編譯通過　⏳ 尚未燒錄 | 重訓後上板，用人工計數加錄影驗證 |
-| OLED 方向指引 | ✅ 已有 18 塊 OLED 個別配置圖與配置表（`wiring_8hub/oled_layout/`）。**1F、2F 各 9 塊（共 18 塊）由 8 台鏡頭 HUB 直接驅動，每台 2～3 塊**，取消 H5/H6/H7（2026-11-18，`wiring_8hub/`）：72 條母－公線（10 cm × 32＋20 cm × 40，長度都夠）、麵包板座加側窗、2F 角落外移 0.5～1.75 mm（2F 天花板要印新 STL）、18 塊鏡頭 0 像素 | Wire1 桌上實測已通過（SDA→Pin0、SCL(SCK)→Pin1，接反會完全掃不到；SDK 的 `endTransmission()` 送 0 bytes 時對任何位址都回 0，掃描要送 1 byte）。待測：Wire1 與鏡頭＋NN 同時運作、Wire＋Wire1 同時接；改焊兩層中心為 0x3D、量實物後切側窗；`model_oled_ceiling/` 的 OLED 位置沿用，接線部分（方案 D）已被取代 |
-| 節點韌體 hub_node | ✅ `OLED_MAP` 改成 8 台 × 2～3 塊（角落 Wire、十字臂與中心 Wire1）、畫面方向照模型填；設定表已用函式庫型別編譯通過　已加 OTA：用 `fire_evac_v2/tools/build_hub_node.py --ota` 編譯，8 台共用一個 `ota.bin`，尚未上板；OTA 單台實測成功（要推 `ota.bin`；開 OTA 時模型要放 SD 卡 `NN_MDL/yolov7_tiny.nb`，測試程式見 `fire_evac_v2/firmware/ota_test/`、`wire1_test/`）　⏳ 完整 SDK 編譯、上板 | 有 SDK 的電腦上完整編譯、上板驗證；`hub_oled/` 已不用 |
+| OLED 方向指引 | ✅ 已有 18 塊 OLED 個別配置圖與配置表（`wiring_8hub/oled_layout/`）。**1F、2F 各 9 塊（共 18 塊）由 8 台鏡頭 HUB 直接驅動，每台 2～3 塊**，取消 H5/H6/H7（2026-11-18，`wiring_8hub/`）：72 條母－公線（10 cm × 32＋20 cm × 40，長度都夠）、麵包板座加側窗、2F 角落外移 0.5～1.75 mm（2F 天花板要印新 STL）、18 塊鏡頭 0 像素 | Wire1 桌上實測已通過（SDA→Pin0、SCL(SCK)→Pin1，接反會完全掃不到；SDK 的 `endTransmission()` 送 0 bytes 時對任何位址都回 0，掃描要送 1 byte）。**不改焊 0x3D**：18 塊都用出廠 0x3C。角落接 Wire（SDA Pin3／SCK Pin4），十字臂接 Wire1（SDA Pin0／SCK Pin1），兩層 S 座的中心接軟體 I²C（SDA Pin18／SCK Pin19）；實測一台 HUB 三條同時驅動三塊都穩定。**I²C 根因**：HAL `i2c_write` 在資料送完前就返回，下一筆會蓋掉上一筆，畫面時好時壞但 ACK 正常；現在每筆都等 TX_COMPLETE，100 kHz 約 0.12 秒一張（SDK Wire 每 byte 固定等 200 µs，一張要 0.24 秒）。待測：SD 卡放 `NN_MDL/yolov7_tiny.nb` 後，OTA 推 hub_node，測鏡頭＋NN＋三塊 OLED 同時運作、量實物後切側窗；`model_oled_ceiling/` 的 OLED 位置沿用，接線部分（方案 D）已被取代 |
+| 節點韌體 hub_node | ✅ `OLED_MAP` 改成 8 台 × 2～3 塊（角落 Wire、十字臂與中心 Wire1）、畫面方向照模型填；設定表已用函式庫型別編譯通過　已加 OTA：用 `fire_evac_v2/tools/build_hub_node.py --ota` 編譯，8 台共用一個 `ota.bin`，尚未上板；OTA 單台實測成功（要推 `ota.bin`；開 OTA 時模型要放 SD 卡 `NN_MDL/yolov7_tiny.nb`，測試程式見 `fire_evac_v2/firmware/ota_test/`、`wire1_test/`）；已採用上述 TX_COMPLETE 做法與軟體 I²C（5c49b07b），兩版編譯通過　⏳ 完整 SDK 編譯、上板 | 有 SDK 的電腦上完整編譯、上板驗證；`hub_oled/` 已不用 |
 | 伺服器／路網 | ✅ 每台板子回傳自己樓層的 9 個路口（2F 代號 `J2(i,j)`）；8 板 × 18 塊端對端測試 4 情境全部一致（`fire_evac_v2/sim/server_oled8_test_output.md`）；可接受 7 類模型（人偶不算障礙） | 與實機連線測試 |
-| 多 OLED 韌體 `oled_fw/` | ✅ 一台 8735 驅動多塊 OLED 的韌體與圖示預覽 | 上板驗證（0x3D 需改位址，見其 README） |
+| 多 OLED 韌體 `oled_fw/` | ✅ 一台 8735 驅動多塊 OLED 的韌體與圖示預覽 | 上板驗證（全部維持 0x3C，不改焊） |
 | 重訓資料準備 `retrain/` | ✅ 正式資料集 3400 張、Colab 筆記本已備妥 | 在 Colab 訓練 |
 | 互動式簡報 | ✅ 已上線 | 硬體定案後同步（目前寫的「地面 LED、1:100」與實體模型不符） |
 
