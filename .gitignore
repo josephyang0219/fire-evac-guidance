@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 *.blend1
 .vscode/
+
+# OTA images kept by fire_evac_v2/tools/build_hub_node.py, and the banner preview
+fire_evac_v2/tools/ota_out/
+fire_evac_v2/tools/ota_banner_preview.png

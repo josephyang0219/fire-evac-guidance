@@ -21,20 +21,54 @@
   Displays are drawn by the EvacOled library (oled_fw/libraries/EvacOled, pass it with --library).
 
   Board package: Realtek AmebaPro2 (Arduino IDE). Model: our yolov7_tiny.nb swapped into the SDK (DEFAULT_YOLOV7TINY), Tools -> NN Model Load from: Flash.
+
+  OTA (wireless update): build with  python fire_evac_v2/tools/build_hub_node.py --ota  (FQBN ...:08_OTAMode=Enable,
+  06_LoadNNModelSource=sd). That compiles a generated copy that defines Arduino_OTA_MODE (the SDK does NOT pass it to the
+  compiler, despite boards.txt) and reads the model from the SD card. Without it this sketch behaves as before. With it:
+    - the SDK's OTA threads report to fire_evac_v2/tools/ota_server.py (OTA_SERVER_IP:OTA_SERVER_PORT) and listen on TCP 5000
+    - the model is read from the SD card: sd:/NN_MDL/yolov7_tiny.nb (the SDK refuses a flash model when OTA is on)
+    - while an update runs the displays show "更新中" (no direction) and no detections are posted
+    - every 30 s the board tells the OTA server its MAC / FW / slot (POST /api/nodeinfo), so the server can name boards
+  Identity stays a runtime thing (MAC -> slot on the main server), so all 8 boards take the same ota.bin. See README.md.
+  Wi-Fi / server addresses can be overridden in secrets.h (not in git, copy secrets.example.h).
 */
 #include "WiFi.h"
 #include "StreamIO.h"
 #include "VideoStream.h"
 #include "NNObjectDetection.h"
 #include <EvacOled.h>
+#if defined(Arduino_OTA_MODE) && !defined(Arduino_LOAD_MODEL_SD)
+#error "OTA build needs the SD card model: FQBN ...:08_OTAMode=Enable,06_LoadNNModelSource=sd (use tools/build_hub_node.py --ota)"
+#endif
+#if __has_include("secrets.h")
+#include "secrets.h"                    // local Wi-Fi / server settings, not in git (copy secrets.example.h)
+#endif
 // No ObjectClassList.h: the board only sends class indices; the server maps them to names (evac.CLASSES).
 
 // ---------- same for every board ----------
-const char* SSID = "FireDemo";          // laptop hotspot
-const char* PASS = "firedemo123";
-const char* SERVER = "192.168.137.1";   // laptop address on the hotspot
-const int   PORT = 8000;
-const char* FW = "2.3";
+#ifndef WIFI_SSID
+#define WIFI_SSID "FireDemo"            // laptop hotspot
+#endif
+#ifndef WIFI_PASS
+#define WIFI_PASS "firedemo123"
+#endif
+#ifndef EVAC_SERVER_IP
+#define EVAC_SERVER_IP "192.168.137.1"  // laptop address on the hotspot
+#endif
+#ifndef EVAC_SERVER_PORT
+#define EVAC_SERVER_PORT 8000
+#endif
+#ifndef OTA_SERVER_IP
+#define OTA_SERVER_IP EVAC_SERVER_IP    // tools/ota_server.py, normally on the same laptop
+#endif
+#ifndef OTA_SERVER_PORT
+#define OTA_SERVER_PORT 3000
+#endif
+const char* SSID = WIFI_SSID;
+const char* PASS = WIFI_PASS;
+const char* SERVER = EVAC_SERVER_IP;
+const int   PORT = EVAC_SERVER_PORT;
+const char* FW = "2.4";                 // bump for every OTA release: the OTA server checks it after the reboot
 
 // ---------- junction OLEDs: which displays this position drives (EDIT HERE) ----------
 // One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
@@ -77,6 +111,9 @@ EvacOled oled;
 String mySlot = "?";                 // "?" = nothing received yet, so the first reply always runs defineSlot()
 unsigned long lastReply = 0;
 bool linkLost = false;
+#ifdef Arduino_OTA_MODE
+unsigned long otaInfoAt = 0;          // next node-info report to the OTA server (0 = now)
+#endif
 
 void defineSlot(const String& slot) {
   oled.setAll(Sign::Off); oled.update();      // blank the old position's displays before re-pointing the library
@@ -84,6 +121,9 @@ void defineSlot(const String& slot) {
   for (int r = 0; r < N_MAP && N_OWN < MAX_OWN; r++)
     if (slot == OLED_MAP[r].slot) own[N_OWN++] = OLED_MAP[r].cfg;
   uint8_t ok = oled.begin(own, N_OWN);
+#ifdef Arduino_OTA_MODE
+  otaInfoAt = 0;                              // tell the OTA server about the new slot right away
+#endif
   Serial.print("slot "); Serial.print(slot.length() ? slot : String("(none)"));
   Serial.print(", OLEDs "); Serial.print(ok); Serial.print("/"); Serial.println(N_OWN);
 }
@@ -115,10 +155,10 @@ int jInt(const String& s, const char* key) {
   return s.substring(p + strlen(key) + 3).toInt();
 }
 
-String httpPost(const String& path, const char* type, const uint8_t* data, uint32_t len) {
+String httpPost(const char* host, int port, const String& path, const char* type, const uint8_t* data, uint32_t len) {
   String resp;
-  if (!client.connect(SERVER, PORT)) return resp;
-  client.print(String("POST ") + path + " HTTP/1.1\r\nHost: " + SERVER + "\r\nContent-Type: " + type +
+  if (!client.connect(host, port)) return resp;
+  client.print(String("POST ") + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Type: " + type +
                "\r\nContent-Length: " + len + "\r\nConnection: close\r\n\r\n");
   client.write(data, len);
   unsigned long t0 = millis();
@@ -127,6 +167,68 @@ String httpPost(const String& path, const char* type, const uint8_t* data, uint3
   int b = resp.indexOf("\r\n\r\n");
   return b < 0 ? resp : resp.substring(b + 4);
 }
+String httpPost(const String& path, const char* type, const uint8_t* data, uint32_t len) {
+  return httpPost(SERVER, PORT, path, type, data, len);
+}
+
+#ifdef Arduino_OTA_MODE
+// ---------- OTA: SDK threads + what this sketch does around them ----------
+#include "OTA.h"
+extern "C" {
+#include "ota_drv.h"                // g_otaState / OtaState[]: the SDK's OTA state (IDLE, ..., DOWNLOAD_IN_PROGRESS, ...)
+}
+#include "ota_banner.h"
+OTA ota;
+char otaServer[] = OTA_SERVER_IP;
+const unsigned long OTA_INFO_MS = 30000;          // node info to the OTA server every 30 s ...
+const unsigned long OTA_INFO_BACKOFF_MS = 300000; // ... or every 5 min while it is not reachable
+const unsigned long OTA_FAIL_MS = 15000;          // COMPLETED for this long without a reboot = the update failed
+unsigned long otaCompletedAt = 0;
+bool otaBusy = false, otaFailed = false;
+
+// "更新中" on every display of this slot, written straight to the SSD1306 (EvacOled has no text); no direction shown
+void showOtaBanner() {
+  oled.setAll(Sign::Off);                        // library state = dark; oled.begin() redraws if the update fails
+  for (int k = 0; k < N_OWN; k++) {
+    const SlotConfig& c = own[k];
+    TwoWire& w = c.bus == Bus::Wire1 ? Wire1 : Wire;
+    bool tall = c.panel == Panel::P128x64;
+    const uint8_t* img = tall ? OTA_BANNER_64 : OTA_BANNER_32;
+    const uint8_t win[] = {0x00, 0x21, 0, 127, 0x22, 0, (uint8_t)(tall ? 7 : 3), 0xAF};   // whole screen, display on
+    w.beginTransmission(c.addr); w.write(win, sizeof(win));
+    if (w.endTransmission() != 0) continue;
+    for (int i = 0; i < (tall ? 1024 : 512); i += 64) {
+      w.beginTransmission(c.addr); w.write((uint8_t)0x40); w.write(img + i, 64); w.endTransmission();
+    }
+  }
+}
+
+// true while an update runs: loop() then skips detections and directions
+bool otaInLoop() {
+  const char* st = g_otaState;
+  if (st == OtaState[0] || otaFailed) return false;
+  if (!otaBusy) { otaBusy = true; Serial.print("[OTA] "); Serial.println(st); showOtaBanner(); }
+  if (st == OtaState[3]) {                       // a good update goes on to REBOOT and resets; staying here = failed
+    if (!otaCompletedAt) otaCompletedAt = millis();
+    else if (millis() - otaCompletedAt > OTA_FAIL_MS) {
+      otaFailed = true;
+      Serial.println("[OTA] update failed, back to normal (press RST before the next try)");
+      oled.begin(own, N_OWN);                    // forget the banner, the next reply redraws the directions
+      return false;
+    }
+  }
+  return true;
+}
+
+// MAC / FW / slot to the OTA server, so it can name boards (its own reports only carry the state)
+void sendNodeInfo() {
+  if ((long)(millis() - otaInfoAt) < 0) return;
+  String b = String("{\"mac\":\"") + macStr + "\",\"fw\":\"" + FW + "\",\"slot\":\"" + mySlot + "\",\"ota\":\"" +
+             (otaFailed ? "FAILED" : g_otaState) + "\"}";
+  bool ok = httpPost(otaServer, OTA_SERVER_PORT, "/api/nodeinfo", "application/json", (const uint8_t*)b.c_str(), b.length()).length() > 0;
+  otaInfoAt = millis() + (ok ? OTA_INFO_MS : OTA_INFO_BACKOFF_MS);
+}
+#endif
 
 void setup() {
   Serial.begin(115200);
@@ -134,11 +236,18 @@ void setup() {
   byte mac[6]; WiFi.macAddress(mac);
   sprintf(macStr, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   Serial.print("MAC "); Serial.println(macStr);      // also shown in the console
+#ifdef Arduino_OTA_MODE
+  ota.start_OTA_threads(OTA_SERVER_PORT, otaServer); // reports every ~4 s, listens on TCP 5000 for start_ota
+#endif
   Camera.configVideoChannel(0, configJPG);
   Camera.configVideoChannel(1, configNN);
   Camera.videoInit();
   ObjDet.configVideo(configNN);
-  // DEFAULT_YOLOV7TINY on purpose: the SDK copy variants/common_nn_models/yolov7_tiny.nb is our 6-class model
+  // DEFAULT_YOLOV7TINY on purpose: the SDK copy variants/common_nn_models/yolov7_tiny.nb is our 6-class model.
+  // Keep this the ONLY model line: the SDK's ino_validation scans the text (#if branches and comments too) and wants
+  // the default model for a flash build but no default model at all for an SD (= OTA) build. The OTA build therefore
+  // goes through tools/build_hub_node.py, which writes a copy of this sketch with this one line switched to the
+  // customized (SD card) model, sd:/NN_MDL/yolov7_tiny.nb.
   ObjDet.modelSelect(OBJECT_DETECTION, DEFAULT_YOLOV7TINY, NA_MODEL, NA_MODEL);
   ObjDet.begin();
   videoStreamerNN.registerInput(Camera.getStream(1));
@@ -150,6 +259,10 @@ void setup() {
 }
 
 void loop() {
+#ifdef Arduino_OTA_MODE
+  if (otaInLoop()) { delay(100); return; }    // updating: banner stays, no detections, Wi-Fi left to the download
+  sendNodeInfo();
+#endif
   std::vector<ObjectDetectionResult> res = ObjDet.getResult();
   String body = String("{\"seq\":") + (++seq) + ",\"fps\":5,\"fw\":\"" + FW + "\",\"dets\":[";
   for (size_t i = 0; i < res.size(); i++) {

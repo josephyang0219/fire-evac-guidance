@@ -176,3 +176,92 @@ H5/H6/H7 會印 `H6 OLED online 2/2`、`[OLED 0x3D J(0,1)] -> E`、`link ok` 或
   ```
 
   hub_node 的模型用 `DEFAULT_YOLOV7TINY`，讀的是 SDK 裡已經換成本組模型的 `yolov7_tiny.nb`（跟 hub_model_test、people_flow 相同的做法）。
+
+## 6. OTA 無線更新（2026-11-23 加入，只到編譯通過，還沒上板）
+
+不開 OTA 時，行為和原本完全相同，只有兩處不同：FW 從 2.3 改成 2.4；Wi-Fi 與伺服器位址可以用 `secrets.h` 覆蓋（不放這個檔就用原本的預設值）。
+
+### 6.1 怎麼編譯
+
+```
+python fire_evac_v2/tools/build_hub_node.py        --config-file <yaml>    # 一般版：模型放 flash
+python fire_evac_v2/tools/build_hub_node.py --ota  --config-file <yaml>    # OTA 版：模型放 SD 卡
+```
+
+- yaml 的 `directories.data` 要指向 `%LOCALAPPDATA%\Arduino15`；腳本會清掉 `LANG`／`LC_*`，build path 預設用 `%TEMP%\hbn`、`%TEMP%\hbo` 這種短的 ASCII 路徑。
+- OTA 版的 FQBN 是 `ideasHatch:AmebaPro2:Ameba_HUB-8735_ultra:08_OTAMode=Enable,06_LoadNNModelSource=sd`。
+- 編完會把 `ameba_pro2_tools/1.4.1/ota.bin` 立刻複製成 `fire_evac_v2/tools/ota_out/hub_node_fw<FW>_ota.bin`，因為 SDK 每次編譯都會覆蓋這個檔。`ota_out/` 不進 git。
+
+**為什麼 OTA 版要經過腳本、不能直接編 `hub_node/`**（2026-11-23 實際驗證）：
+
+1. SDK 的 `ino_validation` 是**照文字**掃描 `.ino` 裡的 `modelSelect(...)`，`#if` 的分支和註解也會被掃到：
+   - flash 模式：最後一行 `modelSelect` 要是 `DEFAULT_YOLOV7TINY`，否則報「Model (.nb file) missing」。
+   - SD 模式：只要有任何一行 `modelSelect` 用 `DEFAULT_…`，就報「Model selection mismatched」；改用 `CUSTOMIZED_YOLOV7TINY`（= `SD_YOLOV7TINY`，讀 `sd:/NN_MDL/yolov7_tiny.nb`）才會過。
+
+   所以同一個 `.ino` 不可能兩種模式都過。腳本會產生 `<build path>_sketch/hub_node_ota/hub_node_ota.ino`，只把那一行換成 `CUSTOMIZED_YOLOV7TINY`。
+2. `boards.txt` 雖然有 `build.ota_mode_flags=-DArduino_OTA_MODE`，但**沒有任何編譯規則用到它**（`build.menu_flags` 只放了 STD_PRINTF 和 LOAD_MODEL），所以 SDK **不會**替程式定義 `Arduino_OTA_MODE`。腳本產生的 sketch 第一行會寫 `#define Arduino_OTA_MODE 1`。
+3. 防呆：如果定義了 `Arduino_OTA_MODE`，卻沒有用 SD 卡模型，編譯會直接 `#error`。
+
+用 Arduino IDE 的話：先用腳本 `--ota --dry-run` 產生 sketch，再用 IDE 開那個資料夾，選單選 OTA Mode: Enable、NN Model Load From: SD Card。
+
+### 6.2 身分：維持「MAC → 主伺服器指派的位置」，8 台共用同一個 ota.bin
+
+查過交接 repo 的 hub_node（a0479ba），韌體裡**沒有** NODE_ID、樓層之類每台不同的編譯常數：
+- `OLED_MAP` 一張表就列了 8 個位置（1N…2W）的 18 塊螢幕。
+- 板子的位置是執行時才決定的：伺服器用 MAC 查 `devices.json`，在每次回應的 `slot` 欄位告訴板子，板子再從 `OLED_MAP` 挑出自己的螢幕。
+
+所以 **8 台本來就是同一個 ota.bin**，這次不用改。另外兩種做法比較差：
+
+| 做法 | 缺點 |
+|---|---|
+| SD 卡放設定檔 | 每張卡都要個別改；卡片插錯就跑錯位置；SD 卡現在也拿來放模型，每次準備卡片都要多一個步驟 |
+| 韌體內建 MAC 對照表 | 換一塊板子就要重編、重推；所有板子都要更新才能生效 |
+| **現行：中控台指派（維持）** | 換板子只要在中控台下拉選單改一下，不用重編，也不用碰 SD 卡 |
+
+### 6.3 SD 卡準備（OTA 版每台都要一張）
+
+1. microSD，格式化成 **FAT32**（建議 32 GB 以下，用 Windows 內建格式化就好）。
+2. 在卡的根目錄建資料夾 **`NN_MDL`**（大小寫要一樣）。
+3. 把目前用的模型（轉檔時輸入尺寸 576×320，和 flash 版放在 SDK `variants/common_nn_models/yolov7_tiny.nb` 的是同一份）複製進去，檔名改成 **`yolov7_tiny.nb`**。完整路徑：`sd:/NN_MDL/yolov7_tiny.nb`（SDK `libraries/NeuralNetwork/src/SD_Model.cpp` 寫死的）。
+4. 卡片插到板子上再開機。之後換模型只要換卡上的檔案，不用 OTA；OTA 只更新程式。
+
+### 6.4 更新流程
+
+第一次要先用 USB 燒一次 OTA 版。arduino-cli upload 搭配自訂 build path 會找不到成品，要直接呼叫 `image_windows.exe`，參數照 `platform.txt` 的 `upload.pattern`。之後每次更新的步驟：
+
+1. 改 `hub_node.ino` 的 `FW`（例如 `"2.5"`），執行 `build_hub_node.py --ota`。
+2. `python fire_evac_v2/tools/ota_server.py serve --bin fire_evac_v2/tools/ota_out/hub_node_fw2.5_ota.bin --expect-fw 2.5`（port 3000）。
+3. 另開一個視窗執行 `python ota_server.py status`，確認 8 台都在線、狀態都是 IDLE。名字從 hub_node 每 30 秒送一次的 `/api/nodeinfo` 來。
+4. `python ota_server.py update all`（或只更新指定的幾台：`update 1N 2S`）。伺服器會一台一台照順序更新，每台的成功或失敗原因寫在 status 的「結果」欄：
+   - 「離線」或「不是 IDLE，要先按 RST」：還沒開始就被擋下。
+   - 「沒有開始下載」或「下載沒有完成（送出 x/y bytes）」：下載階段出問題。
+   - 「下載完但沒有重開（板子拒收映像）」：狀態停在 COMPLETED，要按 RST。
+   - 「重開了，但 FW 是舊版」：可能開回了舊分區。
+   - 預設一台失敗就停下，後面的板子標成「略過」；加 `--keep-going` 則繼續下一台。
+
+更新時板子的行為：
+- 螢幕顯示「更新中」（不顯示方向），停止回報偵測結果。主伺服器會把這台當成離線，它負責的走廊沿用最後的狀態。
+- 更新成功會自動重開機；失敗時，狀態停在 COMPLETED 超過 15 秒，板子就自己回到正常運作，等下次按 RST 再更新。
+
+「更新中」的畫面由 `tools/gen_ota_banner.py` 用微軟正黑體粗體產生（`ota_banner.h`），直接寫進 SSD1306。文字**不鏡像**，因為從下往上看到的是螢幕正面。
+
+### 6.5 資源檢查（讀 SDK 原始碼推論，沒有上板量測）
+
+- **OTA 執行緒 1**（堆疊 1024）：每約 3.5 秒連線到 OTA 伺服器並 POST 狀態，在自己的執行緒裡阻塞，不影響 `loop()`。OTA 伺服器沒開時，序列埠會一直印「Connection to server failed」。
+- **OTA 執行緒 2**（堆疊 2048）：`WiFiServer(5000)` 用預設的阻塞模式（`lwip_accept`），沒有連線時就是在等，不會空轉吃 CPU。
+- **port 5000**：hub_node 本身不開任何 server port，主伺服器只是被動接收連線，不衝突。
+- **堆疊單位**：`os_thread_create_arduino` 把數字直接交給 CMSIS-RTOS 的 `stacksize`，是 bytes 還是 words（4 KB 或 8 KB）沒有查證。
+- **記憶體**：OTA.cpp 有幾個全域變數（`char buffer[1024]`、`JsonDocument`、`String`）。ArduinoJson 7.0.4 序列化到 String 前會先清空字串，所以回報內容不會越來越長。
+- **下載任務**：優先權是 `tskIDLE_PRIORITY+1`，堆疊 1024。下載期間 `loop()` 會暫停偵測回報，每次 `delay(100)` 讓出 CPU。但 NN 的串流執行緒還在跑，和下載搶 CPU、搶記憶體的程度**沒有量測**。
+- **I²C**：「更新中」畫面只在 `loop()` 裡寫，和 EvacOled 同一個執行緒，不會同時搶匯流排。
+- **Wi-Fi**：`loop()` 每 30 秒多一次對 OTA 伺服器的短 POST，共用同一個 `WiFiClient`，依序執行。
+  - 筆電在、但 OTA 伺服器沒開：連線會馬上被拒絕。
+  - 筆電整台連不到：可能卡在 lwIP 的連線逾時；這時主伺服器本來也連不到，失敗後會退避成 5 分鐘一次。
+- **flash**（arduino-cli 報的 Sketch 大小）：一般版 9,990,144 bytes（59%，含模型）；OTA 版 9,576,448 bytes（57%，不含模型，含 OTA 程式）；`ota.bin` 2,654,212 bytes（firmware.bin＋4 bytes 檢查碼）。OTA 版的符號與字串確認有 `otaInLoop`、`sendNodeInfo`、`start_OTA_threads`、`/api/nodeinfo`；一般版裡完全沒有。
+
+### 6.6 還沒驗證
+
+- 整套都還沒上板：「更新中」畫面、失敗後自動恢復、`/api/nodeinfo` 都只確認到編譯通過，和伺服器的模擬自測（`tools/ota_selftest.py`，8 台模擬板子，結果在 `tools/ota_selftest_output.md`）。
+- 從 SD 卡載入模型的速度、OTA 版第一次 USB 燒錄的指令、更新後是否確實開進新分區，都要實機確認。
+- OTA 執行緒加上 NN 串流和 EvacOled 一起跑時的記憶體與延遲。
+- 8 台同時在熱點上時，回報的流量和依序更新所需的總時間：單台實測一輪的時間，乘以 8，再加上重開機的時間。
