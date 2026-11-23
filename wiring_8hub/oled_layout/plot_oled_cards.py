@@ -27,6 +27,10 @@ NAMEZH = {"NW": "西北角", "N": "北臂中點", "NE": "東北角", "W": "西�
 HUBCOL = {"N": "#d64541", "E": "#2e9e55", "S": "#d4a017", "W": "#8e55d6"}
 
 
+def bus_txt(o):
+    return {"Wire0": "Wire（Pin3/4）", "Wire1": "Wire1（Pin0/1）", "Soft": "軟體 I²C（Pin18/19）"}[o["bus"]]
+
+
 def wire_cm(o):
     return 10 if o["entry"] == "inner" and o["id"] != "C" else 20
 
@@ -59,7 +63,7 @@ def card(ax, o):
     title = f"{o['oid']}　{NAMEZH[o['id']]}　J{'2' if o['floor'] == 2 else ''}({o['J'][0]},{o['J'][1]})"
     ax.set_title(title, fontsize=9.5, color=col, weight="bold")
     info = (f"中心 ({cx:g}, {cy:g})・長條孔中心 ({sx:g}, {sy:g})\n"
-            f"HUB {o['hub']}・{'Wire' if o['bus'] == 'Wire0' else 'Wire1'}（{'Pin3/4' if o['bus'] == 'Wire0' else 'Pin0/1'}）・{o['addr']}\n"
+            f"HUB {o['hub']}・{bus_txt(o)}・{o['addr']}\n"
             f"畫面上緣（排針）朝{DIRZH[o['up']]}・線 {wire_cm(o)} cm × 4"
             + (f"\n比 1F 外移 {abs(o['shift'][0]) + abs(o['shift'][1]):g} mm" if o.get("shift") else ""))
     ax.text(0.5, -0.08, info, transform=ax.transAxes, ha="center", va="top", fontsize=7.4)
@@ -94,7 +98,7 @@ def main():
             j = f"J{'2' if fl == 2 else ''}({o['J'][0]},{o['J'][1]})"
             rows.append(f"| {o['oid']} | {j} | {NAMEZH[o['id']]} | ({o['center'][0]:g}, {o['center'][1]:g}) | "
                         f"({o['slot'][0]:g}, {o['slot'][1]:g}) | {DIRZH[o['up']]} | {o['hub']} | "
-                        f"{'Wire（Pin3/4）' if o['bus'] == 'Wire0' else 'Wire1（Pin0/1）'} | {o['addr']} | {wire_cm(o)} cm × 4 |")
+                        f"{bus_txt(o)} | {o['addr']} | {wire_cm(o)} cm × 4 |")
     with open(os.path.join(outdir, "OLED個別配置表.md"), "w", encoding="utf-8") as f:
         f.write("# 18 塊天花板 OLED 個別配置表（8 台鏡頭 HUB 方案）\n\n"
                 "資料來源：交接 repo `wiring_8hub/wiring_8hub.json`。座標為俯視、北在上、原點＝該層樓層中心，單位 mm；2F 的高度另加 150 mm。\n\n"

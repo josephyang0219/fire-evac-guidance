@@ -400,8 +400,8 @@
     0
    ],
    "hub": "1S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "up": "S",
    "entry": "inner",
    "slot": [
@@ -444,7 +444,11 @@
     0.0,
     5.5
    ],
-   "shift": null
+   "shift": null,
+   "pins": {
+    "SDA": "Pin18",
+    "SCL": "Pin19"
+   }
   },
   {
    "oid": "1F-N",
@@ -907,8 +911,8 @@
     0
    ],
    "hub": "2S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "up": "S",
    "entry": "inner",
    "slot": [
@@ -951,7 +955,11 @@
     0.0,
     5.5
    ],
-   "shift": null
+   "shift": null,
+   "pins": {
+    "SDA": "Pin18",
+    "SCL": "Pin19"
+   }
   },
   {
    "oid": "2F-N",
@@ -1516,8 +1524,8 @@
    "oled": "C",
    "junction": "J(0,0)",
    "hub": "1S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "GND",
    "hub_end": "GND（藍軌）",
    "color": "黑",
@@ -1530,8 +1538,8 @@
    "oled": "C",
    "junction": "J(0,0)",
    "hub": "1S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "VCC",
    "hub_end": "3V3（紅軌）",
    "color": "紅",
@@ -1544,10 +1552,10 @@
    "oled": "C",
    "junction": "J(0,0)",
    "hub": "1S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "SCL",
-   "hub_end": "Pin1（Wire1 SCL）",
+   "hub_end": "Pin19",
    "color": "黃",
    "entry": "朝中心窗口",
    "length": 145.6,
@@ -1558,10 +1566,10 @@
    "oled": "C",
    "junction": "J(0,0)",
    "hub": "1S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "SDA",
-   "hub_end": "Pin0（Wire1 SDA）",
+   "hub_end": "Pin18",
    "color": "綠",
    "entry": "朝中心窗口",
    "length": 145.6,
@@ -2020,8 +2028,8 @@
    "oled": "C",
    "junction": "J2(0,0)",
    "hub": "2S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "GND",
    "hub_end": "GND（藍軌）",
    "color": "黑",
@@ -2034,8 +2042,8 @@
    "oled": "C",
    "junction": "J2(0,0)",
    "hub": "2S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "VCC",
    "hub_end": "3V3（紅軌）",
    "color": "紅",
@@ -2048,10 +2056,10 @@
    "oled": "C",
    "junction": "J2(0,0)",
    "hub": "2S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "SCL",
-   "hub_end": "Pin1（Wire1 SCL）",
+   "hub_end": "Pin19",
    "color": "黃",
    "entry": "朝中心窗口",
    "length": 145.6,
@@ -2062,10 +2070,10 @@
    "oled": "C",
    "junction": "J2(0,0)",
    "hub": "2S",
-   "bus": "Wire1",
-   "addr": "0x3d",
+   "bus": "Soft",
+   "addr": "0x3c",
    "oled_pin": "SDA",
-   "hub_end": "Pin0（Wire1 SDA）",
+   "hub_end": "Pin18",
    "color": "綠",
    "entry": "朝中心窗口",
    "length": 145.6,
@@ -2187,5 +2195,8 @@
  "files": {
   "blend": "fire_model_8hub_wiring.blend",
   "seat_stl": "麵包板座_側窗_N方向.stl"
- }
+ },
+ "notes": [
+  "2026-11-23：兩層中心 OLED 改接 S 座 HUB 的軟體 I2C（SDA Pin18／SCL Pin19），維持出廠 0x3C，不改焊。"
+ ]
 }
