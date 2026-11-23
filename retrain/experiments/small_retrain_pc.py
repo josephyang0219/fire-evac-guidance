@@ -33,6 +33,8 @@ FILES = {
 }
 TAG = os.environ.get("RT_TAG", "")
 INIT = os.environ.get("RT_INIT", "")
+SEED = int(os.environ.get("RT_SEED", "101"))  # 渲染種子（空場景用 SEED+1）；換種子才不會和前幾輪的 val 場景重複
+RENDER_ARGS = os.environ.get("RT_RENDER_ARGS", "").split()  # 額外傳給 dr_render.py，例如 "--smoke-prob 0.75 --incense-prob 0.35"
 DSTAG = os.environ.get("RT_DSTAG", TAG)  # 用哪一份資料集（預設和 RT_TAG 相同）
 CLASSES = ["cabinet", "boxes", "furniture", "rubble", "gate", "smoke", "person"]
 
@@ -88,14 +90,14 @@ def transplant():
 def render(n=600, e=80):
     os.makedirs(os.path.join(WORK, "logs"), exist_ok=True)
     blend = os.path.join(WORK, "fire_model_dr.blend"); scr = os.path.join(WORK, "scripts", "dr_render.py")
-    for args, tag in (([ "--count", str(n), "--seed", "101", "--out", os.path.join(WORK, "out", "dr_s101" + TAG), "--skip-existing"], "dr"),
-                      (["--count", str(e), "--seed", "102", "--mode", "empty", "--prefix", "empty", "--out", os.path.join(WORK, "out", "empty_s102" + TAG), "--skip-existing"], "empty")):
+    for args, tag in (([ "--count", str(n), "--seed", str(SEED), "--out", os.path.join(WORK, "out", f"dr_s{SEED}" + TAG), "--skip-existing"] + RENDER_ARGS, "dr"),
+                      (["--count", str(e), "--seed", str(SEED + 1), "--mode", "empty", "--prefix", "empty", "--out", os.path.join(WORK, "out", f"empty_s{SEED + 1}" + TAG), "--skip-existing"], "empty")):
         sh([BLENDER, "-b", blend, "--python", scr, "--"] + args, logf=os.path.join(WORK, "logs", f"render_{tag}{TAG}.log"))
     log("render done")
 
 def dataset():
     ds = os.path.join(WORK, "ds7" + DSTAG)
-    sh([PY, os.path.join(WORK, "scripts", "make_dataset.py"), "--out", ds, "--work", WORK, "--src", "out/dr_s101" + TAG, "--src", "out/empty_s102" + TAG,
+    sh([PY, os.path.join(WORK, "scripts", "make_dataset.py"), "--out", ds, "--work", WORK, "--src", f"out/dr_s{SEED}" + TAG, "--src", f"out/empty_s{SEED + 1}" + TAG,
         "--val", "0.2", "--colab-path", ds.replace("\\", "/")], logf=os.path.join(WORK, "logs", f"dataset{TAG}.log"))
     log(open(os.path.join(WORK, "logs", f"dataset{TAG}.log"), encoding="utf-8", errors="replace").read()[-400:])
 
@@ -107,13 +109,16 @@ def train(ep=40):
         "--name", "small7" + TAG, "--exist-ok", "--cache-images"], cwd=y7, env=env, logf=os.path.join(WORK, "logs", f"train{TAG}.log"))
     log("train done")
 
-def evaluate(weights=None, tagname=None):
+def evaluate(weights=None, tagname=None, ap=None):
+    """weights 不給＝這一輪的 best.pt；ap=False 只算 conf 0.4 的 TP/FP/FN（舊 6 類模型 nc 不同，test.py 不能用）。
+    RT_DSTAG 可以指到別輪的資料集，用來交叉比較（例如 v4 模型測 v3 的 val）。"""
+    if ap is None: ap = weights is None
     y7 = os.path.join(WORK, "yolov7"); env = dict(os.environ, TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD="1", PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
     w = weights or os.path.join(WORK, "runs", "small7" + TAG, "weights", "best.pt")
-    lf = os.path.join(WORK, "logs", f"{tagname or 'eval'}{TAG}.log")
+    lf = os.path.join(WORK, "logs", f"{tagname or 'eval'}{TAG}" + (f"_on{DSTAG}" if DSTAG != TAG else "") + ".log")
     if os.path.exists(lf): os.remove(lf)
-    if not weights: sh([PY, "test.py", "--data", os.path.join(WORK, "ds7" + DSTAG, "data.yaml"), "--img", "576", "--batch", "16", "--conf", "0.001", "--iou", "0.65",
-        "--weights", w, "--task", "val", "--verbose", "--project", os.path.join(WORK, "runs"), "--name", "small7_val" + TAG, "--exist-ok"],
+    if ap: sh([PY, "test.py", "--data", os.path.join(WORK, "ds7" + DSTAG, "data.yaml"), "--img", "576", "--batch", "16", "--conf", "0.001", "--iou", "0.65",
+        "--weights", w, "--task", "val", "--verbose", "--project", os.path.join(WORK, "runs"), "--name", "small7_val" + TAG + (f"_on{DSTAG}" if DSTAG != TAG else ""), "--exist-ok"],
        cwd=y7, env=env, logf=lf)
     # 人偶依框高（像素）分組的召回率、各類在 conf 0.4 的 precision/recall（上板門檻）
     code = r'''

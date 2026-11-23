@@ -40,6 +40,10 @@ def parse_args():
     p.add_argument('--samples', type=int, default=32)
     p.add_argument('--empty-prob', type=float, default=0.08)
     p.add_argument('--lid-open-prob', type=float, default=0.25)
+    p.add_argument('--smoke-prob', type=float, default=0.45, help='有煙的圖的比例（v4 起用 0.75）')
+    p.add_argument('--smoke-max', type=int, default=2, help='一張圖最多幾團煙')
+    p.add_argument('--incense-prob', type=float, default=0.0,
+                   help='每團煙是「線香煙」的機率（細、高、淺色、絲狀；實景測試用線香）')
     p.add_argument('--min-pixels', type=int, default=40)
     p.add_argument('--skip-existing', action='store_true')
     p.add_argument('--cpu', action='store_true')
@@ -398,8 +402,13 @@ def make_smoke(name, rng, x, y):
     bmesh.ops.create_uvsphere(bm, u_segments=24, v_segments=12, radius=0.5)
     bm.to_mesh(me); bm.free()
     o = link(bpy.data.objects.new(name, me))
-    column = rng.random() < 0.6
-    if column:  # 從地板孔冒上來的煙柱
+    kind = 'incense' if rng.random() < ARGS.incense_prob else ('column' if rng.random() < 0.6 else 'layer')
+    column = kind == 'column'
+    if kind == 'incense':  # 線香煙：3～8 mm 細、40～95 mm 高、略為傾斜飄動
+        d = rng.uniform(3, 8); hgt = rng.uniform(40, 95)
+        o.scale = (d * rng.uniform(0.8, 1.6), d, hgt)
+        o.location = (x, y, FLOOR_Z + hgt * 0.45)
+    elif column:  # 從地板孔冒上來的煙柱
         d = rng.uniform(10, 35); hgt = rng.uniform(30, 95)
         o.scale = (d * rng.uniform(0.8, 1.3), d, hgt)
         o.location = (x, y, FLOOR_Z + hgt * 0.45)
@@ -407,7 +416,8 @@ def make_smoke(name, rng, x, y):
         d = rng.uniform(40, 130); hgt = rng.uniform(10, 35)
         o.scale = (d, d * rng.uniform(0.5, 1.0), hgt)
         o.location = (x, y, rng.uniform(65, 102 - hgt / 2))  # 煙層頂端不超過蓋子下緣
-    o.rotation_euler = (0, 0, rng.uniform(0, math.pi))
+    o.rotation_euler = ((rng.uniform(-0.3, 0.3), rng.uniform(-0.3, 0.3), rng.uniform(0, math.pi))
+                        if kind == 'incense' else (0, 0, rng.uniform(0, math.pi)))
     m = bpy.data.materials.new(name + '_vol')
     try:
         m.use_nodes = True
@@ -426,7 +436,7 @@ def make_smoke(name, rng, x, y):
     fall.inputs['To Min'].default_value = 1.0
     fall.inputs['To Max'].default_value = 0.0
     nz = nt.nodes.new('ShaderNodeTexNoise')
-    nz.inputs['Scale'].default_value = rng.uniform(2.5, 8)
+    nz.inputs['Scale'].default_value = rng.uniform(6, 14) if kind == 'incense' else rng.uniform(2.5, 8)  # 線香煙較細碎
     nz.inputs['Detail'].default_value = rng.uniform(1, 6)
     nr = nt.nodes.new('ShaderNodeMapRange')
     nr.inputs['From Min'].default_value = rng.uniform(0.3, 0.5)
@@ -435,12 +445,16 @@ def make_smoke(name, rng, x, y):
     mul2 = nt.nodes.new('ShaderNodeMath'); mul2.operation = 'MULTIPLY'
     # 密度（每 mm）：原本 0.01～0.09，v2 改 0.03～0.15 仍有 56% 太淡不標（11/18 第二輪）。
     # 煙柱只有 10～35 mm 粗，要更濃才看得到；煙層很厚，維持中等。
-    lo, hi = (0.08, 0.4) if column else (0.03, 0.15)
+    lo, hi = {'incense': (0.3, 1.2), 'column': (0.08, 0.4), 'layer': (0.03, 0.15)}[kind]
     mul2.inputs[1].default_value = math.exp(rng.uniform(math.log(lo), math.log(hi)))
     vol = nt.nodes.new('ShaderNodeVolumePrincipled')
     # 原本只有淺灰白（0.45～0.95），在白／灰 PLA 牆前對比很低。火場煙常是灰黑色，一半改成深灰。
-    g = rng.uniform(0.45, 0.95) if rng.random() < 0.5 else rng.uniform(0.06, 0.4)
-    vol.inputs['Color'].default_value = (g, g, g * rng.uniform(0.92, 1.0), 1)
+    if kind == 'incense':  # 線香煙偏白、略帶藍
+        g = rng.uniform(0.65, 0.95)
+        vol.inputs['Color'].default_value = (g, g, min(1.0, g * rng.uniform(1.0, 1.06)), 1)
+    else:
+        g = rng.uniform(0.45, 0.95) if rng.random() < 0.5 else rng.uniform(0.06, 0.4)
+        vol.inputs['Color'].default_value = (g, g, g * rng.uniform(0.92, 1.0), 1)
     vol.inputs['Anisotropy'].default_value = rng.uniform(0, 0.4)
     out = nt.nodes.new('ShaderNodeOutputMaterial')
     L = nt.links.new
@@ -633,8 +647,8 @@ def build_frame(idx, rng):
                     break
             else:
                 bpy.data.objects.remove(o)
-        if rng.random() < 0.45:
-            for _ in range(rng.choice([1, 1, 2])):
+        if rng.random() < ARGS.smoke_prob:
+            for _ in range(rng.choice([1, 1, 2, 3][:max(1, ARGS.smoke_max + (1 if ARGS.smoke_max >= 2 else 0))])):
                 x, y = sample_visible(rng, cam, look, 30)
                 insts.append(dict(obj=make_smoke(f'DR_smoke{len(insts)}', rng, x, y), cls=5))
     for i in range(rng.choice([0, 1, 2, 3, 4])):  # 干擾物：不標註
