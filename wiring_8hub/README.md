@@ -96,3 +96,4 @@
 | `fire_model_8hub_wiring.blend` | 修改後的模型（側窗、兩層長條孔、OLED 示意、線排） |
 | `2F_天花板_穿孔.stl`、`2F_天花板封孔板_穿孔.stl` | 2F 列印件 |
 | `麵包板座_側窗_N方向.stl` | 開側窗的麵包板座（N 方向） |
+| `oled_layout/` | 18 塊 OLED 個別配置圖（1F、2F）、配置表、`plot_oled_cards.py` |
