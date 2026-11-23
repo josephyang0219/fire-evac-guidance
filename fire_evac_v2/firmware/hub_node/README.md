@@ -10,15 +10,34 @@
 |---|---|---|
 | 鏡頭 HUB 1N／2N | J(-1,1) 西北、J(0,1) 北臂 | 角落 Wire 0x3C；北臂 Wire1 0x3C |
 | 鏡頭 HUB 1E／2E | J(1,1) 東北、J(1,0) 東臂 | 角落 Wire 0x3C；東臂 Wire1 0x3C |
-| 鏡頭 HUB 1S／2S | J(1,-1) 東南、J(0,-1) 南臂、J(0,0) 中心 | 角落 Wire 0x3C；南臂 Wire1 0x3C；中心 Wire1 **0x3D（改焊）** |
+| 鏡頭 HUB 1S／2S | J(1,-1) 東南、J(0,-1) 南臂、J(0,0) 中心 | 角落 Wire 0x3C；南臂 Wire1 0x3C；中心**軟體 I²C 0x3C（Pin18 SDA／Pin19 SCL）** |
 | 鏡頭 HUB 1W／2W | J(-1,-1) 西南、J(-1,0) 西臂 | 角落 Wire 0x3C；西臂 Wire1 0x3C |
 
-- `Wire` = Pin3 SDA／Pin4 SCL；`Wire1` = Pin0 SDA／Pin1 SCL（`oled_fw/README.md`）。**Wire1 還沒上板實測**，先照 `oled_fw/README.md`「桌上實測 Wire1」做一次。
-- 要改焊成 0x3D 的只有兩層的中心各 1 塊，共 2 塊。
+- `Wire` = Pin3 SDA／Pin4 SCL；`Wire1` = Pin0 SDA／Pin1 SCL；軟體 I²C = Pin18 SDA（PF_5）／Pin19 SCL（PF_6）。
+  三條線 2026-11-23 已在一台 HUB 上同時驅動三塊出廠 0x3C 的 OLED，目視正常（老闆分支 `wire1_test` v9，0447c6ba）。
+- **18 塊全部用出廠位址 0x3C，不改焊**（使用者 11-23 決定）。兩層的中心從「Wire1 0x3D」改成 S 座的軟體 I²C。
 - 伺服器回應的 `junctions` 只含該板子所在樓層的 9 個路口（1F `J(i,j)`、2F `J2(i,j)`）。
 - `hub_oled/`（H5/H6/H7）已不用，保留檔案只供參考。
 
-螢幕都由 EvacOled 函式庫驅動（`oled_fw/libraries/EvacOled`，從 8735-oled 的 ad032855 帶進來，沒有修改）。
+螢幕都由 EvacOled 函式庫驅動（`oled_fw/libraries/EvacOled`）。2026-11-23 依 wire1_test v9 的實測改了傳輸層：
+
+| 匯流排 | 做法 | 一張 128x64 | 遇到 NACK |
+|---|---|---|---|
+| `Bus::Wire0`（Pin3/4）、`Bus::Wire1`（Pin0/1） | 不經 Arduino Wire，直接用 HAL `i2c_t`，**100 kHz**（`begin()` 的 `clockHz` 預設值）| 約 **0.12 秒**（100 kHz）。HAL `i2c_write` 會在資料還沒送完時就返回，所以每筆寫入都要等 TX_COMPLETE 回呼（逾時 n×200 µs＋2 ms 就重設匯流排、這筆算失敗），否則下一筆會蓋掉上一筆，畫面時好時壞。v9／v10 量到的「2 ms」就是這個假象；SDK Wire 每 byte 固定等 200 µs，原因也在這裡（wire1_test v11：118 ms、95 筆 0 次逾時）。400 kHz 實測不穩，維持 100 kHz | HAL `i2c_write` 的回傳值不反映 NACK，而且 NACK 後匯流排會卡住。所以每次和一塊螢幕講話前，先 `i2c_reset`＋重新設定，送一個 NOP，等 1 ms 看 TX_COMPLETE 回呼；沒有 ACK 就不寫，這塊標成離線，2 秒後重試，不會卡住 loop |
+| `Bus::Soft`（預設 Pin18/19，`setSoftPins()` 可改） | HAL `gpio_t` 模擬 I²C（不用 `pinMode`，那個每次都會印警告）；資料位元推挽輸出，第 9 拍才把 SDA 切成輸入讀 ACK | 約 29 ms | 每個 byte 都檢查 ACK，NACK 就送 STOP 結束，不會卡住 |
+
+- 選擇**整個換掉 Wire**，不保留 Wire 介面相容：快速路徑和 NACK 恢復都要直接操作 HAL，而 HAL 和 Wire 不能同時管同一組腳位。所以**用了 EvacOled 的程式，不能再對 Pin3/4、Pin0/1 呼叫 `Wire.begin()`／`Wire1.begin()`**；hub_node 本來就沒有呼叫。
+- 開機時每塊最多探測 3 次，因為第一次偶爾會誤判沒接。
+- 探測一定送 2 bytes（NOP），因為 SDK 送 0 byte 時，任何位址都會回成功。
+- 新增 `drawBitmap(i, 點陣)`，三條匯流排都能用；OTA 的「更新中」畫面改用它。
+- 掃描（`scan()`）也涵蓋軟體 I²C。
+
+**Pin18／19 衝突檢查**（讀 hub_node 和 SDK 原始碼）：
+- hub_node 沒有 `pinMode`、`digitalWrite`、`SPI`、`Serial1/2`。
+- 板上 LED 在 Pin25/26，LOG UART 在 Pin16/17。
+- Pin18/19 在 variant 裡是 SPI1 的 MISO/SCLK，hub_node 不用 SPI。
+- hub_node 用到的 WiFi、Multimedia（鏡頭）、NeuralNetwork、FileSystem（SD）、OTA、Wire 函式庫原始碼都沒有出現 PF_5／PF_6／SPI1。SD 卡走 `fatfs_sd`（SDIO 專用腳，不在 Arduino 腳位表裡）。
+- **結論：沒有衝突。** 預先編譯的 HAL 內部是否用到 PF_5/PF_6 無法讀到，只能等上板確認。
 
 ## 1. 路口編號
 
@@ -116,16 +135,8 @@ WebSocket 廣播的 state 也多了 `junctions` 欄位。
 {"1W", OLED("J(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, kNoMux)},
 ```
 
-`EVAC_CORNER_ADDR` 預設 0x3C（每條匯流排只有一塊，用出廠位址就好，不用改焊電阻）。要改回 0x3D 時，編譯加
-下面這個參數（實測可編譯）：
-
-```
---build-property "build.extra_flags=-DARDUINO_SDK -DARDUINO_AMBPRO2 -DBOARD_AMB82_HUB8735 -DBOARD_AMB82_HUB8735_ULTRA {build.usb_flags} {build.menu_flags} -DEVAC_CORNER_ADDR=0x3D"
-```
-
-AmebaPro2 的 C++ 編譯規則只讀 `build.extra_flags`，用 `compiler.cpp.extra_flags` 會被默默忽略。另外要保留板子原本的旗標（`boards.txt` 第 108 行），
-只加 `-DEVAC_CORNER_ADDR=0x3D` 的話，`Arduino.h` 會報「Please choose between Flash or SD card」。
-比較簡單的做法是直接改 `hub_node.ino` 開頭的 `#define EVAC_CORNER_ADDR`。每個位置最多 `MAX_OWN`（4）塊。
+18 塊全部用出廠位址 0x3C，不改焊。三條匯流排各自獨立，同一條線上最多只有一塊，位址不會衝突。`EVAC_CORNER_ADDR` 巨集只是沿用舊版的寫法，留著但不需要改。中心在 S 座的軟體 I²C（`Bus::Soft`），腳位是 `hub_node.ino` 開頭的 `SOFT_SDA_PIN 18`、`SOFT_SCL_PIN 19`。每個位置最多 `MAX_OWN`（4）塊。
+（若要用編譯參數改巨集：AmebaPro2 只讀 `build.extra_flags`，而且要保留 `boards.txt` 第 108 行原本的旗標，否則 `Arduino.h` 會報「Please choose between Flash or SD card」。）
 2F 的位置（`2N`…）沒有列：2F 板子照樣回報偵測，只是不顯示。
 
 ### H5/H6/H7：`hub_oled.ino` 開頭的 `NODE_ID` 與 `SLOTS`

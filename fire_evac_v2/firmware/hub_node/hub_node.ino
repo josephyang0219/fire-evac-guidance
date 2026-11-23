@@ -17,7 +17,9 @@
   the 8 camera HUBs drive all 18 ceiling OLEDs (1F + 2F, 9 each), no display-only HUBs, no multiplexer:
     corner OLED  -> Wire  0x3C (Pin3 SDA / Pin4 SCL)   enters the breadboard seat through the new side window
     cross-arm    -> Wire1 0x3C (Pin0 SDA / Pin1 SCL)   enters through the seat's inner window
-    centre       -> the S board's Wire1 0x3D (resoldered) -> S boards drive 3, the others 2
+    centre       -> the S board's software I2C 0x3C (Pin18 SDA / Pin19 SCL)  -> S boards drive 3, the others 2
+  All 18 OLEDs keep the factory address 0x3C (no resoldering, 2026-11-23). Wire/Wire1 run through HAL i2c_t inside
+  EvacOled (~2 ms per screen instead of 236 ms with Wire), so this sketch must not call Wire.begin()/Wire1.begin().
   Displays are drawn by the EvacOled library (oled_fw/libraries/EvacOled, pass it with --library).
 
   Board package: Realtek AmebaPro2 (Arduino IDE). Model: our yolov7_tiny.nb swapped into the SDK (DEFAULT_YOLOV7TINY), Tools -> NN Model Load from: Flash.
@@ -74,6 +76,8 @@ const char* FW = "2.4";                 // bump for every OTA release: the OTA s
 // One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
 // server sends (1F "J(i,j)", 2F "J2(i,j)"). top = where the screen's top edge (= the pin header side) points, from
 // wiring_8hub/wiring_8hub.json; ceiling = true (mounted face down, seen from below). Verify top once mounted.
+#define SOFT_SDA_PIN 18                 // centre OLED on the S boards: software I2C (PF_5 / PF_6, free in this sketch)
+#define SOFT_SCL_PIN 19
 #ifndef EVAC_CORNER_ADDR
 #define EVAC_CORNER_ADDR 0x3C
 #endif
@@ -88,7 +92,7 @@ const SlotOled OLED_MAP[] = {
   {"1E", OLED("J(1,0)",   Bus::Wire1, 0x3C,             W)},    // E cross-arm middle
   {"1S", OLED("J(1,-1)",  Bus::Wire0, EVAC_CORNER_ADDR, S)},    // SE corner
   {"1S", OLED("J(0,-1)",  Bus::Wire1, 0x3C,             N)},    // S cross-arm middle
-  {"1S", OLED("J(0,0)",   Bus::Wire1, 0x3D,             S)},    // centre (resoldered to 0x3D)
+  {"1S", OLED("J(0,0)",   Bus::Soft,  0x3C,             S)},    // centre: software I2C Pin18/19
   {"1W", OLED("J(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, N)},    // SW corner
   {"1W", OLED("J(-1,0)",  Bus::Wire1, 0x3C,             E)},    // W cross-arm middle
   // 2F: same layout (corners 0.5-1.75 mm further out, see wiring_8hub/README.md)
@@ -98,7 +102,7 @@ const SlotOled OLED_MAP[] = {
   {"2E", OLED("J2(1,0)",   Bus::Wire1, 0x3C,             W)},
   {"2S", OLED("J2(1,-1)",  Bus::Wire0, EVAC_CORNER_ADDR, S)},
   {"2S", OLED("J2(0,-1)",  Bus::Wire1, 0x3C,             N)},
-  {"2S", OLED("J2(0,0)",   Bus::Wire1, 0x3D,             S)},
+  {"2S", OLED("J2(0,0)",   Bus::Soft,  0x3C,             S)},
   {"2W", OLED("J2(-1,-1)", Bus::Wire0, EVAC_CORNER_ADDR, N)},
   {"2W", OLED("J2(-1,0)",  Bus::Wire1, 0x3C,             E)},
 };
@@ -186,21 +190,11 @@ const unsigned long OTA_FAIL_MS = 15000;          // COMPLETED for this long wit
 unsigned long otaCompletedAt = 0;
 bool otaBusy = false, otaFailed = false;
 
-// "更新中" on every display of this slot, written straight to the SSD1306 (EvacOled has no text); no direction shown
+// "更新中" on every display of this slot (any bus: Wire, Wire1 or software I2C), no direction shown
 void showOtaBanner() {
   oled.setAll(Sign::Off);                        // library state = dark; oled.begin() redraws if the update fails
-  for (int k = 0; k < N_OWN; k++) {
-    const SlotConfig& c = own[k];
-    TwoWire& w = c.bus == Bus::Wire1 ? Wire1 : Wire;
-    bool tall = c.panel == Panel::P128x64;
-    const uint8_t* img = tall ? OTA_BANNER_64 : OTA_BANNER_32;
-    const uint8_t win[] = {0x00, 0x21, 0, 127, 0x22, 0, (uint8_t)(tall ? 7 : 3), 0xAF};   // whole screen, display on
-    w.beginTransmission(c.addr); w.write(win, sizeof(win));
-    if (w.endTransmission() != 0) continue;
-    for (int i = 0; i < (tall ? 1024 : 512); i += 64) {
-      w.beginTransmission(c.addr); w.write((uint8_t)0x40); w.write(img + i, 64); w.endTransmission();
-    }
-  }
+  for (int k = 0; k < N_OWN; k++)
+    oled.drawBitmap(k, own[k].panel == Panel::P128x64 ? OTA_BANNER_64 : OTA_BANNER_32);
 }
 
 // true while an update runs: loop() then skips detections and directions
@@ -232,6 +226,7 @@ void sendNodeInfo() {
 
 void setup() {
   Serial.begin(115200);
+  oled.setSoftPins(SOFT_SDA_PIN, SOFT_SCL_PIN);
   while (WiFi.begin((char*)SSID, (char*)PASS) != WL_CONNECTED) delay(1000);
   byte mac[6]; WiFi.macAddress(mac);
   sprintf(macStr, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
