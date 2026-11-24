@@ -1,4 +1,4 @@
-﻿// 一台 HUB 三條 I2C 同時驅動 OLED 的桌上實測（含 OTA，可用 ota_server.py 無線推送）
+// 一台 HUB 三條 I2C 同時驅動 OLED 的桌上實測（含 OTA，可用 ota_server.py 無線推送）
 //   Wire  ：SDA Pin3／SCL Pin4   → 角落那塊（畫左右箭頭）
 //   Wire1 ：SDA Pin0／SCL Pin1   → 十字臂那塊（畫上下箭頭）
 //   軟體 I2C：SDA Pin18／SCL Pin19 → 中心那塊（畫「X」與「O」交替），不用改焊 0x3D
@@ -9,13 +9,16 @@
 #include <Wire.h>
 #include "OTA.h"
 #include "secrets.h"
+#include "StreamIO.h"
+#include "VideoStream.h"
+#include "NNObjectDetection.h"
 extern "C" {
 #include "gpio_api.h"
 #include "i2c_api.h"
 #include "i2c_ex_api.h"
 }
 
-#define FW_TAG "wire1_test v11"
+#define FW_TAG "wire1_test v12"
 #define I2C_HZ 100000   // v10：400 kHz 時使用者看到 Pin0/1、3/4 兩塊不亮（ACK 仍正常），先降到 100 kHz 排查訊號品質
 #define SOFT_SDA 18
 #define SOFT_SCL 19
@@ -126,7 +129,14 @@ struct HalBus : Bus {
   }
 };
 
-HalBus busWire(PE_4, PE_3), busWire1(PF_2, PF_1);   // Wire：Pin3 SDA／Pin4 SCL；Wire1：Pin0 SDA／Pin1 SCL
+// v12：hub_node 實測鏡頭＋NN 跑起來後，HAL 硬體 I2C 的 TX_COMPLETE 永遠不來（探測 0 成功），軟體 I2C 正常。
+// 所以三塊都改軟體 I2C（同樣的腳位，不用改線），並在這裡同時開鏡頭＋NN 驗證。
+SoftBus busWire(PE_4, PE_3), busWire1(PF_2, PF_1);   // Pin3 SDA／Pin4 SCL；Pin0 SDA／Pin1 SCL（都改軟體）
+#define NNW 576
+#define NNH 320
+VideoSetting configNN(NNW, NNH, 10, VIDEO_RGB, 0);
+NNObjectDetection ObjDet;
+StreamIO videoStreamerNN(1, 1);
 SoftBus busSoft(PF_5, PF_6);   // Pin18 = PF_5（SDA）、Pin19 = PF_6（SCL），見 variant.h
 
 // ---------- SSD1306 ----------
@@ -189,8 +199,6 @@ void drawXO(bool x) {
 }
 
 bool probe(Bus &b, uint8_t a) {   // NOP 探測；硬體匯流排走 HalBus::ack()（會先重設）
-  if (&b == &busWire) return busWire.ack(a);
-  if (&b == &busWire1) return busWire1.ack(a);
   uint8_t d[2] = {0x00, 0xE3};
   return b.write(a, d, 2);
 }
@@ -198,9 +206,20 @@ bool probe(Bus &b, uint8_t a) {   // NOP 探測；硬體匯流排走 HalBus::ack
 void setup() {
   Serial.begin(115200);
   Serial.println("[W1] boot " FW_TAG);
-  busWire.begin(I2C_HZ);
-  busWire1.begin(I2C_HZ);
+  busWire.begin();
+  busWire1.begin();
   busSoft.begin();
+  Camera.configVideoChannel(3, configNN);   // RGB（NN）只能在第 3 號通道
+  Camera.videoInit();
+  ObjDet.configVideo(configNN);
+  ObjDet.modelSelect(OBJECT_DETECTION, CUSTOMIZED_YOLOV7TINY, NA_MODEL, NA_MODEL);   // SD 卡 NN_MDL/yolov7_tiny.nb
+  ObjDet.begin();
+  videoStreamerNN.registerInput(Camera.getStream(3));
+  videoStreamerNN.setStackSize();
+  videoStreamerNN.registerOutput(ObjDet);
+  videoStreamerNN.begin();
+  Camera.channelBegin(3);
+  Serial.println("[W1] camera + NN started");
   int st = WL_IDLE_STATUS;
   while (st != WL_CONNECTED) { st = WiFi.begin(ssid, pass); delay(2000); }
   Serial.print("[W1] IP="); Serial.println(WiFi.localIP());
@@ -227,12 +246,6 @@ void loop() {
     Serial.print(" | "); Serial.print(e.name); Serial.print(ack ? " 0x3C drawn " : " absent ");
     if (ack) { Serial.print((micros() - t0) / 1000); Serial.print("ms"); }
   }
-  // 故意探測不存在的 0x3D：驗證判斷得出「沒有」，而且下一輪不會卡住
-  Serial.print(" | probe 0x3D (absent) Wire/Wire1: ");
-  Serial.print(probe(busWire, 0x3D) ? "ACK" : "none"); Serial.print("/");
-  Serial.print(probe(busWire1, 0x3D) ? "ACK" : "none");
-  Serial.print(" | timeouts Wire "); Serial.print(busWire.nTimeouts); Serial.print("/"); Serial.print(busWire.nWrites);
-  Serial.print(" Wire1 "); Serial.print(busWire1.nTimeouts); Serial.print("/"); Serial.print(busWire1.nWrites);
-  busWire.nTimeouts = busWire.nWrites = busWire1.nTimeouts = busWire1.nWrites = 0;
+  Serial.print(" | NN dets "); Serial.print((int)ObjDet.getResult().size());
   Serial.println(flip ? " | shown: RIGHT / DOWN / X" : " | shown: LEFT / UP / O");
 }
