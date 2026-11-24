@@ -13,7 +13,8 @@
   model/yolov7-tiny-fire-deploy.yaml   上面權重對應的模型結構
   sim/                         路徑規劃核心（evac.py）與模擬
 
-安裝：pip install fastapi uvicorn pillow
+安裝：pip install fastapi "uvicorn[standard]" pillow
+      （沒有 websockets，中控台會連不上；uvicorn 會警告 No supported WebSocket library）
 
 
 ========== 一、模型上機測試 ==========
