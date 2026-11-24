@@ -8,36 +8,44 @@
 
 | 板子 | 顯示的路口（1F；2F 同位置，代號 `J2(i,j)`） | 接法 |
 |---|---|---|
-| 鏡頭 HUB 1N／2N | J(-1,1) 西北、J(0,1) 北臂 | 角落 Wire 0x3C；北臂 Wire1 0x3C |
-| 鏡頭 HUB 1E／2E | J(1,1) 東北、J(1,0) 東臂 | 角落 Wire 0x3C；東臂 Wire1 0x3C |
-| 鏡頭 HUB 1S／2S | J(1,-1) 東南、J(0,-1) 南臂、J(0,0) 中心 | 角落 Wire 0x3C；南臂 Wire1 0x3C；中心**軟體 I²C 0x3C（Pin18 SDA／Pin19 SCL）** |
-| 鏡頭 HUB 1W／2W | J(-1,-1) 西南、J(-1,0) 西臂 | 角落 Wire 0x3C；西臂 Wire1 0x3C |
+| 鏡頭 HUB 1N／2N | J(-1,1) 西北、J(0,1) 北臂 | 角落 Pin3/4；北臂 Pin0/1 |
+| 鏡頭 HUB 1E／2E | J(1,1) 東北、J(1,0) 東臂 | 角落 Pin3/4；東臂 Pin0/1 |
+| 鏡頭 HUB 1S／2S | J(1,-1) 東南、J(0,-1) 南臂、J(0,0) 中心 | 角落 Pin3/4；南臂 Pin0/1；中心 Pin18/19 |
+| 鏡頭 HUB 1W／2W | J(-1,-1) 西南、J(-1,0) 西臂 | 角落 Pin3/4；西臂 Pin0/1 |
 
-- `Wire` = Pin3 SDA／Pin4 SCL；`Wire1` = Pin0 SDA／Pin1 SCL；軟體 I²C = Pin18 SDA（PF_5）／Pin19 SCL（PF_6）。
-  三條線 2026-11-23 已在一台 HUB 上同時驅動三塊出廠 0x3C 的 OLED，目視正常（老闆分支 `wire1_test` v9，0447c6ba）。
-- **18 塊全部用出廠位址 0x3C，不改焊**（使用者 11-23 決定）。兩層的中心從「Wire1 0x3D」改成 S 座的軟體 I²C。
+- **三條全部是軟體 I²C，全部出廠位址 0x3C**（不改焊，使用者 11-23 決定；三條改軟體，2026-11-24）。接線和原本一樣：
+  角落 SDA Pin3（PE_4）／SCL Pin4（PE_3）；十字臂 SDA Pin0（PF_2）／SCL Pin1（PF_1）；中心 SDA Pin18（PF_5）／SCL Pin19（PF_6）。
 - 伺服器回應的 `junctions` 只含該板子所在樓層的 9 個路口（1F `J(i,j)`、2F `J2(i,j)`）。
 - `hub_oled/`（H5/H6/H7）已不用，保留檔案只供參考。
 
-螢幕都由 EvacOled 函式庫驅動（`oled_fw/libraries/EvacOled`）。2026-11-23 依 wire1_test v9 的實測改了傳輸層：
+螢幕都由 EvacOled 函式庫驅動（`oled_fw/libraries/EvacOled`）：
 
-| 匯流排 | 做法 | 一張 128x64 | 遇到 NACK |
+| 匯流排（`SlotConfig.bus`） | 預設腳位（`setBusPins()` 可改） | 做法 | 一張 128x64 |
 |---|---|---|---|
-| `Bus::Wire0`（Pin3/4）、`Bus::Wire1`（Pin0/1） | 不經 Arduino Wire，直接用 HAL `i2c_t`，**100 kHz**（`begin()` 的 `clockHz` 預設值）| 約 **0.12 秒**（100 kHz）。HAL `i2c_write` 會在資料還沒送完時就返回，所以每筆寫入都要等 TX_COMPLETE 回呼（逾時 n×200 µs＋2 ms 就重設匯流排、這筆算失敗），否則下一筆會蓋掉上一筆，畫面時好時壞。v9／v10 量到的「2 ms」就是這個假象；SDK Wire 每 byte 固定等 200 µs，原因也在這裡（wire1_test v11：118 ms、95 筆 0 次逾時）。400 kHz 實測不穩，維持 100 kHz | HAL `i2c_write` 的回傳值不反映 NACK，而且 NACK 後匯流排會卡住。所以每次和一塊螢幕講話前，先 `i2c_reset`＋重新設定，送一個 NOP，等 1 ms 看 TX_COMPLETE 回呼；沒有 ACK 就不寫，這塊標成離線，2 秒後重試，不會卡住 loop |
-| `Bus::Soft`（預設 Pin18/19，`setSoftPins()` 可改） | HAL `gpio_t` 模擬 I²C（不用 `pinMode`，那個每次都會印警告）；資料位元推挽輸出，第 9 拍才把 SDA 切成輸入讀 ACK | 約 29 ms | 每個 byte 都檢查 ACK，NACK 就送 STOP 結束，不會卡住 |
+| `Bus::Wire0` | SDA 3／SCL 4 | 軟體 I²C | 約 18–29 ms |
+| `Bus::Wire1` | SDA 0／SCL 1 | 軟體 I²C | 約 18–29 ms |
+| `Bus::Soft` | SDA 18／SCL 19 | 軟體 I²C | 約 18–29 ms |
 
-- 選擇**整個換掉 Wire**，不保留 Wire 介面相容：快速路徑和 NACK 恢復都要直接操作 HAL，而 HAL 和 Wire 不能同時管同一組腳位。所以**用了 EvacOled 的程式，不能再對 Pin3/4、Pin0/1 呼叫 `Wire.begin()`／`Wire1.begin()`**；hub_node 本來就沒有呼叫。
-- 開機時每塊最多探測 3 次，因為第一次偶爾會誤判沒接。
-- 探測一定送 2 bytes（NOP），因為 SDK 送 0 byte 時，任何位址都會回成功。
-- 新增 `drawBitmap(i, 點陣)`，三條匯流排都能用；OTA 的「更新中」畫面改用它。
-- 掃描（`scan()`）也涵蓋軟體 I²C。
+- 軟體 I²C 用 HAL `gpio_t`，**不用 `pinMode`**（那個每次都會印警告，一張圖要好幾秒）。資料位元推挽輸出，只有第 9 拍才把 SDA 切成輸入讀 ACK；每個 byte 都檢查 ACK，NACK 就送 STOP 結束，不會卡住。時間是 wire1_test v12（老闆分支 61febcff）三條全軟體實測的結果。
+- 開機時每塊最多探測 3 次（第一輪偶爾誤判沒接）；探測一定送 2 bytes（NOP）。「更新中」畫面（`drawBitmap()`）和 `scan()` 都走同一套匯流排。
+- **HAL 硬體 I²C 保留成選項，預設不用**：`oled.useHardwareI2C(true)` 會讓 Wire0／Wire1 改走 HAL `i2c_t`（100 kHz，每筆等 TX_COMPLETE，約 0.12 秒／張）。
+  - wire1_test v11 單獨跑時正常。
+  - 但在 hub_node 裡（鏡頭＋NN＋SD 都在跑）實測完全不通：探測 W0 0/10、W1 0/9，等待時間拉長到 20 ms 也一樣，原因未明。
+  - 可能的方向（沒有證實）：鏡頭的 ISP/VOE 用自己的 `i2c_id` 控制感測器，SDK release note 提到「I2c resource protection」，可能佔用或鎖住了 I²C 控制器。
+- **腳位不能被其他程式碰到**：
+  - hub_node 沒有 `Wire.begin()`、`pinMode`、`digitalWrite`、`analogRead`、`SPI`、`Serial1/2`。
+  - hub_node 用到的 WiFi、Multimedia（鏡頭）、NeuralNetwork、FileSystem（SD）、OTA 函式庫原始碼裡，沒有 `Wire.begin`、`i2c_init`，也沒有 PE_3／PE_4／PF_1／PF_2／PF_5／PF_6。
+  - core 只有 `analogRead()` 會碰 PF_1／PF_2，hub_node 沒用。
+  - LED 在 Pin25/26，LOG UART 在 Pin16/17。
+  - 預先編譯的 HAL 內部無法讀到，只能等上板確認。
 
-**Pin18／19 衝突檢查**（讀 hub_node 和 SDK 原始碼）：
-- hub_node 沒有 `pinMode`、`digitalWrite`、`SPI`、`Serial1/2`。
-- 板上 LED 在 Pin25/26，LOG UART 在 Pin16/17。
-- Pin18/19 在 variant 裡是 SPI1 的 MISO/SCLK，hub_node 不用 SPI。
-- hub_node 用到的 WiFi、Multimedia（鏡頭）、NeuralNetwork、FileSystem（SD）、OTA、Wire 函式庫原始碼都沒有出現 PF_5／PF_6／SPI1。SD 卡走 `fatfs_sd`（SDIO 專用腳，不在 Arduino 腳位表裡）。
-- **結論：沒有衝突。** 預先編譯的 HAL 內部是否用到 PF_5/PF_6 無法讀到，只能等上板確認。
+### 2026-11-24 整合測試找到的三個問題（已修，只到編譯通過）
+
+| 問題 | 原因 | 修正 |
+|---|---|---|
+| 鏡頭沒有啟動 | `tools/build_hub_node.py` 的 FQBN 沒有 `04_CameraOption`，SDK 預設成 JXF37 | 腳本加 `--camera`（預設 `ps5268`），兩種編譯都帶 `:04_CameraOption=ps5268` |
+| 鏡頭和 NN 都沒啟動，序列埠出現 `RGB output only on ch4`、`str3 paring fail`、`hal_video_str2cmd fail` | NN 的 RGB 串流用了 1 號通道；SDK 規定 RGB 只能用 3 號通道 | `CH_NN 3`（configVideoChannel／getStream／channelBegin 三處都改）；JPEG 快照留在 `CH_JPG 0`，`Camera.getImage(CH_JPG, …)` → `POST /api/dev/<MAC>/frame` 的流程不變 |
+| Pin0/1、Pin3/4 的 OLED 沒有畫面（`OLEDs 1/3`） | HAL 硬體 I²C 在 hub_node 裡不通，見上 | 三條全部改軟體 I²C，接線不變 |
 
 ## 1. 路口編號
 
@@ -200,7 +208,7 @@ python fire_evac_v2/tools/build_hub_node.py --ota  --config-file <yaml>    # OTA
 ```
 
 - yaml 的 `directories.data` 要指向 `%LOCALAPPDATA%\Arduino15`；腳本會清掉 `LANG`／`LC_*`，build path 預設用 `%TEMP%\hbn`、`%TEMP%\hbo` 這種短的 ASCII 路徑。
-- OTA 版的 FQBN 是 `ideasHatch:AmebaPro2:Ameba_HUB-8735_ultra:08_OTAMode=Enable,06_LoadNNModelSource=sd`。
+- OTA 版的 FQBN 是 `ideasHatch:AmebaPro2:Ameba_HUB-8735_ultra:04_CameraOption=ps5268,08_OTAMode=Enable,06_LoadNNModelSource=sd`（一般版是 `…:04_CameraOption=ps5268`；`--camera f37` 可換鏡頭）。
 - 編完會把 `ameba_pro2_tools/1.4.1/ota.bin` 立刻複製成 `fire_evac_v2/tools/ota_out/hub_node_fw<FW>_ota.bin`，因為 SDK 每次編譯都會覆蓋這個檔。`ota_out/` 不進 git。
 
 **為什麼 OTA 版要經過腳本、不能直接編 `hub_node/`**（2026-11-23 實際驗證）：

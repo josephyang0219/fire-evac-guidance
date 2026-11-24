@@ -209,17 +209,20 @@ struct SoftBus {
   }
 };
 
-SoftBus g_soft;
+SoftBus g_soft[3];              // 每條匯流排一個：Wire0 腳位、Wire1 腳位、Soft 腳位
+bool g_useHal = false;          // useHardwareI2C(true)：Wire0／Wire1 改走 HAL i2c_t（hub_node 實測不通，預設不用）
+
+bool viaHal(Bus b) { return g_useHal && b != Bus::Soft; }
 
 // 一次有檢查的傳輸（硬體：重設＋回呼；軟體：逐 byte ACK）
 bool busChecked(Bus b, uint8_t addr, const uint8_t *d, uint8_t n) {
-  if (b == Bus::Soft) return g_soft.write(addr, d, n);
+  if (!viaHal(b)) return g_soft[(uint8_t)b].write(addr, d, n);
   return g_hal[(uint8_t)b].checkedWrite(addr, d, n);
 }
 
 // 確認過 ACK 之後的傳輸（硬體：每筆等送完，逾時算失敗；軟體：逐 byte 檢查 ACK）
 bool busWrite(Bus b, uint8_t addr, const uint8_t *d, uint8_t n) {
-  if (b == Bus::Soft) return g_soft.write(addr, d, n);
+  if (!viaHal(b)) return g_soft[(uint8_t)b].write(addr, d, n);
   return g_hal[(uint8_t)b].write(addr, d, n);
 }
 
@@ -236,9 +239,12 @@ uint8_t EvacOled::begin(const SlotConfig *slots, uint8_t count, const MuxConfig 
   bool useBus[3] = {false, false, false};
   for (uint8_t i = 0; i < count_; ++i) useBus[(uint8_t)slots_[i].bus] = true;
   if (hasMux_) useBus[(uint8_t)mux_.bus] = true;
-  for (uint8_t b = 0; b < 2; ++b)
-    if (useBus[b]) g_hal[b].begin((int)clockHz);
-  if (useBus[2]) g_soft.begin(softSda_, softScl_);
+  g_useHal = useHal_;
+  for (uint8_t b = 0; b < 3; ++b) {
+    if (!useBus[b]) continue;
+    if (viaHal((Bus)b)) g_hal[b].begin((int)clockHz);
+    else g_soft[b].begin(pinSda_[b], pinScl_[b]);
+  }
 
   uint8_t ok = 0;
   for (uint8_t i = 0; i < count_; ++i) {
@@ -510,7 +516,7 @@ void EvacOled::scan(Print &out) {
   bool useBus[3] = {false, false, false};
   for (uint8_t i = 0; i < count_; ++i) useBus[(uint8_t)slots_[i].bus] = true;
   if (hasMux_) useBus[(uint8_t)mux_.bus] = true;
-  static const char *const kNames3[3] = {"Wire ", "Wire1", "Soft "};
+  static const char *const kNames3[3] = {"Wire0(Pin3/4) ", "Wire1(Pin0/1) ", "Soft(Pin18/19)"};
 
   // 每個位址送一個 NOP（至少 1 byte：SDK 送 0 byte 時任何位址都回成功）
   auto scanBus = [&](Bus b, const char *label) {

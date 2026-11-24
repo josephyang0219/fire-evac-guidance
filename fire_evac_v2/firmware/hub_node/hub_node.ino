@@ -15,11 +15,13 @@
 
   Which junction OLEDs a board drives is the OLED_MAP table below (by slot), not the server. Layout (2026-11-18, wiring_8hub/):
   the 8 camera HUBs drive all 18 ceiling OLEDs (1F + 2F, 9 each), no display-only HUBs, no multiplexer:
-    corner OLED  -> Wire  0x3C (Pin3 SDA / Pin4 SCL)   enters the breadboard seat through the new side window
-    cross-arm    -> Wire1 0x3C (Pin0 SDA / Pin1 SCL)   enters through the seat's inner window
-    centre       -> the S board's software I2C 0x3C (Pin18 SDA / Pin19 SCL)  -> S boards drive 3, the others 2
-  All 18 OLEDs keep the factory address 0x3C (no resoldering, 2026-11-23). Wire/Wire1 run through HAL i2c_t inside
-  EvacOled (~2 ms per screen instead of 236 ms with Wire), so this sketch must not call Wire.begin()/Wire1.begin().
+    corner OLED  -> Bus::Wire0 0x3C (Pin3 SDA / Pin4 SCL)   enters the breadboard seat through the new side window
+    cross-arm    -> Bus::Wire1 0x3C (Pin0 SDA / Pin1 SCL)   enters through the seat's inner window
+    centre       -> the S board's Bus::Soft 0x3C (Pin18 SDA / Pin19 SCL)  -> S boards drive 3, the others 2
+  All 18 OLEDs keep the factory address 0x3C (no resoldering, 2026-11-23). All three buses are SOFTWARE I2C in
+  EvacOled (2026-11-24): with camera + NN + SD running, the HAL hardware I2C never completed a transfer on the board
+  (cause unknown), while software I2C worked (wire1_test v12, 18-29 ms per screen). Nothing in this sketch may touch
+  pins 0, 1, 3, 4, 18, 19 (no Wire.begin(), pinMode(), SPI ...).
   Displays are drawn by the EvacOled library (oled_fw/libraries/EvacOled, pass it with --library).
 
   Board package: Realtek AmebaPro2 (Arduino IDE). Model: our yolov7_tiny.nb swapped into the SDK (DEFAULT_YOLOV7TINY), Tools -> NN Model Load from: Flash.
@@ -76,8 +78,13 @@ const char* FW = "2.4";                 // bump for every OTA release: the OTA s
 // One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
 // server sends (1F "J(i,j)", 2F "J2(i,j)"). top = where the screen's top edge (= the pin header side) points, from
 // wiring_8hub/wiring_8hub.json; ceiling = true (mounted face down, seen from below). Verify top once mounted.
-#define SOFT_SDA_PIN 18                 // centre OLED on the S boards: software I2C (PF_5 / PF_6, free in this sketch)
-#define SOFT_SCL_PIN 19
+// software I2C pins per bus (Arduino pin numbers); the wiring is unchanged from the Wire/Wire1 days
+#define CORNER_SDA_PIN 3                // PE_4
+#define CORNER_SCL_PIN 4                // PE_3
+#define ARM_SDA_PIN 0                   // PF_2
+#define ARM_SCL_PIN 1                   // PF_1
+#define SOFT_SDA_PIN 18                 // PF_5, centre OLED on the S boards
+#define SOFT_SCL_PIN 19                 // PF_6
 #ifndef EVAC_CORNER_ADDR
 #define EVAC_CORNER_ADDR 0x3C
 #endif
@@ -138,7 +145,11 @@ void logChanges(const Sign* before) {
     if (oled.sign(k) != before[k]) { Serial.print("[OLED "); Serial.print(own[k].id); Serial.print("] -> "); Serial.println(signName(oled.sign(k))); }
 }
 
-// ---------- camera: channel 0 = small JPEG for snapshots, channel 1 = RGB for the NPU ----------
+// ---------- camera: channel 0 = small JPEG for snapshots, channel 3 = RGB for the NPU ----------
+// RGB output only works on channel 3: with channel 1 the SDK prints "RGB output only on ch4" / "str3 paring fail"
+// and neither camera nor NN start (found on the board 2026-11-24; hub_model_test uses CH_NN 3 too).
+#define CH_JPG 0
+#define CH_NN 3
 #define NNW 576             // must match the input size used when converting yolov7_tiny.nb (16:9 camera -> no squash)
 #define NNH 320
 VideoSetting configJPG(VIDEO_VGA, 10, VIDEO_JPEG, 1);
@@ -190,7 +201,7 @@ const unsigned long OTA_FAIL_MS = 15000;          // COMPLETED for this long wit
 unsigned long otaCompletedAt = 0;
 bool otaBusy = false, otaFailed = false;
 
-// "更新中" on every display of this slot (any bus: Wire, Wire1 or software I2C), no direction shown
+// "更新中" on every display of this slot (through EvacOled, so on the software buses), no direction shown
 void showOtaBanner() {
   oled.setAll(Sign::Off);                        // library state = dark; oled.begin() redraws if the update fails
   for (int k = 0; k < N_OWN; k++)
@@ -226,7 +237,9 @@ void sendNodeInfo() {
 
 void setup() {
   Serial.begin(115200);
-  oled.setSoftPins(SOFT_SDA_PIN, SOFT_SCL_PIN);
+  oled.setBusPins(Bus::Wire0, CORNER_SDA_PIN, CORNER_SCL_PIN);   // all software I2C (default; HAL is off)
+  oled.setBusPins(Bus::Wire1, ARM_SDA_PIN, ARM_SCL_PIN);
+  oled.setBusPins(Bus::Soft, SOFT_SDA_PIN, SOFT_SCL_PIN);
   while (WiFi.begin((char*)SSID, (char*)PASS) != WL_CONNECTED) delay(1000);
   byte mac[6]; WiFi.macAddress(mac);
   sprintf(macStr, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
@@ -234,8 +247,8 @@ void setup() {
 #ifdef Arduino_OTA_MODE
   ota.start_OTA_threads(OTA_SERVER_PORT, otaServer); // reports every ~4 s, listens on TCP 5000 for start_ota
 #endif
-  Camera.configVideoChannel(0, configJPG);
-  Camera.configVideoChannel(1, configNN);
+  Camera.configVideoChannel(CH_JPG, configJPG);
+  Camera.configVideoChannel(CH_NN, configNN);
   Camera.videoInit();
   ObjDet.configVideo(configNN);
   // DEFAULT_YOLOV7TINY on purpose: the SDK copy variants/common_nn_models/yolov7_tiny.nb is our 6-class model.
@@ -245,12 +258,12 @@ void setup() {
   // customized (SD card) model, sd:/NN_MDL/yolov7_tiny.nb.
   ObjDet.modelSelect(OBJECT_DETECTION, DEFAULT_YOLOV7TINY, NA_MODEL, NA_MODEL);
   ObjDet.begin();
-  videoStreamerNN.registerInput(Camera.getStream(1));
+  videoStreamerNN.registerInput(Camera.getStream(CH_NN));
   videoStreamerNN.setStackSize();
   videoStreamerNN.registerOutput(ObjDet);
   videoStreamerNN.begin();
-  Camera.channelBegin(0);
-  Camera.channelBegin(1);
+  Camera.channelBegin(CH_JPG);
+  Camera.channelBegin(CH_NN);
 }
 
 void loop() {
@@ -279,7 +292,7 @@ void loop() {
     bool blink = jInt(resp, "blink");                                            // "閃燈": current sign blinks
     for (int k = 0; k < N_OWN; k++) oled.setIndex(k, blink && oled.sign(k) == Sign::Off ? Sign::Blocked : oled.sign(k), blink);
     if (jInt(resp, "snap") && millis() - lastSnap > 700) {                         // snapshot only when the console asks
-      uint32_t addr = 0, len = 0; Camera.getImage(0, &addr, &len);
+      uint32_t addr = 0, len = 0; Camera.getImage(CH_JPG, &addr, &len);
       if (len) httpPost(String("/api/dev/") + macStr + "/frame", "image/jpeg", (const uint8_t*)addr, len);
       lastSnap = millis();
     }

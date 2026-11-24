@@ -1,13 +1,16 @@
 // EvacOled：HUB-8735 Ultra 一台板子同時驅動多塊 SSD1306，各自顯示避難方向。
 //
 // 接法（每塊 OLED 一筆 SlotConfig，可混用）：
-//   - Bus::Wire0：硬體 I2C0（Pin3 SDA / Pin4 SCL）
-//   - Bus::Wire1：硬體 I2C1（Pin0 SDA / Pin1 SCL）
-//   - Bus::Soft ：軟體 I2C，腳位用 setSoftPins() 設定（預設 Pin18 SDA / Pin19 SCL）
+//   - Bus::Wire0：Pin3 SDA / Pin4 SCL（Wire 的腳位）
+//   - Bus::Wire1：Pin0 SDA / Pin1 SCL（Wire1 的腳位）
+//   - Bus::Soft ：Pin18 SDA / Pin19 SCL
+//   三條預設都是軟體 I2C（各自獨立），腳位可用 setBusPins() 改。2026-11-24：hub_node 跑起鏡頭／NN／SD 之後，
+//   HAL 硬體 I2C 的 TX_COMPLETE 回呼永遠不來（探測 0 成功），原因未明；同樣的程式單獨跑（wire1_test v11）正常。
+//   所以硬體路徑改成選項 useHardwareI2C(true)，預設不用。
 //   - 每條線上 0x3C、0x3D 各一塊；或 TCA9548A 多工器（預設 0x70）的 8 個通道各一塊（muxChannel = 0..7）
 // 螢幕：128x64（0.96 吋）與 128x32（0.91 吋）可混用。
 //
-// 硬體兩條不經 Arduino Wire，直接用 SDK 的 HAL i2c_t（2026-11-23 在 HUB 上實測，wire1_test v9）：
+// 選用的硬體路徑（useHardwareI2C(true)）不經 Arduino Wire，直接用 SDK 的 HAL i2c_t（wire1_test v9–v11）：
 //   - Wire::endTransmission() 每 byte 固定等 200 µs，整張 128x64 要 236 ms。原因是 HAL i2c_write 在資料送完前就返回；
 //     EvacOled 改成每筆等 TX_COMPLETE 回呼（逾時 n×200 µs＋2 ms 就重設匯流排），100 kHz 約 0.12 秒／張（wire1_test v11）。
 //   - 預設 100 kHz：400 kHz 在杜邦線＋模組上拉下實測不穩（位址有 ACK、畫面資料卻傳錯，螢幕不亮），wire1_test v10。
@@ -65,8 +68,11 @@ const char *signName(Sign s);
 
 class EvacOled {
  public:
-  // 軟體 I2C 的腳位（Arduino 腳位編號），要在 begin() 之前設定；預設 SDA 18、SCL 19
-  void setSoftPins(uint8_t sdaPin, uint8_t sclPin) { softSda_ = sdaPin; softScl_ = sclPin; }
+  // 某條匯流排的腳位（Arduino 腳位編號），要在 begin() 之前設定。預設 Wire0 = 3/4、Wire1 = 0/1、Soft = 18/19
+  void setBusPins(Bus b, uint8_t sdaPin, uint8_t sclPin) { pinSda_[(uint8_t)b] = sdaPin; pinScl_[(uint8_t)b] = sclPin; }
+  void setSoftPins(uint8_t sdaPin, uint8_t sclPin) { setBusPins(Bus::Soft, sdaPin, sclPin); }   // 舊名稱
+  // true：Wire0／Wire1 改走 HAL 硬體 I2C（100 kHz）。hub_node 實測不通、原因未明，預設 false（全部軟體 I2C）
+  void useHardwareI2C(bool on) { useHal_ = on; }
 
   // slots 必須在 EvacOled 的生命週期內有效（通常是全域 const 陣列）
   // 回傳成功初始化的螢幕數（每塊最多試 3 次）；沒接上的會在 update() 中每 2 秒重試
@@ -129,7 +135,8 @@ class EvacOled {
   MuxConfig mux_{};
   bool hasMux_ = false;
   int8_t muxSelected_ = -2;  // 目前多工器開著哪個通道；-2 = 未知
-  uint8_t softSda_ = 18, softScl_ = 19;
+  uint8_t pinSda_[3] = {3, 0, 18}, pinScl_[3] = {4, 1, 19};
+  bool useHal_ = false;
   State state_[kMaxSlots];
   uint16_t blinkPeriod_ = 500;
   bool blinkOn_ = true;

@@ -1,9 +1,11 @@
 """Compile hub_node with arduino-cli, with or without OTA, and keep the OTA image.
 
 python build_hub_node.py            normal build (model in flash), same as compiling firmware/hub_node directly
+                                    (both builds add 04_CameraOption=<--camera>, default ps5268: without it the SDK
+                                    default JXF37 is used and the PS5268 camera does not start)
 python build_hub_node.py --ota      OTA build (FQBN ...:08_OTAMode=Enable,06_LoadNNModelSource=sd); copies ota.bin to
                                     fire_evac_v2/tools/ota_out/hub_node_fw<FW>_ota.bin right after the build
-options: --cli PATH  --config-file PATH  --build-path PATH (short ASCII, default %TEMP%/hbn or hbo)  --dry-run
+options: --camera ps5268|f37  --cli PATH  --config-file PATH  --build-path PATH (short ASCII, default %TEMP%/hbn or hbo)  --dry-run
 
 Why a script for the OTA build: the SDK's ino_validation reads the .ino as text (#if branches and comments included).
 A flash build needs the default-model line, an SD build (forced by OTA) refuses any default-model line. So the
@@ -49,6 +51,7 @@ def ota_sketch(build_path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ota", action="store_true")
+    ap.add_argument("--camera", default="ps5268", help="04_CameraOption value (boards.txt), default ps5268")
     ap.add_argument("--cli", default=os.path.join(ROOT, "..", "..", "..", "tools", "arduino-cli", "arduino-cli.exe"))
     ap.add_argument("--config-file", required=True)
     ap.add_argument("--build-path")
@@ -56,7 +59,7 @@ def main():
     a = ap.parse_args()
     bp = a.build_path or os.path.join(tempfile.gettempdir(), "hbo" if a.ota else "hbn")
     sketch = ota_sketch(bp) if a.ota else SKETCH
-    fqbn = FQBN + (":" + OTA_OPTS if a.ota else "")
+    fqbn = FQBN + ":04_CameraOption=" + a.camera + ("," + OTA_OPTS if a.ota else "")
     cmd = [a.cli, "compile", "--config-file", a.config_file, "--fqbn", fqbn, "--library", LIB, "--build-path", bp, sketch]
     print(" ".join(f'"{c}"' if " " in c else c for c in cmd), flush=True)
     if a.dry_run:
