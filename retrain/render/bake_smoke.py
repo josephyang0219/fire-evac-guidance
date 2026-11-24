@@ -23,7 +23,7 @@ ap.add_argument('--n', type=int, default=3)
 ap.add_argument('--start', type=int, default=0)
 ap.add_argument('--seed', type=int, default=1)
 ap.add_argument('--frames', type=int, default=120)
-ap.add_argument('--res', type=int, default=96)
+ap.add_argument('--res', type=int, default=128)
 ap.add_argument('--preview', action='store_true')
 A = ap.parse_args(argv)
 if os.path.basename(bpy.data.filepath).lower() == 'fire_model.blend':
@@ -111,6 +111,9 @@ fs = fm.flow_settings
 fs.flow_type = 'SMOKE'
 fs.flow_behavior = 'INFLOW'
 fs.flow_source = 'MESH'
+fs.surface_distance = 2.0
+fs.volume_density = 1.0
+fs.use_initial_velocity = True
 src.hide_render = True
 
 SC.frame_start, SC.frame_end = 1, A.frames
@@ -125,7 +128,7 @@ for i in range(A.start, A.start + A.n):
     rng = random.Random(A.seed * 1000 + i)
     x, y = rand_source(rng)
     P = dict(idx=i, x=round(x, 1), y=round(y, 1),
-             src_r=rng.uniform(2.0, 5.0),                       # 煙源大小（線香 2 mm ～ 悶燒 5 mm）
+             src_r=rng.uniform(5.0, 9.0),                       # 煙源半徑（mm）。格子約 2 mm，太小（2～5 mm）幾乎不冒煙（11/24 測試）
              temp=rng.uniform(0.8, 2.5),                        # 溫度差：越大上升越快
              density=rng.uniform(0.6, 1.0),
              vorticity=rng.uniform(0.05, 0.35),
@@ -134,13 +137,13 @@ for i in range(A.start, A.start + A.n):
     src.location = (x, y, FLOOR_Z + P['src_r'] + 1)
     src.scale = (P['src_r'],) * 3
     fs.temperature = P['temp']; fs.density = P['density']
+    fs.velocity_coord = (0, 0, rng.uniform(5, 20))  # 往上的初速（mm/s 等級，讓煙一開始就往上冒）
     ds.vorticity = P['vorticity']; ds.alpha = P['alpha']; ds.beta = P['beta']; ds.time_scale = P['time_scale']
     cdir = os.path.join(A.out, f'sim_{i:03d}')
     ds.cache_directory = cdir
     t0 = time.time()
     with bpy.context.temp_override(scene=SC, object=dom, active_object=dom, selected_objects=[dom]):
-        bpy.ops.fluid.free_all()
-        bpy.ops.fluid.bake_all()
+        bpy.ops.fluid.bake_all()  # 每組要用獨立的 blender 程序跑（--n 1）：同一程序改 cache_directory 再 bake，前一組的快取會被清掉
     P['bake_sec'] = round(time.time() - t0, 1)
     P['frames'] = A.frames; P['res'] = A.res
     P['domain'] = dict(loc=list(dom.location), scale=list(dom.scale))
@@ -159,6 +162,14 @@ for i in range(A.start, A.start + A.n):
         except Exception as e:
             print('GPU 設定失敗', e)
         SC.camera = nearest_cam(x, y)
+        # 預覽用：場景本身很暗（dr_render 每張圖會自己隨機打光），這裡加一盞頂燈＋環境光
+        if 'SIM_PrevLight' not in bpy.data.objects:
+            ld = bpy.data.lights.new('SIM_PrevLight', 'AREA'); ld.energy = 4e5; ld.size = 200
+            lo = bpy.data.objects.new('SIM_PrevLight', ld); lo.location = (0, 0, 100); COL.objects.link(lo)
+        if SC.world and SC.world.node_tree:
+            bg = next((n for n in SC.world.node_tree.nodes if n.type == 'BACKGROUND'), None)
+            if bg:
+                bg.inputs['Strength'].default_value = 1.0
         for f in (20, 45, 75, min(110, A.frames)):
             SC.frame_set(f)
             r.filepath = os.path.join(A.out, f'sim_{i:03d}_f{f:03d}.png')
