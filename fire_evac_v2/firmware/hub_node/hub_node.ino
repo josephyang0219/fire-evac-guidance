@@ -158,6 +158,7 @@ NNObjectDetection ObjDet;
 StreamIO videoStreamerNN(1, 1);
 WiFiClient client;
 unsigned long seq = 0, lastSnap = 0;
+bool snapOn = false;                 // the console has a preview open for this board (reply "snap":1)
 char macStr[13];
 
 // tiny helpers for the fixed-shape JSON reply
@@ -291,7 +292,8 @@ void loop() {
     if (!slot.length() || n >= N_OWN) { lastReply = millis(); linkLost = false; } // a cut-off reply doesn't count
     bool blink = jInt(resp, "blink");                                            // "閃燈": current sign blinks
     for (int k = 0; k < N_OWN; k++) oled.setIndex(k, blink && oled.sign(k) == Sign::Off ? Sign::Blocked : oled.sign(k), blink);
-    if (jInt(resp, "snap") && millis() - lastSnap > 700) {                         // snapshot only when the console asks
+    snapOn = jInt(resp, "snap");
+    if (snapOn && millis() - lastSnap > 250) {                                    // snapshot only when the console asks
       uint32_t addr = 0, len = 0; Camera.getImage(CH_JPG, &addr, &len);
       if (len) httpPost(String("/api/dev/") + macStr + "/frame", "image/jpeg", (const uint8_t*)addr, len);
       lastSnap = millis();
@@ -300,5 +302,5 @@ void loop() {
   if (millis() - lastReply > LINK_TIMEOUT_MS && !linkLost) { linkLost = true; oled.setAll(Sign::Off); Serial.println("link lost"); }
   logChanges(before);
   oled.update();
-  delay(150);
+  delay(snapOn ? 30 : 150);             // 預覽開著時縮短等待，快照約每秒 3 張
 }

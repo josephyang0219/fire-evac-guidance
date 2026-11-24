@@ -112,7 +112,7 @@
 | `leds` | **舊**，保留做相容：依舊版 `HUB_LEDS` 表，列出這個位置那 2～3 個路口的方向。新韌體不用，之後會移除 |
 | `slot` / `node` | 中控台指派的位置（`1N`…`2E`），`""` 表示還沒指派 |
 | `blink` | 1 = 中控台按了「閃燈」 |
-| `snap` | 1 = 請上傳一張 JPEG |
+| `snap` | 1 = 中控台開著預覽：每 250 ms 上傳一張 JPEG 到 `/api/dev/<MAC>/frame`，loop 的等待從 150 ms 縮成 30 ms（實測約每秒 2.6 張，偵測回報沒有變少）。伺服器收到一次預覽要求會讓這個值維持 15 秒，網頁約每 5 秒重要一次 |
 
 舊的 `POST /api/hub/<hub>/detections`、`GET /api/hub/<hub>/leds` 回應裡也會多帶 `junctions`。
 

@@ -583,9 +583,25 @@ function openCam(id){
   document.getElementById("modalT").textContent = `${c.floor}F 鏡頭 ${id.slice(1)}`;
   const img = document.getElementById("modalImg"); const src = S.live ? `/api/cam/${id}.jpg?t=${Date.now()}` : (S.images[`${S.step}:${id}`] || "");
   img.hidden = !c.online || !src; if (src) img.src = src;
-  const dets = (st.dets && st.dets[id]) || [];
-  document.getElementById("modalD").textContent = c.online ? (dets.length ? "偵測到：" + dets.map(d => `${DET_NAME[d[0]]} ${Math.round(d[5]*100)}%`).join("、") : "畫面中沒有偵測到障礙物或煙。") : "這個鏡頭目前離線。";
+  const detText = () => {           // 依最新的狀態（S.cur）算偵測文字；即時模式下每 0.3 秒重算
+    const s = S.cur || st, cc = (s.cams || []).find(x => x.id === id) || c, dets = (s.dets && s.dets[id]) || [];
+    document.getElementById("modalD").textContent = cc.online ? (dets.length ? "偵測到：" + dets.map(d => `${DET_NAME[d[0]]} ${Math.round(d[5]*100)}%`).join("、") : "畫面中沒有偵測到障礙物或煙。") : "這個鏡頭目前離線。";
+  };
+  detText();
   m.hidden = false; document.getElementById("modalX").focus();
+  // 即時模式：視窗開著時每 0.3 秒抓一次，並約每 5 秒請這個位置的板子再上傳 15 秒的快照（不然畫面會停在開啟那一張）
+  clearInterval(S.snapT);
+  if (S.live && c.online) {
+    const dev = ((S.cur && S.cur.devices) || []).find(d => d.slot === id);
+    if (dev) send({type:"snap", mac:dev.mac});
+    let ticks = 0;
+    S.snapT = setInterval(() => {
+      if (m.hidden) { clearInterval(S.snapT); return; }
+      if (dev && ++ticks % 17 === 0) send({type:"snap", mac:dev.mac});
+      img.hidden = false; img.src = `/api/cam/${id}.jpg?t=${Date.now()}`;
+      detText();
+    }, 300);
+  }
 }
 document.getElementById("modalX").onclick = () => document.getElementById("modal").hidden = true;
 document.getElementById("modal").onclick = e => { if (e.target.id === "modal") e.target.hidden = true; };
@@ -696,9 +712,11 @@ function renderDevices(st){
   tb.querySelectorAll(".devForget").forEach(e => e.onclick = () => { if (confirm("從清單移除這片板子？它下次連線會重新出現。")) send({type:"forget", mac:e.dataset.mac}); });
   tb.querySelectorAll(".devSnap").forEach(e => e.onclick = () => { send({type:"snap", mac:e.dataset.mac});
     const img = document.getElementById("modalImg"), mac = e.dataset.mac; document.getElementById("modalT").textContent = "板子畫面 " + mac.slice(-4);
-    document.getElementById("modalD").textContent = "每秒更新；這片板子目前位置：" + (SLOT_NAMES[(devs.find(x => x.mac === mac) || {}).slot] || "未分配");
+    document.getElementById("modalD").textContent = "每 0.3 秒更新；這片板子目前位置：" + (SLOT_NAMES[(devs.find(x => x.mac === mac) || {}).slot] || "未分配");
     document.getElementById("modal").hidden = false; clearInterval(S.snapT);
-    const pull = () => { img.src = `/api/devframe/${mac}.jpg?t=${Date.now()}`; }; pull(); S.snapT = setInterval(() => { if (document.getElementById("modal").hidden) clearInterval(S.snapT); else pull(); }, 1000); });
+    // 板子收到一次 snap 只上傳 15 秒；視窗開著時每 0.3 秒抓一次、約每 5 秒再要一次，畫面就會一直更新（板子約每秒 2–3 張）
+    let ticks = 0;
+    const pull = () => { img.src = `/api/devframe/${mac}.jpg?t=${Date.now()}`; }; pull(); S.snapT = setInterval(() => { if (document.getElementById("modal").hidden) { clearInterval(S.snapT); return; } if (++ticks % 17 === 0) send({type:"snap", mac}); pull(); }, 300); });
   const wb = document.getElementById("wizBox"), w = st.wizard;
   wb.hidden = !w; document.getElementById("wizStart").textContent = w ? "結束指認" : "遮鏡頭自動指認";
   if (w) wb.innerHTML = w.slot ? `<span style="font-size:18px">請用手遮住 <b>${SLOT_NAMES[w.slot]}</b> 的鏡頭 <span class="hint">（${w.i + 1} / ${w.slots.length}）${w.msg ? "　上一個：" + w.msg : ""}</span></span><button class="btn" id="wizSkip">跳過這個位置</button>`
