@@ -5,7 +5,7 @@
 煙又細又淡，框裡大多看不到煙（小規模補訓 v1～v4 煙學不起來的主因）。
 
 用法（在 fire_model.blend 的複本上執行）：
-    blender -b fire_model_dr.blend -P bake_smoke.py -- --out <lib 資料夾> --n 3 --seed 1 [--frames 120] [--res 96] [--preview]
+    blender -b fire_model_dr.blend -P bake_smoke.py -- --out <lib 資料夾> --n 3 --seed 1 [--frames 240] [--res 96] [--preview]
 
 每一組模擬：
   - 煙源：地板上隨機位置的小球（線香／悶燒），持續冒煙；煙量、溫度（上升速度）、渦度隨機
@@ -22,7 +22,7 @@ ap.add_argument('--out', required=True)
 ap.add_argument('--n', type=int, default=3)
 ap.add_argument('--start', type=int, default=0)
 ap.add_argument('--seed', type=int, default=1)
-ap.add_argument('--frames', type=int, default=120)
+ap.add_argument('--frames', type=int, default=240)
 ap.add_argument('--res', type=int, default=128)
 ap.add_argument('--preview', action='store_true')
 A = ap.parse_args(argv)
@@ -94,7 +94,7 @@ nt = mat.node_tree
 for n in list(nt.nodes):
     nt.nodes.remove(n)
 at = nt.nodes.new('ShaderNodeAttribute'); at.attribute_name = 'density'
-mu = nt.nodes.new('ShaderNodeMath'); mu.operation = 'MULTIPLY'; mu.name = 'DEN'; mu.inputs[1].default_value = 4.0
+mu = nt.nodes.new('ShaderNodeMath'); mu.operation = 'MULTIPLY'; mu.name = 'DEN'; mu.inputs[1].default_value = 1.0
 vol = nt.nodes.new('ShaderNodeVolumePrincipled'); vol.name = 'VOL'
 vol.inputs['Color'].default_value = (0.75, 0.75, 0.75, 1)
 outn = nt.nodes.new('ShaderNodeOutputMaterial')
@@ -129,11 +129,11 @@ for i in range(A.start, A.start + A.n):
     x, y = rand_source(rng)
     P = dict(idx=i, x=round(x, 1), y=round(y, 1),
              src_r=rng.uniform(5.0, 9.0),                       # 煙源半徑（mm）。格子約 2 mm，太小（2～5 mm）幾乎不冒煙（11/24 測試）
-             temp=rng.uniform(0.8, 2.5),                        # 溫度差：越大上升越快
+             temp=rng.uniform(1.5, 4.0),                        # 溫度差：越大上升越快
              density=rng.uniform(0.6, 1.0),
              vorticity=rng.uniform(0.05, 0.35),
              alpha=rng.uniform(0.6, 1.2), beta=rng.uniform(0.8, 1.6),
-             time_scale=rng.uniform(0.6, 1.0))
+             time_scale=rng.uniform(0.8, 1.5))
     src.location = (x, y, FLOOR_Z + P['src_r'] + 1)
     src.scale = (P['src_r'],) * 3
     fs.temperature = P['temp']; fs.density = P['density']
@@ -147,6 +147,8 @@ for i in range(A.start, A.start + A.n):
     P['bake_sec'] = round(time.time() - t0, 1)
     P['frames'] = A.frames; P['res'] = A.res
     P['domain'] = dict(loc=list(dom.location), scale=list(dom.scale))
+    # 直接把 VDB 載成 Volume 物件時，網格原點在模擬範圍的最小角（11/24 測試確認）
+    P['vdb_origin'] = [-HALF, -HALF, FLOOR_Z]
     json.dump(P, open(os.path.join(A.out, f'sim_{i:03d}.json'), 'w'), indent=1)
     print('[bake]', P, flush=True)
     if A.preview:
@@ -170,8 +172,17 @@ for i in range(A.start, A.start + A.n):
             bg = next((n for n in SC.world.node_tree.nodes if n.type == 'BACKGROUND'), None)
             if bg:
                 bg.inputs['Strength'].default_value = 1.0
-        for f in (20, 45, 75, min(110, A.frames)):
-            SC.frame_set(f)
+        # 背景模式下 frame_set 不會換模擬範圍顯示的幀（11/24 測試 4 張完全一樣），
+        # 所以預覽和 dr_render 一樣：把該幀的 VDB 直接載成 Volume 物件
+        dom.hide_render = True
+        for f in sorted({max(1, A.frames * k // 8) for k in (1, 3, 5, 8)}):
+            v = bpy.data.volumes.new(f'SIM_v{f}')
+            v.filepath = os.path.join(cdir, 'data', f'fluid_data_{f:04d}.vdb')
+            v.materials.append(mat)
+            vo = bpy.data.objects.new(f'SIM_V{f}', v); COL.objects.link(vo)
+            vo.location = P['vdb_origin']
             r.filepath = os.path.join(A.out, f'sim_{i:03d}_f{f:03d}.png')
             bpy.ops.render.render(write_still=True, scene=SC.name)
+            bpy.data.objects.remove(vo)
+        dom.hide_render = False
 print('[bake] done', flush=True)
