@@ -6,6 +6,8 @@
         --src out/dr_s001 --src out/empty_s002 --src out/neg_classroom --src real/model_photos:3 --zip
 
 --src 路徑可以是 --work 底下的相對路徑；`:3` 表示這個來源在訓練集重複 3 次（實拍照片少，加重權重）。
+`@train`／`@val` 結尾：這個來源全部放 train 或全部放 val，不用 hash 切（例如 val 用另外幾組煙霧模擬渲染，
+避免同一團煙同時出現在 train 和 val）。例：--src out/dr_s601@train --src out/dr_s603_val@val
 切分：用檔名的 hash 決定 train / val（預設 val 15%），重跑結果一樣；重複只套用在 train。
 輸出：
   <out>/images/{train,val}/*.jpg  <out>/labels/{train,val}/*.txt
@@ -40,6 +42,9 @@ def main():
         os.makedirs(os.path.join(out, 'labels', sp))
     rows, count = [], {'train': 0, 'val': 0}
     for spec in a.src:
+        force = None
+        if spec.endswith(('@train', '@val')):
+            spec, force = spec.rsplit('@', 1)
         head, _, tail = spec.rpartition(':')
         path, rep = (head, int(tail)) if head and tail.isdigit() else (spec, 1)  # 不會誤吃 C:\ 的冒號
         src = path if os.path.isabs(path) else os.path.join(a.work, path)
@@ -53,7 +58,7 @@ def main():
             if not os.path.exists(lab):
                 raise SystemExit(f'{src}: {stem} 沒有標註檔（負樣本也要有空的 .txt）')
             h = int(hashlib.sha256(stem.encode()).hexdigest()[:8], 16) / 0xFFFFFFFF
-            sp = 'val' if h < a.val else 'train'
+            sp = force or ('val' if h < a.val else 'train')
             for k in range(rep if sp == 'train' else 1):
                 name = f'{tag}__{stem}' + (f'__r{k}' if k else '')
                 shutil.copy2(os.path.join(src, 'images', fn), os.path.join(out, 'images', sp, name + ext.lower()))
@@ -61,7 +66,7 @@ def main():
                 rows.append([name, src, sp])
                 count[sp] += 1
             n += 1
-        print(f'{tag}: {n} 張（train 重複 {rep} 次）')
+        print(f'{tag}: {n} 張（train 重複 {rep} 次）' + (f'，全部放 {force}' if force else ''))
     with open(os.path.join(out, 'data.yaml'), 'w', encoding='utf-8', newline='\n') as f:
         f.write(f'# 火場避難 7 類（0-5 沿用原本順序，6 = person）\n')
         f.write(f'train: {a.colab_path}/images/train\nval: {a.colab_path}/images/val\n')

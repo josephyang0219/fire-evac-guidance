@@ -56,6 +56,8 @@ def parse_args():
                    help='bake_smoke.py 做好的流體模擬庫資料夾；有給就改用會擴散的模擬煙（每張最多 1 組），不用靜止的體積球')
     p.add_argument('--smoke-sims', default='0-999', help='可用的模擬編號範圍，例如 train 用 0-23、val 用 24-31（避免同一團煙同時出現在 train 和 val）')
     p.add_argument('--smoke-frame-min', type=int, default=15, help='模擬幀數下限（太早只有煙源一點點）')
+    p.add_argument('--smoke-frame-pow', type=float, default=1.0,
+                   help='時間點取樣：幀 = 下限 + (總幀數 − 下限) × u^pow；pow < 1 偏向後段（煙已擴散），1 = 平均')
     p.add_argument('--min-pixels', type=int, default=40)
     p.add_argument('--skip-existing', action='store_true')
     p.add_argument('--cpu', action='store_true')
@@ -482,14 +484,16 @@ def make_smoke(name, rng, x, y):
 SMOKE_LIB = []
 if ARGS.smoke_lib:
     _lo, _hi = (int(v) for v in ARGS.smoke_sims.split('-'))
-    for _f in sorted(os.listdir(ARGS.smoke_lib)):
-        if _f.startswith('sim_') and _f.endswith('.json'):
-            _P = json.load(open(os.path.join(ARGS.smoke_lib, _f)))
-            _dd = os.path.join(ARGS.smoke_lib, _f[:-5], 'data')
-            if _lo <= _P['idx'] <= _hi and os.path.isdir(_dd) and len(os.listdir(_dd)) >= _P['frames']:
-                _P['dir'] = _dd
-                SMOKE_LIB.append(_P)
-    print('[dr] 流體模擬煙：', len(SMOKE_LIB), '組', [P['idx'] for P in SMOKE_LIB])
+    for _lib in ARGS.smoke_lib.split(';'):  # 可以給多個模擬庫，用分號隔開；--smoke-sims 套用到每一個庫
+        for _f in sorted(os.listdir(_lib)):
+            if _f.startswith('sim_') and _f.endswith('.json'):
+                _P = json.load(open(os.path.join(_lib, _f)))
+                _dd = os.path.join(_lib, _f[:-5], 'data')
+                if _lo <= _P['idx'] <= _hi and os.path.isdir(_dd) and len(os.listdir(_dd)) >= _P['frames']:
+                    _P['dir'] = _dd
+                    _P['lib'] = os.path.basename(os.path.normpath(_lib))
+                    SMOKE_LIB.append(_P)
+    print('[dr] 流體模擬煙：', len(SMOKE_LIB), '組', [(P['lib'], P['idx'], P['frames']) for P in SMOKE_LIB])
     if not SMOKE_LIB:
         raise SystemExit('--smoke-lib 裡沒有可用的模擬：' + ARGS.smoke_lib)
 
@@ -498,7 +502,8 @@ def make_sim_smoke(name, rng, x, y):
     樓層平面是 4 向對稱的（十字＋環廊），所以可以繞中心轉 0/90/180/270 度、再左右鏡射，
     8 種擺法裡挑煙源最靠近 (x, y)（鏡頭看得到的點）的那一種。"""
     P = rng.choice(SMOKE_LIB)
-    f = rng.randint(min(ARGS.smoke_frame_min, P['frames']), P['frames'])
+    f0 = min(ARGS.smoke_frame_min, P['frames'])
+    f = min(P['frames'], f0 + int((P['frames'] - f0 + 1) * rng.random() ** ARGS.smoke_frame_pow))
     v = bpy.data.volumes.new(name)
     v.filepath = os.path.join(P['dir'], f'fluid_data_{f:04d}.vdb')
     best = None
@@ -534,7 +539,7 @@ def make_sim_smoke(name, rng, x, y):
     nt.links.new(at.outputs['Fac'], mu.inputs[0]); nt.links.new(mu.outputs['Value'], vol.inputs['Density'])
     nt.links.new(vol.outputs['Volume'], out.inputs['Volume'])
     v.materials.append(m)
-    o['sim'] = dict(idx=P['idx'], frame=f, rot_deg=round(math.degrees(th)), mirror=sx < 0,
+    o['sim'] = dict(lib=P['lib'], idx=P['idx'], frame=f, frames=P['frames'], rot_deg=round(math.degrees(th)), mirror=sx < 0,
                     den=round(mu.inputs[1].default_value, 3), color=round(g, 3))
     return o
 

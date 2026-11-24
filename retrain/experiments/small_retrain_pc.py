@@ -35,6 +35,9 @@ TAG = os.environ.get("RT_TAG", "")
 INIT = os.environ.get("RT_INIT", "")
 SEED = int(os.environ.get("RT_SEED", "101"))  # 渲染種子（空場景用 SEED+1）；換種子才不會和前幾輪的 val 場景重複
 RENDER_ARGS = os.environ.get("RT_RENDER_ARGS", "").split()  # 額外傳給 dr_render.py，例如 "--smoke-prob 0.75 --incense-prob 0.35"
+VAL_ARGS = os.environ.get("RT_VAL_ARGS", "").split()  # 有給：另外渲染一份只放 val 的圖（RENDER_ARGS 之後再加這些參數，例如 "--smoke-sims 24-31"）
+NVAL = int(os.environ.get("RT_NVAL", "110"))
+NREN = int(os.environ.get("RT_N", "0"))  # 有給就覆蓋 render 的張數
 DSTAG = os.environ.get("RT_DSTAG", TAG)  # 用哪一份資料集（預設和 RT_TAG 相同）
 CLASSES = ["cabinet", "boxes", "furniture", "rubble", "gate", "smoke", "person"]
 
@@ -89,16 +92,24 @@ def transplant():
 
 def render(n=600, e=80):
     os.makedirs(os.path.join(WORK, "logs"), exist_ok=True)
+    n = NREN or n
     blend = os.path.join(WORK, "fire_model_dr.blend"); scr = os.path.join(WORK, "scripts", "dr_render.py")
-    for args, tag in (([ "--count", str(n), "--seed", str(SEED), "--out", os.path.join(WORK, "out", f"dr_s{SEED}" + TAG), "--skip-existing"] + RENDER_ARGS, "dr"),
-                      (["--count", str(e), "--seed", str(SEED + 1), "--mode", "empty", "--prefix", "empty", "--out", os.path.join(WORK, "out", f"empty_s{SEED + 1}" + TAG), "--skip-existing"], "empty")):
+    jobs = [([ "--count", str(n), "--seed", str(SEED), "--out", os.path.join(WORK, "out", f"dr_s{SEED}" + TAG), "--skip-existing"] + RENDER_ARGS, "dr"),
+            (["--count", str(e), "--seed", str(SEED + 1), "--mode", "empty", "--prefix", "empty", "--out", os.path.join(WORK, "out", f"empty_s{SEED + 1}" + TAG), "--skip-existing"], "empty")]
+    if VAL_ARGS:
+        jobs.append((["--count", str(NVAL), "--seed", str(SEED + 2), "--out", os.path.join(WORK, "out", f"dr_s{SEED + 2}" + TAG + "_val"), "--skip-existing"] + RENDER_ARGS + VAL_ARGS, "val"))
+    for args, tag in jobs:
         sh([BLENDER, "-b", blend, "--python", scr, "--"] + args, logf=os.path.join(WORK, "logs", f"render_{tag}{TAG}.log"))
     log("render done")
 
 def dataset():
     ds = os.path.join(WORK, "ds7" + DSTAG)
-    sh([PY, os.path.join(WORK, "scripts", "make_dataset.py"), "--out", ds, "--work", WORK, "--src", f"out/dr_s{SEED}" + TAG, "--src", f"out/empty_s{SEED + 1}" + TAG,
-        "--val", "0.2", "--colab-path", ds.replace("\\", "/")], logf=os.path.join(WORK, "logs", f"dataset{TAG}.log"))
+    if VAL_ARGS:  # train／val 用不同的煙霧模擬：主渲染全部放 train，另外渲染的放 val；空場景照 hash 切
+        srcs = ["--src", f"out/dr_s{SEED}" + TAG + "@train", "--src", f"out/empty_s{SEED + 1}" + TAG, "--src", f"out/dr_s{SEED + 2}" + TAG + "_val@val"]
+    else:
+        srcs = ["--src", f"out/dr_s{SEED}" + TAG, "--src", f"out/empty_s{SEED + 1}" + TAG]
+    sh([PY, os.path.join(WORK, "scripts", "make_dataset.py"), "--out", ds, "--work", WORK] + srcs +
+       ["--val", "0.2", "--colab-path", ds.replace("\\", "/")], logf=os.path.join(WORK, "logs", f"dataset{TAG}.log"))
     log(open(os.path.join(WORK, "logs", f"dataset{TAG}.log"), encoding="utf-8", errors="replace").read()[-400:])
 
 def train(ep=40):
