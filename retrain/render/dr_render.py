@@ -14,7 +14,7 @@
 
 類別：0 cabinet 1 boxes 2 furniture 3 rubble 4 gate 5 smoke 6 person
 """
-import bpy, bmesh, sys, os, json, math, random, colorsys, time, argparse
+import bpy, bmesh, sys, os, json, math, random, colorsys, time, argparse, copy
 import numpy as np
 from mathutils import Vector, Matrix, Euler
 
@@ -22,6 +22,14 @@ SMOKE_REL_DIFF = 0.15  # 有煙／無煙亮度相對差超過 15% 才算看得�
 SMOKE_MIN_FRAC = 0.25  # 看得到的部分至少要佔煙形狀範圍的 25%，太淡的煙不標（2026-11-18 小規模補訓：煙 AP 0.002 的主因）
 SMOKE_MIN_PIX = 150
 SMOKE_MAX_AREA = 0.45  # 框超過畫面 45%（鏡頭就在煙層裡）不標
+# 流體模擬煙（--smoke-lib）的可見判定：在「加完相機效果」的最終圖上比對（11/24：舊方法在乾淨渲染圖上比，
+# 加雜訊、模糊後很多框裡看不到煙）。有煙／無煙兩張用同一組相機效果與同一組雜訊，
+# 差異先做 5×5 平均，超過 max(SIM_VIS_ABS, SIM_VIS_NOISE × 雜訊強度) 才算看得到。
+SIM_VIS_ABS = 0.04          # 顯示亮度 0～1，約 10/255
+SIM_VIS_NOISE = 1.5
+SIM_MIN_PIX = 200
+SIM_MIN_SIDE = 12           # 框的寬、高至少 12 px
+SIM_MAX_AREA = 0.6
 CLASSES = ['cabinet', 'boxes', 'furniture', 'rubble', 'gate', 'smoke', 'person']
 W, H = 576, 320
 ORIGINAL_NAME = 'fire_model.blend'
@@ -44,6 +52,10 @@ def parse_args():
     p.add_argument('--smoke-max', type=int, default=2, help='一張圖最多幾團煙')
     p.add_argument('--incense-prob', type=float, default=0.0,
                    help='每團煙是「線香煙」的機率（細、高、淺色、絲狀；實景測試用線香）')
+    p.add_argument('--smoke-lib', default='',
+                   help='bake_smoke.py 做好的流體模擬庫資料夾；有給就改用會擴散的模擬煙（每張最多 1 組），不用靜止的體積球')
+    p.add_argument('--smoke-sims', default='0-999', help='可用的模擬編號範圍，例如 train 用 0-23、val 用 24-31（避免同一團煙同時出現在 train 和 val）')
+    p.add_argument('--smoke-frame-min', type=int, default=15, help='模擬幀數下限（太早只有煙源一點點）')
     p.add_argument('--min-pixels', type=int, default=40)
     p.add_argument('--skip-existing', action='store_true')
     p.add_argument('--cpu', action='store_true')
@@ -467,6 +479,65 @@ def make_smoke(name, rng, x, y):
     me.materials.append(m)
     return o
 
+SMOKE_LIB = []
+if ARGS.smoke_lib:
+    _lo, _hi = (int(v) for v in ARGS.smoke_sims.split('-'))
+    for _f in sorted(os.listdir(ARGS.smoke_lib)):
+        if _f.startswith('sim_') and _f.endswith('.json'):
+            _P = json.load(open(os.path.join(ARGS.smoke_lib, _f)))
+            _dd = os.path.join(ARGS.smoke_lib, _f[:-5], 'data')
+            if _lo <= _P['idx'] <= _hi and os.path.isdir(_dd) and len(os.listdir(_dd)) >= _P['frames']:
+                _P['dir'] = _dd
+                SMOKE_LIB.append(_P)
+    print('[dr] 流體模擬煙：', len(SMOKE_LIB), '組', [P['idx'] for P in SMOKE_LIB])
+    if not SMOKE_LIB:
+        raise SystemExit('--smoke-lib 裡沒有可用的模擬：' + ARGS.smoke_lib)
+
+def make_sim_smoke(name, rng, x, y):
+    """從模擬庫取一組、一個時間點的煙（OpenVDB），載成 Volume 物件。
+    樓層平面是 4 向對稱的（十字＋環廊），所以可以繞中心轉 0/90/180/270 度、再左右鏡射，
+    8 種擺法裡挑煙源最靠近 (x, y)（鏡頭看得到的點）的那一種。"""
+    P = rng.choice(SMOKE_LIB)
+    f = rng.randint(min(ARGS.smoke_frame_min, P['frames']), P['frames'])
+    v = bpy.data.volumes.new(name)
+    v.filepath = os.path.join(P['dir'], f'fluid_data_{f:04d}.vdb')
+    best = None
+    for k in range(4):
+        for sx in (1, -1):
+            th = k * math.pi / 2
+            px, py = P['x'] * sx, P['y']
+            qx, qy = px * math.cos(th) - py * math.sin(th), px * math.sin(th) + py * math.cos(th)
+            dd = (qx - x) ** 2 + (qy - y) ** 2
+            if best is None or dd < best[0]:
+                best = (dd, th, sx)
+    _, th, sx = best
+    ox, oy, oz = P['vdb_origin']
+    o = link(bpy.data.objects.new(name, v))
+    o.matrix_world = (Matrix.Translation((0, 0, oz)) @ Matrix.Rotation(th, 4, 'Z') @
+                      Matrix.Diagonal((sx, 1, 1, 1)) @ Matrix.Translation((ox, oy, 0)))
+    m = bpy.data.materials.new(name + '_vol')
+    try:
+        m.use_nodes = True
+    except Exception:
+        pass
+    nt = m.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    at = nt.nodes.new('ShaderNodeAttribute'); at.attribute_name = 'density'
+    mu = nt.nodes.new('ShaderNodeMath'); mu.operation = 'MULTIPLY'
+    mu.inputs[1].default_value = math.exp(rng.uniform(math.log(0.3), math.log(3.0)))  # 濃淡隨機
+    vol = nt.nodes.new('ShaderNodeVolumePrincipled')
+    g = rng.uniform(0.5, 0.95) if rng.random() < 0.6 else rng.uniform(0.08, 0.45)  # 淺灰白／深灰
+    vol.inputs['Color'].default_value = (g, g, g * rng.uniform(0.92, 1.03), 1)
+    vol.inputs['Anisotropy'].default_value = rng.uniform(0, 0.4)
+    out = nt.nodes.new('ShaderNodeOutputMaterial')
+    nt.links.new(at.outputs['Fac'], mu.inputs[0]); nt.links.new(mu.outputs['Value'], vol.inputs['Density'])
+    nt.links.new(vol.outputs['Volume'], out.inputs['Volume'])
+    v.materials.append(m)
+    o['sim'] = dict(idx=P['idx'], frame=f, rot_deg=round(math.degrees(th)), mirror=sx < 0,
+                    den=round(mu.inputs[1].default_value, 3), color=round(g, 3))
+    return o
+
 def make_distractor(name, rng):
     bm = bmesh.new()
     kind = rng.choice(['cyl', 'cyl', 'sphere', 'cone', 'sheet', 'cable'])
@@ -647,7 +718,11 @@ def build_frame(idx, rng):
                     break
             else:
                 bpy.data.objects.remove(o)
-        if rng.random() < ARGS.smoke_prob:
+        if SMOKE_LIB:
+            if rng.random() < ARGS.smoke_prob:
+                x, y = sample_visible(rng, cam, look, 30)
+                insts.append(dict(obj=make_sim_smoke(f'DR_smoke{len(insts)}', rng, x, y), cls=5, sim=True))
+        elif rng.random() < ARGS.smoke_prob:
             for _ in range(rng.choice([1, 1, 2, 3][:max(1, ARGS.smoke_max + (1 if ARGS.smoke_max >= 2 else 0))])):
                 x, y = sample_visible(rng, cam, look, 30)
                 insts.append(dict(obj=make_smoke(f'DR_smoke{len(insts)}', rng, x, y), cls=5))
@@ -717,7 +792,10 @@ def render_masks(tmp, insts):
     VL.material_override = MASK_MAT
     win = SC.objects['Window_Pane']; win_h = win.hide_render
     win.hide_render = True
-    smokes = [it['obj'] for it in insts if it['cls'] == 5]
+    sims = [it['obj'] for it in insts if it.get('sim')]  # 體積物件沒有表面，遮罩用不到，改用最終圖比對
+    for o in sims:
+        o.hide_render = True
+    smokes = [it['obj'] for it in insts if it['cls'] == 5 and not it.get('sim')]
     for o in smokes:
         o.hide_render = True
     a = render_to(os.path.join(tmp, 'maskA.exr'))[:, :, 0]
@@ -728,6 +806,8 @@ def render_masks(tmp, insts):
     for o in smokes:
         o.scale = tuple(v / 0.85 for v in o.scale)
     VL.update()  # 渲染會更新 matrix_world；縮放還原後要重新計算，投影驗證才用得到正確大小
+    for o in sims:
+        o.hide_render = False
     win.hide_render = win_h
     VL.material_override = None
     SC.render.film_transparent = False
@@ -792,7 +872,7 @@ def motion_blur(img, length, ang):
         acc += shift(img, int(round(t * math.sin(ang))), int(round(t * math.cos(ang))))
     return acc / n
 
-def postprocess(lin, rng, nrng):
+def postprocess(lin, rng, nrng, gain=None):
     p = {}
     wb = np.array([rng.uniform(0.85, 1.15), 1.0, rng.uniform(0.85, 1.15)], np.float32)
     lin = np.maximum(lin, 0) * wb
@@ -803,7 +883,7 @@ def postprocess(lin, rng, nrng):
     for _ in range(40):
         mid = math.sqrt(lo * hi)
         lo, hi = (mid, hi) if lum(mid) < target else (lo, mid)
-    s = math.sqrt(lo * hi)
+    s = math.sqrt(lo * hi) if gain is None else gain  # gain：比對無煙圖時沿用有煙圖的曝光
     img = srgb_oetf(lin * s)
     gamma = rng.uniform(0.85, 1.15); contrast = rng.uniform(0.85, 1.25); sat = rng.uniform(0.7, 1.25)
     img = np.power(np.clip(img, 0, 1), gamma)
@@ -839,6 +919,20 @@ def save_jpg(img, path, quality):
     im.save(filepath=path, quality=quality)
     bpy.data.images.remove(im)
 
+def _er(m):  # 3×3 侵蝕
+    o = m.copy()
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            o &= np.roll(np.roll(m, dy, 0), dx, 1)
+    return o
+
+def _di(m):  # 3×3 膨脹
+    o = m.copy()
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            o |= np.roll(np.roll(m, dy, 0), dx, 1)
+    return o
+
 # ---------------------------------------------------------------- 主程式
 def main():
     out = os.path.abspath(ARGS.out)
@@ -871,24 +965,35 @@ def main():
             rel = np.abs(lb - ln) / (np.maximum(lb, ln) + 0.02 * float(ln.mean()) + 1e-6)
             smoke_vis = rel > SMOKE_REL_DIFF
             # 開運算（3×3 侵蝕再膨脹）去掉零星的雜訊點，框才不會被撐大
-            def _er(m):
-                o = m.copy()
-                for dy in (-1, 0, 1):
-                    for dx in (-1, 0, 1):
-                        o &= np.roll(np.roll(m, dy, 0), dx, 1)
-                return o
-            def _di(m):
-                o = m.copy()
-                for dy in (-1, 0, 1):
-                    for dx in (-1, 0, 1):
-                        o |= np.roll(np.roll(m, dy, 0), dx, 1)
-                return o
             smoke_vis = _di(_er(smoke_vis))
+        # 流體模擬煙：在最終圖上判斷看不看得到（有煙／無煙用同一組相機效果、同一組雜訊、同一個曝光）
+        st_r, st_n = rng.getstate(), copy.deepcopy(nrng.bit_generator.state)
+        img, pp = postprocess(beauty, rng, nrng)
+        sim_vis = None
+        if any(it.get('sim') for it in insts):
+            r2 = random.Random(); r2.setstate(st_r)
+            n2 = np.random.default_rng(); n2.bit_generator.state = st_n
+            img0, _ = postprocess(nos, r2, n2, gain=pp['exposure_gain'])
+            dif = np.abs(img.mean(2) - img0.mean(2))
+            k = np.ones(5, np.float32) / 5  # 5×5 平均
+            dif = np.apply_along_axis(lambda r: np.convolve(r, k, 'same'), 1, dif)
+            dif = np.apply_along_axis(lambda c: np.convolve(c, k, 'same'), 0, dif)
+            thr = max(SIM_VIS_ABS, SIM_VIS_NOISE * (pp['read_noise'] + 0.7 * pp['shot_noise']))
+            sim_vis = _di(_er(dif > thr))
+            pp['smoke_vis_thr'] = round(thr, 4)
         mA, mB = render_masks(tmp, insts)
         cam = SC.camera
         lines, objs = [], []
         for it in insts:
-            if it['cls'] == 5:
+            if it.get('sim'):
+                full = sim_vis
+                ys, xs = np.nonzero(sim_vis)
+                if len(xs) < SIM_MIN_PIX:
+                    ys, xs = ys[:0], xs[:0]
+                elif (xs.max() - xs.min() < SIM_MIN_SIDE or ys.max() - ys.min() < SIM_MIN_SIDE or
+                      (xs.max() - xs.min()) * (ys.max() - ys.min()) > SIM_MAX_AREA * W * H):
+                    ys, xs = ys[:0], xs[:0]
+            elif it['cls'] == 5:
                 full = mB == it['id']
                 m = full & smoke_vis
                 ys, xs = np.nonzero(m)
@@ -901,8 +1006,10 @@ def main():
             rec = dict(id=it['id'], cls=it['cls'], name=CLASSES[it['cls']], pixels=int(len(xs)),
                        loc=[round(v, 1) for v in it['obj'].matrix_world.translation],
                        dims=[round(v, 1) for v in it['obj'].dimensions])
-            proj = project_bbox(it['obj'], cam, 0.85 if it['cls'] == 5 else 1.0)
+            proj = None if it.get('sim') else project_bbox(it['obj'], cam, 0.85 if it['cls'] == 5 else 1.0)
             rec['proj_bbox'] = proj
+            if it.get('sim'):
+                rec['sim'] = dict(it['obj']['sim'])
             if it['cls'] == 5:
                 rec['smoke_mask_pixels'] = int(full.sum())  # 煙的形狀範圍；pixels 是其中看得到的部分
                 rec['smoke_too_faint'] = len(xs) == 0
@@ -923,7 +1030,6 @@ def main():
             objs.append(rec)
         ids_seen = set(np.unique(mA).tolist()) - {0}
         meta['unknown_mask_ids'] = sorted(i for i in ids_seen if i > len(insts))
-        img, pp = postprocess(beauty, rng, nrng)
         save_jpg(img, os.path.join(out, 'images', stem + '.jpg'), pp['jpeg_quality'])
         with open(os.path.join(out, 'labels', stem + '.txt'), 'w', encoding='ascii', newline='\n') as f:
             f.write('\n'.join(lines) + ('\n' if lines else ''))
