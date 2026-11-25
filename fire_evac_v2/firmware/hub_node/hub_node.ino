@@ -37,6 +37,7 @@
   Wi-Fi / server addresses can be overridden in secrets.h (not in git, copy secrets.example.h).
 */
 #include "WiFi.h"
+#include "sys_api.h"                    // sys_reset(): Wi-Fi watchdog reboot
 #include "StreamIO.h"
 #include "VideoStream.h"
 #include "NNObjectDetection.h"
@@ -72,7 +73,7 @@ const char* SSID = WIFI_SSID;
 const char* PASS = WIFI_PASS;
 const char* SERVER = EVAC_SERVER_IP;
 const int   PORT = EVAC_SERVER_PORT;
-const char* FW = "2.4";                 // bump for every OTA release: the OTA server checks it after the reboot
+const char* FW = "2.5";                 // bump for every OTA release: the OTA server checks it after the reboot
 
 // ---------- junction OLEDs: which displays this position drives (EDIT HERE) ----------
 // One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
@@ -115,6 +116,12 @@ const SlotOled OLED_MAP[] = {
 };
 const int N_MAP = sizeof(OLED_MAP) / sizeof(SlotOled);
 const unsigned long LINK_TIMEOUT_MS = 3000;   // no reply this long -> displays go dark (no stale arrow)
+// Wi-Fi watchdog (FW 2.5, 2026-11-25): two boards dropped off the hotspot and never came back -- setup() was the only
+// place that joined Wi-Fi. Now: Wi-Fi down -> rejoin (at most every 5 s); still no server reply after REBOOT_MS -> reboot,
+// which also restarts the OTA threads and the camera cleanly. Never while an OTA download is running (otaInLoop()).
+const unsigned long WIFI_RETRY_MS = 5000;
+const unsigned long REBOOT_MS = 60000;
+unsigned long lastWifiTry = 0;
 
 #define MAX_OWN 4
 SlotConfig own[MAX_OWN]; int N_OWN = 0;       // this slot's displays (EvacOled keeps a pointer to this array)
@@ -300,6 +307,16 @@ void loop() {
     }
   }
   if (millis() - lastReply > LINK_TIMEOUT_MS && !linkLost) { linkLost = true; oled.setAll(Sign::Off); Serial.println("link lost"); }
+  if (WiFi.status() != WL_CONNECTED && millis() - lastWifiTry > WIFI_RETRY_MS) {    // dropped off the hotspot: rejoin
+    lastWifiTry = millis();
+    Serial.println("wifi lost, rejoining");
+    WiFi.begin((char*)SSID, (char*)PASS);
+  }
+  if (millis() - lastReply > REBOOT_MS) {                                        // a minute without the server: start over
+    Serial.println("no server reply for 60 s, rebooting");
+    delay(200);
+    sys_reset();
+  }
   logChanges(before);
   oled.update();
   delay(snapOn ? 30 : 150);             // 預覽開著時縮短等待，快照約每秒 3 張
