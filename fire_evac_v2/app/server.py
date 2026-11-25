@@ -62,8 +62,10 @@ def dev_assign(mac, slot):
 
 def dev_list():
     now = time.time()
+    # dets: this board's latest boxes [cls, cx, cy, w, h, conf] (normalised), also for unassigned boards -> camera wall overlay
     return [dict(mac=m, name=d["name"], slot=d["slot"], online=now - d["last"] < 5, age=round(now - d["last"], 1) if d["last"] else None,
-                 fps=d["fps"], fw=d["fw"], ip=d["ip"], lum=None if d["lum"] is None else round(d["lum"]), blink=d.get("blink_until", 0) > now)
+                 fps=d["fps"], fw=d["fw"], ip=d["ip"], lum=None if d["lum"] is None else round(d["lum"]), blink=d.get("blink_until", 0) > now,
+                 dets=d.get("dets", []) if now - d["last"] < 5 else [], frame=bool(d.get("frame")))
             for m, d in sorted(DEV.items(), key=lambda kv: (kv[1]["slot"] or "9", kv[0]))]
 
 
@@ -186,7 +188,7 @@ async def dev_dets(mac: str, req: Request):
         d = DEV[mac] = dict(name=f"板子 {len(DEV) + 1}（{mac[-4:]}）", slot=None, last=0, fps=0, fw="", ip="", lum=None); dev_save()
     if d["last"] and now - d["last"] < 5:   # measured report rate (what the board actually achieves)
         d["fps"] = round(0.8 * (d["fps"] or 0) + 0.2 / max(now - d["last"], 1e-3), 1)
-    d.update(last=now, fw=b.get("fw", ""), ip=req.client.host if req.client else "")
+    d.update(last=now, fw=b.get("fw", ""), ip=req.client.host if req.client else "", dets=[list(x) for x in b.get("dets", [])][:30])
     slot = d["slot"]
     if slot:
         ingest(slot, b)

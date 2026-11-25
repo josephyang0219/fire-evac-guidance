@@ -104,10 +104,43 @@ th{color:var(--muted);font-weight:500}
 .tw{overflow-x:auto}
 .mono{font-family:var(--mono)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:20;padding:16px}
-.modal .box{background:var(--panel);border-radius:10px;padding:12px;max-width:760px;width:100%}
+.modal .box{background:var(--panel);border-radius:10px;padding:12px;max-width:760px;width:100%;max-height:calc(100vh - 32px);overflow:auto}
 .modal img{width:100%;border-radius:6px;display:block;background:#000;aspect-ratio:16/9;object-fit:cover}
 .hint{color:var(--muted);font-size:12px;margin:6px 0 0}
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:30}
+/* camera wall: every board's live view side by side, boxes drawn on top, drag a view onto a position to assign it */
+.wall{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.wall>header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:8px}
+.wall h2{font-size:24px}
+.wall .opts{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;margin-left:auto}
+.wallgrid{display:grid;grid-template-columns:28px repeat(4,minmax(0,1fr));gap:8px}
+.wallgrid .fl{font-family:var(--display);font-weight:600;font-size:20px;writing-mode:vertical-rl;text-align:center;align-self:center;color:var(--muted)}
+@media (max-width:760px){.wallgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.wallgrid .fl{writing-mode:horizontal-tb;grid-column:1/-1;text-align:left}}
+.tile{position:relative;border:1px solid var(--line);border-radius:8px;background:var(--panel2);overflow:hidden;min-width:0;display:flex;flex-direction:column}
+.tile .vid{position:relative;aspect-ratio:4/3;background:#0b0f12;cursor:pointer}
+.tile .vid img,.tile .vid canvas{position:absolute;inset:0;width:100%;height:100%}
+.tile .vid img{object-fit:fill}
+.tile .vid canvas{pointer-events:none}
+.tile .msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:8px;color:#cfd8de;font-size:12px;line-height:1.4}
+.tile .cap{display:flex;align-items:center;gap:6px;padding:4px 6px;font-size:12px;min-width:0}
+.tile .cap b{font-family:var(--display);font-size:16px;font-weight:600;white-space:nowrap}
+.tile .cap .who{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.tile .cap button{font:inherit;font-size:11px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:1px 6px;cursor:pointer}
+.tile .det{font-size:11px;color:var(--muted);padding:0 6px 5px;min-height:1.5em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile.empty .vid{background:repeating-linear-gradient(45deg,var(--panel2),var(--panel2) 8px,var(--panel) 8px,var(--panel) 16px);cursor:default}
+.tile.empty .msg{color:var(--muted)}
+.tile.offline .vid img{filter:grayscale(1) brightness(.45)}
+.tile.over{outline:3px dashed var(--stair);outline-offset:-3px}
+.tile.sel{outline:3px solid var(--stair);outline-offset:-3px}
+.tile.target .vid::after{content:"放到這裡";position:absolute;inset:auto 6px 6px auto;background:var(--stair);color:#fff;font-size:12px;padding:2px 8px;border-radius:999px}
+.tile[draggable="true"] .vid{cursor:grab}
+.unassigned{display:flex;gap:8px;overflow-x:auto;padding:8px;margin-top:10px;border:1px dashed var(--line);border-radius:8px;min-height:60px}
+.unassigned.over{border-color:var(--stair);background:var(--panel2)}
+.unassigned .tile{flex:0 0 200px}
+.unassigned .none{color:var(--muted);font-size:12px;align-self:center}
+.modal .vbox{position:relative;aspect-ratio:4/3;background:#000;border-radius:6px;overflow:hidden}
+.modal .vbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;aspect-ratio:auto;border-radius:0}
+.modal .vbox canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 /* map animation */
 .flow{stroke:var(--exit);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:1.5 5.5;fill:none;animation:flow 1s linear infinite}
 @keyframes flow{to{stroke-dashoffset:-14}}
@@ -171,6 +204,20 @@ th{color:var(--muted);font-weight:500}
   </aside>
 </div>
 
+<section class="wall" id="wall" aria-label="鏡頭牆">
+  <header>
+    <h2>鏡頭牆</h2>
+    <span class="hint" id="wallHint">每台板子的即時畫面並排；拖曳畫面到位置上就能指派（或先點畫面、再點位置）。</span>
+    <div class="opts">
+      <label><input type="checkbox" id="wallLive" checked> 即時更新</label>
+      <label><input type="checkbox" id="wallBoxes" checked> 顯示標示框</label>
+      <label for="wallConf">信心 ≥</label><select id="wallConf"><option value="0.25">25%</option><option value="0.4" selected>40%</option><option value="0.6">60%</option></select>
+    </div>
+  </header>
+  <div class="wallgrid" id="wallGrid"></div>
+  <div class="unassigned" id="wallFree" aria-label="未分配的板子"></div>
+</section>
+
 <details class="dev" id="dev">
   <summary>開發者控制台</summary>
   <div class="devgrid">
@@ -179,9 +226,9 @@ th{color:var(--muted);font-weight:500}
       <div id="wizBox" class="row" hidden style="background:var(--panel2);border-radius:8px;padding:8px 10px;justify-content:space-between"></div>
       <div class="tw"><table><thead><tr><th>板子</th><th>狀態</th><th>位置</th><th>韌體</th><th>畫面亮度</th><th>操作</th></tr></thead><tbody id="devTbl"><tr><td colspan="6" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr></tbody></table></div>
       <div class="row" style="margin-top:8px;flex-wrap:wrap;gap:8px">
-        <button class="btn primary" id="wizStart">遮鏡頭自動指認</button>
+        <button class="btn" id="wizStart">遮鏡頭自動指認</button>
         <label for="wizFloor">指認</label><select id="wizFloor"><option value="1">一樓 4 個位置</option><option value="2">二樓 4 個位置</option><option value="all">全部 8 個位置</option></select>
-        <span class="hint">依序用手遮住提示位置的鏡頭約 2 秒，畫面變暗的那片板子就會被指派到該位置。</span>
+        <span class="hint">（備用）依序用手遮住提示位置的鏡頭約 2 秒，畫面變暗的那片板子就會被指派到該位置。平常用上面「鏡頭牆」拖曳指派比較快。</span>
       </div>
     </div>
     <div class="card">
@@ -240,7 +287,7 @@ th{color:var(--muted);font-weight:500}
   </div>
 </details>
 
-<div class="modal" id="modal" hidden><div class="box"><div class="row" style="justify-content:space-between"><h3 id="modalT">鏡頭</h3><button class="btn" id="modalX">關閉</button></div><img id="modalImg" alt="攝影機即時影像"><p class="hint" id="modalD"></p></div></div>
+<div class="modal" id="modal" hidden><div class="box"><div class="row" style="justify-content:space-between"><h3 id="modalT">鏡頭</h3><button class="btn" id="modalX">關閉</button></div><div class="vbox"><img id="modalImg" alt="攝影機即時影像"><canvas id="modalCv"></canvas></div><p class="hint" id="modalD"></p></div></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -248,7 +295,8 @@ const EMBED = window.__EMBED__ || null;
 const NS = "http://www.w3.org/2000/svg";
 const ROLE_NAME = {evacuee:"避難人員", firefighter:"消防員", bystander:"無關人員"};
 const DIR_NAME = {N:"往北", S:"往南", E:"往東", W:"往西", DOWN:"下樓", UP:"上樓", X:"無安全路線", HERE:"就在這裡"};
-const DET_NAME = ["櫃子","箱子","桌椅","瓦礫","閘門","煙"];
+const DET_NAME = ["櫃子","箱子","桌椅","瓦礫","閘門","煙","人偶"];
+const DET_COLOR = ["#f0a020","#d9822b","#2fae62","#a066e0","#3d8bfd","#9fb3c8","#ff4f7a"];
 const GEOM = {new:{ringc:99, ring_hw:18, cross_hw:21}, old:{ringc:102, ring_hw:15, cross_hw:15}};
 const JN = {"-1,1":"西北角","0,1":"北口","1,1":"東北角","-1,0":"西口","0,0":"中央","1,0":"東口","-1,-1":"西南角","0,-1":"南口","1,-1":"東南角"};
 const TOOLS = [["me","設定我的位置"],["obs","放障礙物"],["smoke","加煙霧"],["gate","閘門"],["clear","清除路段"],["fire","設定起火點"],["add","新增人員"],["del","移除人員"]];
@@ -585,7 +633,8 @@ function openCam(id){
   img.hidden = !c.online || !src; if (src) img.src = src;
   const detText = () => {           // 依最新的狀態（S.cur）算偵測文字；即時模式下每 0.3 秒重算
     const s = S.cur || st, cc = (s.cams || []).find(x => x.id === id) || c, dets = (s.dets && s.dets[id]) || [];
-    document.getElementById("modalD").textContent = cc.online ? (dets.length ? "偵測到：" + dets.map(d => `${DET_NAME[d[0]]} ${Math.round(d[5]*100)}%`).join("、") : "畫面中沒有偵測到障礙物或煙。") : "這個鏡頭目前離線。";
+    document.getElementById("modalD").textContent = cc.online ? (dets.length ? "偵測到：" + dets.map(d => `${DET_NAME[d[0]] || "類別" + d[0]} ${Math.round(d[5]*100)}%`).join("、") : "畫面中沒有偵測到障礙物或煙。") : "這個鏡頭目前離線。";
+    drawBoxes(document.getElementById("modalCv"), cc.online ? dets : []);
   };
   detText();
   m.hidden = false; document.getElementById("modalX").focus();
@@ -612,7 +661,7 @@ function updatePeopleStatus(st){
   for (const p of S.people.values()){ if (p.out) continue; const r = personRoute(st, p.floor, p.x, p.y); p.route = r; p.dir = r.first; p.trapped = p.role === "evacuee" && !r.ok; }
 }
 function render(){ if (!S.base) return; const st = current(); S.cur = st; S.myRoute = S.me ? personRoute(st, S.me.floor, S.me.x, S.me.y) : null;
-  updatePeopleStatus(st); drawFloor(st, 2); drawFloor(st, 1); renderPanels(st); }
+  updatePeopleStatus(st); drawFloor(st, 2); drawFloor(st, 1); renderPanels(st); updateWall(st); }
 
 // ---------- people walking simulation ----------
 let walkTimer = null, walkStart = null;
@@ -716,7 +765,7 @@ function renderDevices(st){
     document.getElementById("modal").hidden = false; clearInterval(S.snapT);
     // 板子收到一次 snap 只上傳 15 秒；視窗開著時每 0.3 秒抓一次、約每 5 秒再要一次，畫面就會一直更新（板子約每秒 2–3 張）
     let ticks = 0;
-    const pull = () => { img.src = `/api/devframe/${mac}.jpg?t=${Date.now()}`; }; pull(); S.snapT = setInterval(() => { if (document.getElementById("modal").hidden) { clearInterval(S.snapT); return; } if (++ticks % 17 === 0) send({type:"snap", mac}); pull(); }, 300); });
+    const pull = () => { img.src = `/api/devframe/${mac}.jpg?t=${Date.now()}`; const dv = ((S.cur && S.cur.devices) || []).find(x => x.mac === mac); drawBoxes(document.getElementById("modalCv"), dv ? dv.dets : []); }; pull(); S.snapT = setInterval(() => { if (document.getElementById("modal").hidden) { clearInterval(S.snapT); return; } if (++ticks % 17 === 0) send({type:"snap", mac}); pull(); }, 300); });
   const wb = document.getElementById("wizBox"), w = st.wizard;
   wb.hidden = !w; document.getElementById("wizStart").textContent = w ? "結束指認" : "遮鏡頭自動指認";
   if (w) wb.innerHTML = w.slot ? `<span style="font-size:18px">請用手遮住 <b>${SLOT_NAMES[w.slot]}</b> 的鏡頭 <span class="hint">（${w.i + 1} / ${w.slots.length}）${w.msg ? "　上一個：" + w.msg : ""}</span></span><button class="btn" id="wizSkip">跳過這個位置</button>`
@@ -727,6 +776,129 @@ document.getElementById("wizStart").onclick = () => {
   const on = document.getElementById("wizStart").textContent !== "結束指認"; const f = document.getElementById("wizFloor").value;
   const slots = f === "all" ? Object.keys(SLOT_NAMES) : Object.keys(SLOT_NAMES).filter(k => k[0] === f);
   send({type:"wizard", on, slots}); if (on) document.getElementById("dev").open = true; };
+
+// ---------- camera wall ----------
+// 每台板子的畫面並排。資料來源：有板子（即時模式）就用 /api/devframe/{mac}.jpg 與 devices[].dets；
+// 沒有板子（回放模式）就用每個位置的 /api/cam/{slot}.jpg 或內嵌圖與 dets[slot]。
+// 標示框：dets 是 [類別, cx, cy, w, h, 信心]，座標以整張畫面為 0–1（板子 NN 用 576×320、快照是 640×480，兩者都是整個視野）。
+const WALL = {live:true, boxes:true, conf:0.4, sel:null, tiles:{}, busy:{}, snapAt:{}, built:false};
+function drawBoxes(cv, dets){
+  if (!cv) return; const r = cv.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(r.width*dpr)), h = Math.max(1, Math.round(r.height*dpr));
+  if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
+  const g = cv.getContext("2d"); g.clearRect(0, 0, w, h);
+  if (!WALL.boxes || !dets) return;
+  const fs = Math.max(10, Math.round(h/16));
+  g.font = `600 ${fs}px "Noto Sans TC",system-ui,sans-serif`; g.textBaseline = "top"; g.lineWidth = Math.max(2, Math.round(h/150));
+  for (const d of dets){ if (d[5] < WALL.conf) continue;
+    const col = DET_COLOR[d[0]] || "#fff", x = (d[1]-d[3]/2)*w, y = (d[2]-d[4]/2)*h, bw = d[3]*w, bh = d[4]*h;
+    g.strokeStyle = col; g.strokeRect(x, y, bw, bh);
+    const t = `${DET_NAME[d[0]] || "類別" + d[0]} ${Math.round(d[5]*100)}%`, tw = g.measureText(t).width + 8;
+    const ty = y - fs - 4 >= 0 ? y - fs - 4 : y; g.fillStyle = col; g.fillRect(x, ty, tw, fs + 4);
+    g.fillStyle = "#0b0f12"; g.fillText(t, x + 4, ty + 2); }
+}
+function detSummary(dets){ const k = (dets || []).filter(d => d[5] >= WALL.conf); if (!k.length) return "沒有偵測到東西";
+  const n = {}; for (const d of k){ const nm = DET_NAME[d[0]] || "類別" + d[0]; n[nm] = (n[nm] || 0) + 1; }
+  return Object.entries(n).map(([a, b]) => b > 1 ? `${a}×${b}` : a).join("、"); }
+function makeTile(slot){
+  const t = document.createElement("div"); t.className = "tile empty"; if (slot) t.dataset.slot = slot;
+  t.innerHTML = `<div class="vid"><img alt="" hidden><canvas></canvas><div class="msg"></div></div><div class="cap"><b></b><span class="who"></span><button type="button" class="bBlink" title="讓這片板子的燈閃 6 秒，找出它實際裝在哪">閃燈</button><button type="button" class="bBig">放大</button></div><div class="det"></div>`;
+  const vid = t.querySelector(".vid");
+  vid.onclick = () => wallClick(t);
+  t.querySelector(".bBig").onclick = e => { e.stopPropagation(); if (t.dataset.mac) openDev(t.dataset.mac); else if (t.dataset.slot && S.cur) openCam(t.dataset.slot); };
+  t.querySelector(".bBlink").onclick = e => { e.stopPropagation(); if (t.dataset.mac){ send({type:"blink", mac:t.dataset.mac}); toast("板子 " + t.dataset.mac.slice(-4) + " 的燈會閃 6 秒"); } };
+  t.addEventListener("dragstart", e => { if (!t.dataset.mac) return e.preventDefault(); e.dataTransfer.setData("text/plain", t.dataset.mac); e.dataTransfer.effectAllowed = "move"; });
+  if (slot){ t.addEventListener("dragover", e => { e.preventDefault(); t.classList.add("over"); });
+    t.addEventListener("dragleave", () => t.classList.remove("over"));
+    t.addEventListener("drop", e => { e.preventDefault(); t.classList.remove("over"); const mac = e.dataTransfer.getData("text/plain"); if (mac) assignTo(mac, slot); }); }
+  return t;
+}
+function buildWall(){
+  const grid = document.getElementById("wallGrid"); grid.innerHTML = "";
+  for (const fl of ["2", "1"]){ const lb = document.createElement("div"); lb.className = "fl"; lb.textContent = fl + "F"; grid.appendChild(lb);
+    for (const c of ["N", "W", "S", "E"]){ const t = makeTile(fl + c); WALL.tiles[fl + c] = t; grid.appendChild(t); } }
+  const free = document.getElementById("wallFree");
+  free.addEventListener("dragover", e => { e.preventDefault(); free.classList.add("over"); });
+  free.addEventListener("dragleave", () => free.classList.remove("over"));
+  free.addEventListener("drop", e => { e.preventDefault(); free.classList.remove("over"); const mac = e.dataTransfer.getData("text/plain"); if (mac) assignTo(mac, null); });
+  document.getElementById("wallLive").onchange = e => { WALL.live = e.target.checked; };
+  document.getElementById("wallBoxes").onchange = e => { WALL.boxes = e.target.checked; if (S.cur) updateWall(S.cur); };
+  document.getElementById("wallConf").onchange = e => { WALL.conf = +e.target.value; if (S.cur) updateWall(S.cur); };
+  WALL.built = true;
+}
+function wallDevs(){ return (S.cur && S.cur.devices) || []; }
+function assignTo(mac, slot){
+  const devs = wallDevs(), me = devs.find(d => d.mac === mac); if (!me) return;
+  const from = me.slot, other = slot && devs.find(d => d.slot === slot && d.mac !== mac);
+  if (from === slot){ WALL.sel = null; updateWall(S.cur); return; }
+  send({type:"assign", mac, slot});
+  if (other) send({type:"assign", mac:other.mac, slot:from || null});   // 位置被佔用就互換（原本沒位置的話，對方變未分配）
+  WALL.sel = null;
+  toast(slot ? `${me.name} → ${SLOT_NAMES[slot]}${other ? `（${other.name} ${from ? "換到 " + SLOT_NAMES[from] : "改為未分配"}）` : ""}` : `${me.name} 改為未分配`);
+}
+function wallClick(t){
+  // 點選：先點一個有畫面的板子（選取），再點想放的位置；點同一個取消
+  if (WALL.sel && t.dataset.slot && t.dataset.mac !== WALL.sel){ assignTo(WALL.sel, t.dataset.slot); return; }
+  if (t.dataset.mac){ WALL.sel = WALL.sel === t.dataset.mac ? null : t.dataset.mac; updateWall(S.cur); return; }
+  if (t.dataset.slot && S.cur && !wallDevs().length) openCam(t.dataset.slot);
+}
+function fillTile(t, d, slot){
+  const img = t.querySelector("img"), cv = t.querySelector("canvas"), msg = t.querySelector(".msg");
+  t.querySelector("b").textContent = slot ? SLOT_NAMES[slot] : (d ? d.mac.slice(-4) : "");
+  const live = !!(S.live && wallDevs().length);
+  let dets = [], online = false, has = false;
+  if (d){
+    t.dataset.mac = d.mac; t.draggable = true; online = d.online; dets = d.dets || []; has = d.frame || !!WALL.busy[d.mac + "ok"];
+    t.querySelector(".who").textContent = (slot ? d.mac.slice(-4) + " · " : "") + (online ? (d.fps ? d.fps + " 次/秒" : "在線") : (d.age == null ? "未連線" : `離線 ${Math.round(d.age)} 秒`));
+    t.querySelector(".bBlink").hidden = !online; t.querySelector(".bBig").hidden = false;
+    msg.textContent = !online ? (d.age == null ? "等待連線" : "離線：多半是斷了 Wi-Fi（目前韌體只在開機時連線，不會自己重連），按板子的 RST 重開") : (has ? "" : "等待畫面…");
+  } else {
+    delete t.dataset.mac; t.draggable = false; t.querySelector(".bBlink").hidden = true;
+    const c = slot && S.cur && (S.cur.cams || []).find(x => x.id === slot);
+    if (!live && c && c.online){   // 回放／模擬：用這個位置的圖
+      online = true; dets = (S.cur.dets && S.cur.dets[slot]) || []; const src = S.images[`${S.step}:${slot}`] || (S.live ? `/api/cam/${slot}.jpg?t=${Math.floor(Date.now()/2000)}` : "");
+      if (src && img.dataset.src !== src){ img.dataset.src = src; img.src = src; } has = !!src; msg.textContent = src ? "" : "沒有畫面";
+      t.querySelector(".who").textContent = "模擬"; t.querySelector(".bBig").hidden = false;
+    } else { msg.textContent = WALL.sel ? "" : "拖曳板子畫面到這裡"; t.querySelector(".who").textContent = "沒有板子"; t.querySelector(".bBig").hidden = true; }
+  }
+  t.classList.toggle("empty", !d && !online); t.classList.toggle("offline", !!d && !online);
+  t.classList.toggle("sel", !!d && WALL.sel === d.mac); t.classList.toggle("target", !!WALL.sel && !!slot && (!d || d.mac !== WALL.sel));
+  img.hidden = !has; t.querySelector(".det").textContent = online ? detSummary(dets) : "";
+  t._dets = online ? dets : []; drawBoxes(cv, t._dets);
+}
+function updateWall(st){
+  if (!WALL.built) buildWall(); if (!st) return;
+  const devs = st.devices || [];
+  if (WALL.sel && !devs.some(d => d.mac === WALL.sel)) WALL.sel = null;
+  for (const [slot, t] of Object.entries(WALL.tiles)) fillTile(t, devs.find(d => d.slot === slot), slot);
+  const free = document.getElementById("wallFree"), un = devs.filter(d => !d.slot);
+  const keep = new Set(un.map(d => d.mac));
+  for (const t of [...free.querySelectorAll(".tile")]) if (!keep.has(t.dataset.mac)) t.remove();
+  for (const d of un){ let t = free.querySelector(`.tile[data-mac="${d.mac}"]`); if (!t){ t = makeTile(null); t.dataset.mac = d.mac; free.appendChild(t); } fillTile(t, d, null); }
+  let none = free.querySelector(".none"); if (!none){ none = document.createElement("span"); none.className = "none"; free.appendChild(none); }
+  none.textContent = un.length ? "" : (devs.length ? "未分配的板子會出現在這裡；把畫面拖回來就是取消指派。" : "還沒有板子連線。板子開機連上熱點後會出現在這裡。");
+  none.hidden = !!un.length;
+  document.getElementById("wallHint").textContent = WALL.sel ? "已選取一片板子：點要放的位置（點自己取消）。" : "每台板子的即時畫面並排；拖曳畫面到位置上就能指派（或先點畫面、再點位置）。位置有人就互換。";
+}
+// 即時更新：每 0.35 秒抓一次在線板子的最新快照（上一張還沒載完就跳過），每 5 秒請板子再上傳 15 秒的快照
+setInterval(() => {
+  if (!WALL.live || document.hidden || !S.live) return;
+  const now = Date.now();
+  for (const t of document.querySelectorAll("#wall .tile[data-mac]")){
+    const mac = t.dataset.mac, d = wallDevs().find(x => x.mac === mac); if (!d || !d.online) continue;
+    if (!WALL.snapAt[mac] || now - WALL.snapAt[mac] > 5000){ WALL.snapAt[mac] = now; send({type:"snap", mac}); }
+    if (WALL.busy[mac] || !d.frame) continue;      // 伺服器還沒收到這片的第一張快照就先不抓（避免 404）
+    const img = t.querySelector("img"); WALL.busy[mac] = true;
+    img.onload = () => { WALL.busy[mac] = false; WALL.busy[mac + "ok"] = true; img.hidden = false; const m = t.querySelector(".msg"); if (m && d.online) m.textContent = ""; drawBoxes(t.querySelector("canvas"), t._dets); };
+    img.onerror = () => { WALL.busy[mac] = false; };
+    img.src = `/api/devframe/${mac}.jpg?t=${now}`;
+  }
+}, 350);
+window.addEventListener("resize", () => { for (const t of document.querySelectorAll("#wall .tile")) drawBoxes(t.querySelector("canvas"), t._dets); });
+function openDev(mac){
+  const btn = document.querySelector(`.devSnap[data-mac="${mac}"]`); if (btn) { btn.click(); return; }
+  const d = wallDevs().find(x => x.mac === mac); if (d && d.slot) openCam(d.slot);
+}
 
 // ---------- data: live server or embedded replay ----------
 function send(m){ if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify(m)); }

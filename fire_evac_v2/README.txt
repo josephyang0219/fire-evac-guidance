@@ -3,6 +3,8 @@
 資料夾
   app/server.py                筆電伺服器（FastAPI）。即時模式：python server.py
   app/static/index.html        中控台／避難 App（瀏覽器開 http://筆電IP:8000）
+                               「鏡頭牆」：每台板子的即時畫面並排＋偵測標示框；拖曳畫面到位置上就能指派（或先點畫面、再點位置），位置有人就互換
+  tools/fake_boards.py         假板子：python tools/fake_boards.py --server http://127.0.0.1:8000，不用 HUB 也能測中控台
   firmware/hub_model_test_official/  【第一步】官方模型，確認板子硬體正常，不需要伺服器
   firmware/hub_model_test/     【第二步】本組模型上機測試（要先放 yolov7_tiny.nb）
   firmware/hub_node/           正式節點程式：4 塊（或 8 塊）板子燒同一份
