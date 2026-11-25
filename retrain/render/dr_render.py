@@ -29,7 +29,8 @@ SIM_VIS_ABS = 0.04          # 顯示亮度 0～1，約 10/255
 SIM_VIS_NOISE = 1.5
 SIM_MIN_PIX = 200
 SIM_MIN_SIDE = 12           # 框的寬、高至少 12 px
-SIM_MAX_AREA = 0.6
+SIM_MAX_AREA = 1.0          # v5 用 0.6：煙擴散到大半個畫面時整團不標，結果 val 有一半看得到的煙沒標（11/25），改成不限制
+SIM_TRIM = 1.0              # 框用可見像素 x、y 的 1～99 百分位，不讓零星的淡霧把框撐到整個畫面
 CLASSES = ['cabinet', 'boxes', 'furniture', 'rubble', 'gate', 'smoke', 'person']
 W, H = 576, 320
 ORIGINAL_NAME = 'fire_model.blend'
@@ -993,6 +994,10 @@ def main():
             if it.get('sim'):
                 full = sim_vis
                 ys, xs = np.nonzero(sim_vis)
+                if len(xs) >= SIM_MIN_PIX:
+                    qx = np.percentile(xs, [SIM_TRIM, 100 - SIM_TRIM]); qy = np.percentile(ys, [SIM_TRIM, 100 - SIM_TRIM])
+                    k = (xs >= qx[0]) & (xs <= qx[1]) & (ys >= qy[0]) & (ys <= qy[1])
+                    ys, xs = ys[k], xs[k]
                 if len(xs) < SIM_MIN_PIX:
                     ys, xs = ys[:0], xs[:0]
                 elif (xs.max() - xs.min() < SIM_MIN_SIDE or ys.max() - ys.min() < SIM_MIN_SIDE or
