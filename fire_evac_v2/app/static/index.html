@@ -750,7 +750,7 @@ function renderDevices(st){
   if (!devs.length){ tb.innerHTML = `<tr><td colspan="6" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr>`; }
   else tb.innerHTML = devs.map(d => `<tr>
       <td><input class="devName" data-mac="${d.mac}" value="${d.name.replace(/"/g,"&quot;")}" style="font:inherit;width:9.5em;border:1px solid var(--line);border-radius:4px;padding:2px 4px;background:var(--panel);color:var(--ink)"><div class="hint mono">${d.mac}${d.ip ? " · " + d.ip : ""}</div></td>
-      <td><span class="dot ${d.online ? "ok" : "bad"}"></span> ${d.online ? (d.fps ? d.fps + " 次/秒" : "在線") : (d.age == null ? "未連線" : "離線 " + d.age + " s")}</td>
+      <td><span class="dot ${d.online ? "ok" : "bad"}"></span> ${d.online ? (d.fps ? d.fps + " 次/秒" : "在線") : (d.age == null ? "未連線" : "離線 " + d.age + " s")}<div class="hint">${(sig(d) + upTxt(d)).replace(/^ · /, "")}</div></td>
       <td><select class="devSlot" data-mac="${d.mac}"><option value="">未分配</option>${Object.entries(SLOT_NAMES).map(([k, v]) => `<option value="${k}" ${d.slot === k ? "selected" : ""}>${v}${devs.some(o => o.slot === k && o.mac !== d.mac) ? "（佔用）" : ""}</option>`).join("")}</select></td>
       <td class="mono">${d.fw || "—"}</td>
       <td class="mono">${d.lum == null ? "—" : d.lum}</td>
@@ -781,7 +781,7 @@ document.getElementById("wizStart").onclick = () => {
 // 每台板子的畫面並排。資料來源：有板子（即時模式）就用 /api/devframe/{mac}.jpg 與 devices[].dets；
 // 沒有板子（回放模式）就用每個位置的 /api/cam/{slot}.jpg 或內嵌圖與 dets[slot]。
 // 標示框：dets 是 [類別, cx, cy, w, h, 信心]，座標以整張畫面為 0–1（板子 NN 用 576×320、快照是 640×480，兩者都是整個視野）。
-const WALL = {live:true, boxes:true, conf:0.4, sel:null, tiles:{}, busy:{}, snapAt:{}, built:false};
+const WALL = {live:true, boxes:true, conf:0.4, sel:null, tiles:{}, busy:{}, snapAt:{}, built:false, seen:true};
 function drawBoxes(cv, dets){
   if (!cv) return; const r = cv.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1;
   const w = Math.max(1, Math.round(r.width*dpr)), h = Math.max(1, Math.round(r.height*dpr));
@@ -824,8 +824,12 @@ function buildWall(){
   document.getElementById("wallLive").onchange = e => { WALL.live = e.target.checked; };
   document.getElementById("wallBoxes").onchange = e => { WALL.boxes = e.target.checked; if (S.cur) updateWall(S.cur); };
   document.getElementById("wallConf").onchange = e => { WALL.conf = +e.target.value; if (S.cur) updateWall(S.cur); };
+  // 鏡頭牆捲出畫面時就不要求板子上傳（2026-11-25：減少熱點與伺服器負擔）
+  try { new IntersectionObserver(es => { WALL.seen = es.some(e => e.isIntersecting); }).observe(document.getElementById("wall")); } catch (e) {}
   WALL.built = true;
 }
+function sig(d){ if (d.rssi == null) return ""; const r = d.rssi; return ` · ${r} dBm${r < -75 ? "（弱）" : ""}`; }
+function upTxt(d){ if (d.up == null) return ""; const u = d.up; return ` · 開機 ${u < 120 ? u + " 秒" : Math.round(u/60) + " 分"}${d.boots ? ` · 重開 ${d.boots} 次` : ""}`; }
 function wallDevs(){ return (S.cur && S.cur.devices) || []; }
 function assignTo(mac, slot){
   const devs = wallDevs(), me = devs.find(d => d.mac === mac); if (!me) return;
@@ -849,7 +853,8 @@ function fillTile(t, d, slot){
   let dets = [], online = false, has = false;
   if (d){
     t.dataset.mac = d.mac; t.draggable = true; online = d.online; dets = d.dets || []; has = d.frame || !!WALL.busy[d.mac + "ok"];
-    t.querySelector(".who").textContent = (slot ? d.mac.slice(-4) + " · " : "") + (online ? (d.fps ? d.fps + " 次/秒" : "在線") : (d.age == null ? "未連線" : `離線 ${Math.round(d.age)} 秒`));
+    t.querySelector(".who").textContent = (slot ? d.mac.slice(-4) + " · " : "") + (online ? (d.fps ? d.fps + " 次/秒" : "在線") + sig(d) + upTxt(d) : (d.age == null ? "未連線" : `離線 ${Math.round(d.age)} 秒`));
+    t.querySelector(".who").title = t.querySelector(".who").textContent;
     t.querySelector(".bBlink").hidden = !online; t.querySelector(".bBig").hidden = false;
     msg.textContent = !online ? (d.age == null ? "等待連線" : "離線：多半是斷了 Wi-Fi（目前韌體只在開機時連線，不會自己重連），按板子的 RST 重開") : (has ? "" : "等待畫面…");
   } else {
@@ -880,9 +885,10 @@ function updateWall(st){
   none.hidden = !!un.length;
   document.getElementById("wallHint").textContent = WALL.sel ? "已選取一片板子：點要放的位置（點自己取消）。" : "每台板子的即時畫面並排；拖曳畫面到位置上就能指派（或先點畫面、再點位置）。位置有人就互換。";
 }
-// 即時更新：每 0.35 秒抓一次在線板子的最新快照（上一張還沒載完就跳過），每 5 秒請板子再上傳 15 秒的快照
+// 即時更新：每 1 秒抓一次在線板子的最新快照（上一張還沒載完就跳過），每 5 秒請板子再上傳 15 秒的快照；
+// 鏡頭牆不在畫面上、分頁在背景時都不抓也不要求（FW 2.6 板子最多每秒上傳 2 張）
 setInterval(() => {
-  if (!WALL.live || document.hidden || !S.live) return;
+  if (!WALL.live || document.hidden || !S.live || !WALL.seen) return;
   const now = Date.now();
   for (const t of document.querySelectorAll("#wall .tile[data-mac]")){
     const mac = t.dataset.mac, d = wallDevs().find(x => x.mac === mac); if (!d || !d.online) continue;
@@ -893,7 +899,7 @@ setInterval(() => {
     img.onerror = () => { WALL.busy[mac] = false; };
     img.src = `/api/devframe/${mac}.jpg?t=${now}`;
   }
-}, 350);
+}, 1000);
 window.addEventListener("resize", () => { for (const t of document.querySelectorAll("#wall .tile")) drawBoxes(t.querySelector("canvas"), t._dets); });
 function openDev(mac){
   const btn = document.querySelector(`.devSnap[data-mac="${mac}"]`); if (btn) { btn.click(); return; }

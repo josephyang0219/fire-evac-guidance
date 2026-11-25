@@ -22,6 +22,9 @@ def post(url, data, ctype):
         return r.read()
 
 
+PERIOD = 0.2
+
+
 def board(server, k, stop_after):
     mac = f"FAKE00{k:06X}"
     rng = random.Random(k)
@@ -38,7 +41,7 @@ def board(server, k, stop_after):
         seq += 1
         try:
             r = json.loads(post(f"{server}/api/dev/{mac}/detections",
-                                json.dumps({"seq": seq, "ts": time.time(), "fw": "fake-1", "fps": 5.0, "dets": dets}).encode(), "application/json"))
+                                json.dumps({"seq": seq, "ts": time.time(), "fw": "fake-1", "fps": 5.0, "rssi": -55 - 3 * k, "up": int(t), "dets": dets}).encode(), "application/json"))
             if r.get("snap"):
                 im = Image.new("RGB", (640, 480), (40 + 12 * k, 48, 56))
                 g = ImageDraw.Draw(im)
@@ -53,7 +56,7 @@ def board(server, k, stop_after):
                 post(f"{server}/api/dev/{mac}/frame", b.getvalue(), "image/jpeg")
         except Exception as e:
             print(mac, "error", e)
-        time.sleep(0.2)
+        time.sleep(PERIOD)
 
 
 if __name__ == "__main__":
@@ -61,7 +64,9 @@ if __name__ == "__main__":
     ap.add_argument("--server", default="http://127.0.0.1:8000")
     ap.add_argument("--n", type=int, default=6)
     ap.add_argument("--offline", type=int, default=1)
+    ap.add_argument("--period", type=float, default=0.2, help="回報間隔（秒）；FW 2.6 是 0.2，2.5 開預覽時約 0.05")
     a = ap.parse_args()
+    PERIOD = a.period
     for k in range(a.n):
         threading.Thread(target=board, args=(a.server, k, 20 if k >= a.n - a.offline else 0), daemon=True).start()
     print(f"{a.n} 片假板子送到 {a.server}（Ctrl+C 結束）")

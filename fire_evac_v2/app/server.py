@@ -65,7 +65,8 @@ def dev_list():
     # dets: this board's latest boxes [cls, cx, cy, w, h, conf] (normalised), also for unassigned boards -> camera wall overlay
     return [dict(mac=m, name=d["name"], slot=d["slot"], online=now - d["last"] < 5, age=round(now - d["last"], 1) if d["last"] else None,
                  fps=d["fps"], fw=d["fw"], ip=d["ip"], lum=None if d["lum"] is None else round(d["lum"]), blink=d.get("blink_until", 0) > now,
-                 dets=d.get("dets", []) if now - d["last"] < 5 else [], frame=bool(d.get("frame")))
+                 dets=d.get("dets", []) if now - d["last"] < 5 else [], frame=bool(d.get("frame")),
+                 rssi=d.get("rssi"), up=d.get("up"), boots=d.get("boots", 0))
             for m, d in sorted(DEV.items(), key=lambda kv: (kv[1]["slot"] or "9", kv[0]))]
 
 
@@ -149,14 +150,49 @@ def net_stats():
     return out
 
 
-async def broadcast():
+BCAST_HZ = 5.0          # 2026-11-25: state is computed and pushed at most 5 times a second, not once per board report
+
+
+async def _send_all():
     js = compute()
     msg = json.dumps({"type": "state", "state": js}, ensure_ascii=False)
-    for ws in list(S["clients"]):
+
+    async def one(ws):
         try:
-            await ws.send_text(msg)
+            await asyncio.wait_for(ws.send_text(msg), 0.5)   # a stuck browser tab is dropped instead of stalling everyone
         except Exception:
             S["clients"].pop(ws, None)
+            try:
+                await ws.close()
+            except Exception:
+                pass
+    await asyncio.gather(*(one(ws) for ws in list(S["clients"])))
+
+
+async def broadcast(now=False):
+    """mark the state as changed; the loop below recomputes and pushes it at most BCAST_HZ times a second.
+    Board reports used to recompute + push on every POST: with the camera wall open the boards reported 15-22 times
+    a second each, the server fell behind, board requests timed out and FW 2.5 rebooted them ("2 of 4 offline")."""
+    if now:
+        await _send_all()
+    else:
+        S["dirty"] = True
+
+
+async def bcast_loop():
+    while True:
+        await asyncio.sleep(1 / BCAST_HZ)
+        if S.get("dirty") or S["state"] is None:
+            S["dirty"] = False
+            try:
+                await _send_all()
+            except Exception as e:
+                print("broadcast error", e)
+
+
+@app.on_event("startup")
+async def _bcast_start():
+    asyncio.create_task(bcast_loop())
 
 
 @app.get("/")
@@ -188,7 +224,10 @@ async def dev_dets(mac: str, req: Request):
         d = DEV[mac] = dict(name=f"板子 {len(DEV) + 1}（{mac[-4:]}）", slot=None, last=0, fps=0, fw="", ip="", lum=None); dev_save()
     if d["last"] and now - d["last"] < 5:   # measured report rate (what the board actually achieves)
         d["fps"] = round(0.8 * (d["fps"] or 0) + 0.2 / max(now - d["last"], 1e-3), 1)
-    d.update(last=now, fw=b.get("fw", ""), ip=req.client.host if req.client else "", dets=[list(x) for x in b.get("dets", [])][:30])
+    if b.get("up") is not None and d.get("up") is not None and b["up"] + 5 < d["up"]:
+        d["boots"] = d.get("boots", 0) + 1          # uptime went backwards: the board rebooted since its last report
+    d.update(last=now, fw=b.get("fw", ""), ip=req.client.host if req.client else "", dets=[list(x) for x in b.get("dets", [])][:30],
+             rssi=b.get("rssi"), up=b.get("up"))
     slot = d["slot"]
     if slot:
         ingest(slot, b)
@@ -286,7 +325,7 @@ async def ws_ep(ws: WebSocket):
     await ws.accept()
     pid = f"u{id(ws) % 100000}"
     S["clients"][ws] = pid
-    await ws.send_text(json.dumps({"type": "state", "state": S["state"] or compute()}, ensure_ascii=False))
+    await ws.send_text(json.dumps({"type": "state", "state": compute()}, ensure_ascii=False))
     try:
         while True:
             m = json.loads(await ws.receive_text())
@@ -318,7 +357,7 @@ async def ws_ep(ws: WebSocket):
                 WIZ["i"] += 1; WIZ["cool"] = time.time() + 1.0
             elif t == "reset":
                 S["edits"].clear(); S["cams_off"].clear()
-            await broadcast()
+            await broadcast(now=t not in ("snap",))
     except WebSocketDisconnect:
         S["clients"].pop(ws, None); S["people"].pop(pid, None)
         await broadcast()

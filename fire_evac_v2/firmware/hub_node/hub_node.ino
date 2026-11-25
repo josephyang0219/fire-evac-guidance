@@ -73,7 +73,7 @@ const char* SSID = WIFI_SSID;
 const char* PASS = WIFI_PASS;
 const char* SERVER = EVAC_SERVER_IP;
 const int   PORT = EVAC_SERVER_PORT;
-const char* FW = "2.5";                 // bump for every OTA release: the OTA server checks it after the reboot
+const char* FW = "2.6";                 // bump for every OTA release: the OTA server checks it after the reboot
 
 // ---------- junction OLEDs: which displays this position drives (EDIT HERE) ----------
 // One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
@@ -122,6 +122,9 @@ const unsigned long LINK_TIMEOUT_MS = 3000;   // no reply this long -> displays 
 const unsigned long WIFI_RETRY_MS = 5000;
 const unsigned long REBOOT_MS = 60000;
 unsigned long lastWifiTry = 0;
+const unsigned long POST_MS = 200;     // detections: 5 per second whether or not the console preview is open
+const unsigned long SNAP_MS = 500;     // preview snapshots: at most 2 per second
+unsigned long lastPost = 0;
 
 #define MAX_OWN 4
 SlotConfig own[MAX_OWN]; int N_OWN = 0;       // this slot's displays (EvacOled keeps a pointer to this array)
@@ -279,8 +282,11 @@ void loop() {
   if (otaInLoop()) { delay(100); return; }    // updating: banner stays, no detections, Wi-Fi left to the download
   sendNodeInfo();
 #endif
+  if (millis() - lastPost < POST_MS) { delay(10); return; }                    // FW 2.6: reports at a fixed ~5 per second
+  lastPost = millis();
   std::vector<ObjectDetectionResult> res = ObjDet.getResult();
-  String body = String("{\"seq\":") + (++seq) + ",\"fps\":5,\"fw\":\"" + FW + "\",\"dets\":[";
+  // rssi = Wi-Fi signal (dBm), up = seconds since boot: the console shows both, so weak signal / reboots / power loss can be told apart
+  String body = String("{\"seq\":") + (++seq) + ",\"fps\":5,\"fw\":\"" + FW + "\",\"rssi\":" + WiFi.RSSI() + ",\"up\":" + (millis() / 1000) + ",\"dets\":[";
   for (size_t i = 0; i < res.size(); i++) {
     ObjectDetectionResult r = res[i];
     float cx = (r.xMin() + r.xMax()) / 2, cy = (r.yMin() + r.yMax()) / 2, w = r.xMax() - r.xMin(), h = r.yMax() - r.yMin();
@@ -300,7 +306,7 @@ void loop() {
     bool blink = jInt(resp, "blink");                                            // "閃燈": current sign blinks
     for (int k = 0; k < N_OWN; k++) oled.setIndex(k, blink && oled.sign(k) == Sign::Off ? Sign::Blocked : oled.sign(k), blink);
     snapOn = jInt(resp, "snap");
-    if (snapOn && millis() - lastSnap > 250) {                                    // snapshot only when the console asks
+    if (snapOn && millis() - lastSnap > SNAP_MS) {                                // snapshot only when the console asks
       uint32_t addr = 0, len = 0; Camera.getImage(CH_JPG, &addr, &len);
       if (len) httpPost(String("/api/dev/") + macStr + "/frame", "image/jpeg", (const uint8_t*)addr, len);
       lastSnap = millis();
@@ -319,5 +325,6 @@ void loop() {
   }
   logChanges(before);
   oled.update();
-  delay(snapOn ? 30 : 150);             // 預覽開著時縮短等待，快照約每秒 3 張
+  delay(20);                            // FW 2.6: pacing is POST_MS / SNAP_MS above (2.5 ran 30 ms loops with the preview open
+                                        // and posted every loop, 15-22 reports/s per board, and the server fell behind)
 }
