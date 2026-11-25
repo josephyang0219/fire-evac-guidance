@@ -399,4 +399,6 @@ if __name__ == "__main__":
         @app.on_event("startup")
         async def _start():
             asyncio.create_task(sim_loop(S["sim"], img, a.period))
-    uvicorn.run(app, host="0.0.0.0", port=a.port)
+    # Windows: uvicorn defaults to ProactorEventLoop, whose accept loop dies for good on WinError 64 (hotspot interface
+    # flap, 2026-11-26) while the process stays up -> boards reboot every 60 s. SelectorEventLoop just drops that connection.
+    uvicorn.run(app, host="0.0.0.0", port=a.port, loop="asyncio:SelectorEventLoop" if sys.platform == "win32" else "auto")

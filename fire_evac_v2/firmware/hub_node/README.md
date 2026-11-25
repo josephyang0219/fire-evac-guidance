@@ -47,6 +47,8 @@
 | 鏡頭和 NN 都沒啟動，序列埠出現 `RGB output only on ch4`、`str3 paring fail`、`hal_video_str2cmd fail` | NN 的 RGB 串流用了 1 號通道；SDK 規定 RGB 只能用 3 號通道 | `CH_NN 3`（configVideoChannel／getStream／channelBegin 三處都改）；JPEG 快照留在 `CH_JPG 0`，`Camera.getImage(CH_JPG, …)` → `POST /api/dev/<MAC>/frame` 的流程不變 |
 | Pin0/1、Pin3/4 的 OLED 沒有畫面（`OLEDs 1/3`） | HAL 硬體 I²C 在 hub_node 裡不通，見上 | 三條全部改軟體 I²C，接線不變 |
 
+11-26：四台已 OTA 上板（本機版號暫記 2.7，內容＝d7be3cf 的 FW 2.6）；GitHub 版拿掉了板上 LED 閃燈，之後補回。
+
 ## 1. 路口編號
 
 1F 井字型共 9 個路口，座標是 (i·99, j·99) mm，i、j 都是 −1、0、1。編號寫成 `J(i,j)`，例如 `J(-1,1)`：
