@@ -1,0 +1,31 @@
+YOLOR  2026-11-18 torch 2.6.0+cu124 CUDA:0 (NVIDIA GeForce RTX 4060 Laptop GPU, 8187.5MB)
+
+C:\Users\waipj\fire_retrain7\yolov7\models\experimental.py:252: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  ckpt = torch.load(w, map_location=map_location)  # load
+C:\Users\waipj\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\functional.py:539: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\native\TensorShape.cpp:3638.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+Model Summary: 208 layers, 6023832 parameters, 0 gradients, 13.1 GFLOPS
+C:\Users\waipj\fire_retrain7\yolov7\utils\datasets.py:392: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  cache, exists = torch.load(cache_path), True  # load
+Namespace(weights=['C:\\Users\\waipj\\fire_retrain7\\runs\\small7_v5\\weights\\best.pt'], data='C:\\Users\\waipj\\fire_retrain7\\ds7_v6\\data.yaml', batch_size=16, img_size=576, conf_thres=0.001, iou_thres=0.65, task='val', device='', single_cls=False, augment=False, verbose=True, save_txt=False, save_hybrid=False, save_conf=False, save_json=False, project='C:\\Users\\waipj\\fire_retrain7\\runs', name='small7_val_v5_on_v6', exist_ok=True, no_trace=False, v5_metric=False)
+Fusing layers... 
+IDetect.fuse
+ Convert model to Traced-model... 
+ traced_script_module saved! 
+ model is traced! 
+
+[34m[1mval: [0mScanning 'C:\Users\waipj\fire_retrain7\ds7_v6\labels\val.cache' images and labels... 124 found, 0 missing, 23 empty, 0 corrupted: 100%|██████████| 124/124 [00:00<?, ?it/s][34m[1mval: [0mScanning 'C:\Users\waipj\fire_retrain7\ds7_v6\labels\val.cache' images and labels... 124 found, 0 missing, 23 empty, 0 corrupted: 100%|██████████| 124/124 [00:00<?, ?it/s]
+               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:   0%|          | 0/8 [00:00<?, ?it/s]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:  12%|█▎        | 1/8 [00:03<00:22,  3.21s/it]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:  25%|██▌       | 2/8 [00:03<00:10,  1.78s/it]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:  38%|███▊      | 3/8 [00:04<00:06,  1.23s/it]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:  50%|█████     | 4/8 [00:04<00:03,  1.10it/s]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:  62%|██████▎   | 5/8 [00:05<00:02,  1.39it/s]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:  75%|███████▌  | 6/8 [00:05<00:01,  1.68it/s]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95:  88%|████████▊ | 7/8 [00:06<00:00,  1.93it/s]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95: 100%|██████████| 8/8 [00:06<00:00,  2.38it/s]               Class      Images      Labels           P           R      mAP@.5  mAP@.5:.95: 100%|██████████| 8/8 [00:06<00:00,  1.27it/s]
+                 all         124         440       0.829       0.628        0.69       0.514
+             cabinet         124          42       0.651       0.476       0.539       0.432
+               boxes         124          33       0.957       0.697       0.709        0.54
+           furniture         124          59       0.904       0.593       0.667       0.468
+              rubble         124          28       0.832        0.75       0.782        0.66
+                gate         124          64       0.864       0.891       0.922       0.786
+               smoke         124          66       0.727       0.242       0.392       0.135
+              person         124         148       0.867       0.746       0.819       0.576
+Speed: 11.0/12.0/23.0 ms inference/NMS/total per 576x576 image at batch-size 16
+Results saved to C:\Users\waipj\fire_retrain7\runs\small7_val_v5_on_v6
+Fusing layers... 
+IDetect.fuse
+{"person_recall_by_height_px": {"0-12": [0, 1], "12-20": [0, 0], "20-30": [0, 2], "30-45": [17, 30], "45-1000": [91, 115]}, "at_conf_0.4": {"cabinet": {"tp": 20, "fp": 7, "fn": 22}, "boxes": {"tp": 23, "fp": 2, "fn": 10}, "furniture": {"tp": 35, "fp": 4, "fn": 24}, "rubble": {"tp": 22, "fp": 4, "fn": 6}, "gate": {"tp": 58, "fp": 7, "fn": 6}, "smoke": {"tp": 15, "fp": 6, "fn": 51}, "person": {"tp": 108, "fp": 12, "fn": 40}}}

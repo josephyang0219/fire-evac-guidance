@@ -1,0 +1,5 @@
+# 火場避難 7 類（0-5 沿用原本順序，6 = person）
+train: C:/Users/waipj/fire_retrain7/ds7_v6/images/train
+val: C:/Users/waipj/fire_retrain7/ds7_v6/images/val
+nc: 7
+names: ['cabinet', 'boxes', 'furniture', 'rubble', 'gate', 'smoke', 'person']
