@@ -224,7 +224,7 @@ th{color:var(--muted);font-weight:500}
     <div class="card" id="devCard" style="grid-column:1/-1">
       <h3>裝置配置 <span class="hint" style="font-weight:400">所有板子燒同一份程式，連上後出現在這裡；位置改這裡就好，不用重燒</span></h3>
       <div id="wizBox" class="row" hidden style="background:var(--panel2);border-radius:8px;padding:8px 10px;justify-content:space-between"></div>
-      <div class="tw"><table><thead><tr><th>板子</th><th>狀態</th><th>位置</th><th>韌體</th><th>畫面亮度</th><th>操作</th></tr></thead><tbody id="devTbl"><tr><td colspan="6" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr></tbody></table></div>
+      <div class="tw"><table><thead><tr><th>板子</th><th>狀態</th><th>位置</th><th>韌體</th><th>畫面亮度</th><th title="FW 2.9 起：每台鏡頭各自的影像調整，存進 devices.json，板子下一次回報就套用，不用重燒">鏡頭調整</th><th>操作</th></tr></thead><tbody id="devTbl"><tr><td colspan="7" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr></tbody></table></div>
       <div class="row" style="margin-top:8px;flex-wrap:wrap;gap:8px">
         <button class="btn" id="wizStart">遮鏡頭自動指認</button>
         <label for="wizFloor">指認</label><select id="wizFloor"><option value="1">一樓 4 個位置</option><option value="2">二樓 4 個位置</option><option value="all">全部 8 個位置</option></select>
@@ -744,22 +744,26 @@ document.getElementById("copyState").onclick = async () => { const st = S.cur; c
 
 // ---------- device management (live mode only) ----------
 const SLOT_NAMES = {"1N":"1F 北","1W":"1F 西","1S":"1F 南","1E":"1F 東","2N":"2F 北","2W":"2F 西","2S":"2F 南","2E":"2F 東"};
+// 鏡頭調整（FW 2.9）：{"sat":30,"red":400} <-> "sat=30 red=400"
+function ispTxt(isp){ return Object.entries(isp || {}).map(([k, v]) => k + "=" + v).join(" "); }
 function renderDevices(st){
   const tb = document.getElementById("devTbl"); if (!tb || !st.devices) return;
   // state arrives up to 5x/s: rebuilding the table while a slot menu is open (or a name is being typed) closed the menu
   // at once, so the slot could not be changed by hand. Skip the rebuild while focus is in a menu/input of this table.
   const ae = document.activeElement; if (ae && tb.contains(ae) && (ae.tagName === "SELECT" || ae.tagName === "INPUT")) return;
   const devs = st.devices;
-  if (!devs.length){ tb.innerHTML = `<tr><td colspan="6" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr>`; }
+  if (!devs.length){ tb.innerHTML = `<tr><td colspan="7" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr>`; }
   else tb.innerHTML = devs.map(d => `<tr>
       <td><input class="devName" data-mac="${d.mac}" value="${d.name.replace(/"/g,"&quot;")}" style="font:inherit;width:9.5em;border:1px solid var(--line);border-radius:4px;padding:2px 4px;background:var(--panel);color:var(--ink)"><div class="hint mono">${d.mac}${d.ip ? " · " + d.ip : ""}</div></td>
       <td><span class="dot ${d.online ? "ok" : "bad"}"></span> ${d.online ? (d.fps ? d.fps + " 次/秒" : "在線") : (d.age == null ? "未連線" : "離線 " + d.age + " s")}<div class="hint">${(sig(d) + upTxt(d)).replace(/^ · /, "")}</div></td>
       <td><select class="devSlot" data-mac="${d.mac}"><option value="">未分配</option>${Object.entries(SLOT_NAMES).map(([k, v]) => `<option value="${k}" ${d.slot === k ? "selected" : ""}>${v}${devs.some(o => o.slot === k && o.mac !== d.mac) ? "（佔用）" : ""}</option>`).join("")}</select></td>
       <td class="mono">${d.fw || "—"}</td>
       <td class="mono">${d.lum == null ? "—" : d.lum}</td>
+      <td><input class="devIsp mono" data-mac="${d.mac}" value="${ispTxt(d.isp)}" placeholder="預設" title="空白＝SDK 預設。可填（空白分隔）：sat=0~100 飽和、con=0~100 對比、bri=-64~64 亮度、awb=1 自動白平衡／0 手動、red=256~2047 紅增益、blue=256~2047 藍增益（填 red/blue 會自動 awb=0）、gray=1 黑白。按 Enter 存檔，板子（FW 2.9+）下一次回報就套用" style="font:inherit;width:11em;border:1px solid var(--line);border-radius:4px;padding:2px 4px;background:var(--panel);color:var(--ink)"></td>
       <td><button class="btn devBlink" data-mac="${d.mac}" ${d.online ? "" : "disabled"}>${d.blink ? "閃燈中…" : "閃燈"}</button> <button class="btn devSnap" data-mac="${d.mac}" ${d.online ? "" : "disabled"}>畫面</button> <button class="btn devForget" data-mac="${d.mac}" title="從清單移除">移除</button></td></tr>`).join("");
   tb.querySelectorAll(".devSlot").forEach(e => e.onchange = () => { send({type:"assign", mac:e.dataset.mac, slot:e.value || null}); e.blur(); });
   tb.querySelectorAll(".devName").forEach(e => e.onchange = () => { send({type:"rename", mac:e.dataset.mac, name:e.value}); e.blur(); });
+  tb.querySelectorAll(".devIsp").forEach(e => e.onchange = () => { send({type:"isp", mac:e.dataset.mac, isp:e.value}); e.blur(); });   // 伺服器解析、限範圍、存檔
   tb.querySelectorAll(".devBlink").forEach(e => e.onclick = () => send({type:"blink", mac:e.dataset.mac}));
   tb.querySelectorAll(".devForget").forEach(e => e.onclick = () => { if (confirm("從清單移除這片板子？它下次連線會重新出現。")) send({type:"forget", mac:e.dataset.mac}); });
   tb.querySelectorAll(".devSnap").forEach(e => e.onclick = () => { send({type:"snap", mac:e.dataset.mac});

@@ -14,7 +14,7 @@ Phones <-> WS /ws                          state broadcast, position / role upda
 python server.py                      live mode (HUBs on the same Wi-Fi hotspot)
 python server.py --sim seq.json DIR   replay the simulated world (camera images in DIR/stepK/F1_N.jpg ...)
 """
-import argparse, asyncio, json, os, sys, time, copy
+import argparse, asyncio, json, os, re, sys, time, copy, zlib
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import HTMLResponse, Response, JSONResponse
 import uvicorn
@@ -33,18 +33,48 @@ S = dict(dets={}, hubs={}, displays={}, frames={}, clients={}, people={}, edits=
 COV = None
 SLOTS = [f"{fl}{c}" for fl in (1, 2) for c in ("N", "W", "S", "E")]
 DEV_FILE = os.path.join(HERE, "devices.json")
-# devices: mac -> {name, slot, last, fps, fw, ip, lum, blink_until, snap_until}
+# devices: mac -> {name, slot, isp, last, fps, fw, ip, lum, blink_until, snap_until}
 DEV = {}
+# per-board camera (ISP) tuning, FW 2.9+ (2026-11-26): optional "isp" in devices.json, sent back in every detections
+# reply with "ispv" = a checksum of it; the board re-applies only when ispv changes. Keys and ranges = what the SDK's
+# CameraSetting accepts (Multimedia/examples/ISPControl): awb 0 manual / 1 auto; red, blue = white-balance gains
+# 256..2047 (only with awb 0); sat, con 0..100; bri -64..64; gray 0/1. No key = the SDK default. There is no settable
+# colour temperature in this SDK (only getWBTemp), so manual white balance is red/blue gains.
+ISP_KEYS = {"awb": (0, 1), "red": (256, 2047), "blue": (256, 2047), "sat": (0, 100), "con": (0, 100), "bri": (-64, 64), "gray": (0, 1)}
+
+
+def isp_clean(v):
+    """dict (or "sat=30 red=400" text) -> {key: int} with known keys only, clamped to the SDK ranges"""
+    if isinstance(v, str):
+        v = dict(re.findall(r"([a-z]+)\s*[=:]\s*(-?\d+)", v.lower()))
+    out = {}
+    for k, (lo, hi) in ISP_KEYS.items():
+        if isinstance(v, dict) and v.get(k) not in (None, ""):
+            try:
+                out[k] = max(lo, min(hi, int(v[k])))
+            except (TypeError, ValueError):
+                pass
+    if ("red" in out or "blue" in out) and "awb" not in out:
+        out["awb"] = 0                          # gains only take effect with manual white balance
+    return out
+
+
+def isp_version(isp):
+    """0 = nothing to apply; otherwise a 1..65535 checksum, so hand edits of devices.json are picked up too"""
+    return (zlib.crc32(json.dumps(isp, sort_keys=True).encode()) % 65535) + 1 if isp else 0
+
+
 try:
     for mac, d in json.load(open(DEV_FILE, encoding="utf-8")).items():
-        DEV[mac] = dict(name=d.get("name", mac[-4:]), slot=d.get("slot"), last=0, fps=0, fw="", ip="", lum=None)
+        DEV[mac] = dict(name=d.get("name", mac[-4:]), slot=d.get("slot"), isp=isp_clean(d.get("isp") or {}), last=0, fps=0, fw="", ip="", lum=None)
 except Exception:
     pass
 WIZ = None   # cover-the-lens wizard: {"slots":[...], "i":0, "base":{mac:lum}, "hits":{mac:n}}
 
 
 def dev_save():
-    json.dump({m: dict(name=d["name"], slot=d["slot"]) for m, d in DEV.items()}, open(DEV_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump({m: dict(name=d["name"], slot=d["slot"], **({"isp": d["isp"]} if d.get("isp") else {})) for m, d in DEV.items()},
+              open(DEV_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
 
 def dev_assign(mac, slot):
@@ -66,7 +96,7 @@ def dev_list():
     return [dict(mac=m, name=d["name"], slot=d["slot"], online=now - d["last"] < 5, age=round(now - d["last"], 1) if d["last"] else None,
                  fps=d["fps"], fw=d["fw"], ip=d["ip"], lum=None if d["lum"] is None else round(d["lum"]), blink=d.get("blink_until", 0) > now,
                  dets=d.get("dets", []) if now - d["last"] < 5 else [], frame=bool(d.get("frame")),
-                 rssi=d.get("rssi"), up=d.get("up"), boots=d.get("boots", 0))
+                 rssi=d.get("rssi"), up=d.get("up"), boots=d.get("boots", 0), isp=d.get("isp") or {})
             for m, d in sorted(DEV.items(), key=lambda kv: (kv[1]["slot"] or "9", kv[0]))]
 
 
@@ -221,7 +251,7 @@ async def dev_dets(mac: str, req: Request):
     b = await req.json(); now = time.time()
     d = DEV.get(mac)
     if d is None:                       # a new board says hello -> listed in the console as unassigned
-        d = DEV[mac] = dict(name=f"板子 {len(DEV) + 1}（{mac[-4:]}）", slot=None, last=0, fps=0, fw="", ip="", lum=None); dev_save()
+        d = DEV[mac] = dict(name=f"板子 {len(DEV) + 1}（{mac[-4:]}）", slot=None, isp={}, last=0, fps=0, fw="", ip="", lum=None); dev_save()
     if d["last"] and now - d["last"] < 5:   # measured report rate (what the board actually achieves)
         d["fps"] = round(0.8 * (d["fps"] or 0) + 0.2 / max(now - d["last"], 1e-3), 1)
     if b.get("up") is not None and d.get("up") is not None and b["up"] + 5 < d["up"]:
@@ -237,7 +267,14 @@ async def dev_dets(mac: str, req: Request):
     out = hub_leds(slot) if slot else {"leds": [], "junctions": E.junctions(S.get("leds") or {})}
     out.update(slot=slot or "", node=slot[1] if slot else "", blink=int(d.get("blink_until", 0) > now),
                snap=int(bool(WIZ) or d.get("snap_until", 0) > now))
+    out.update(dev_isp_reply(d))
     return JSONResponse(out)
+
+
+def dev_isp_reply(d):
+    """{"ispv": n, "isp": {...}} for the detections reply ("ispv":0 and no "isp" when the board runs SDK defaults)"""
+    isp = d.get("isp") or {}
+    return {"isp": isp, "ispv": isp_version(isp)} if isp else {"ispv": 0}   # ispv last: a cut-off reply has no ispv
 
 
 @app.post("/api/dev/{mac}/frame")
@@ -342,6 +379,8 @@ async def ws_ep(ws: WebSocket):
                 dev_assign(m["mac"], m.get("slot") or None)
             elif t == "rename" and m.get("mac") in DEV:
                 DEV[m["mac"]]["name"] = m["name"][:30]; dev_save()
+            elif t == "isp" and m.get("mac") in DEV:  # console: camera tuning for one board (FW 2.9+), saved at once
+                DEV[m["mac"]]["isp"] = isp_clean(m.get("isp") or {}); dev_save()
             elif t == "blink" and m.get("mac") in DEV:
                 DEV[m["mac"]]["blink_until"] = time.time() + 6
             elif t == "snap" and m.get("mac") in DEV:

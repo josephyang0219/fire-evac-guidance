@@ -75,7 +75,7 @@ const char* SSID = WIFI_SSID;
 const char* PASS = WIFI_PASS;
 const char* SERVER = EVAC_SERVER_IP;
 const int   PORT = EVAC_SERVER_PORT;
-const char* FW = "2.8";                 // bump for every OTA release: the OTA server checks it after the reboot
+const char* FW = "2.9";                 // bump for every OTA release: the OTA server checks it after the reboot
 
 // ---------- junction OLEDs: which displays this position drives (EDIT HERE) ----------
 // One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
@@ -145,6 +145,32 @@ bool linkLost = false;
 unsigned long otaInfoAt = 0;          // next node-info report to the OTA server (0 = now)
 #endif
 
+CameraSetting camIsp;                // FW 2.9: per-board ISP tuning from the server (SDK examples ISPControl/*)
+int ispApplied = 0;                  // "ispv" of the reply last applied (0 = SDK defaults)
+// FW 2.9 (2026-11-26): camera tuning per board without reflashing. The reply carries "ispv" (checksum, 0 = defaults) and
+// "isp":{"awb":0,"red":400,"blue":300,"sat":30,"con":50,"bri":0,"gray":0} (any subset; ranges checked by the SDK and
+// the server). A new ispv -> back to the SDK defaults, then set the keys that are there, then one line on the serial port.
+// The ISP is the sensor's, so this also changes what the NN sees (gray=1 or very low sat may cost detections).
+void applyIsp(const String& resp) {
+  int v = jInt(resp, "ispv");
+  if (v == ispApplied) return;
+  ispApplied = v;
+  camIsp.reset();
+  String line = "[ISP] v" + String(v) + ":";
+  int p = resp.indexOf("\"isp\":{");
+  if (v && p >= 0) {
+    String o = resp.substring(p + 6, resp.indexOf('}', p) + 1);       // just the isp object, so keys cannot collide
+    if (jHas(o, "awb"))  { int x = jInt(o, "awb");  camIsp.setAWB(x);          line += " awb=" + String(x); }
+    if (jHas(o, "red"))  { int x = jInt(o, "red");  camIsp.setRedBalance(x);   line += " red=" + String(x); }
+    if (jHas(o, "blue")) { int x = jInt(o, "blue"); camIsp.setBlueBalance(x);  line += " blue=" + String(x); }
+    if (jHas(o, "sat"))  { int x = jInt(o, "sat");  camIsp.setSaturation(x);   line += " sat=" + String(x); }
+    if (jHas(o, "con"))  { int x = jInt(o, "con");  camIsp.setContrast(x);     line += " con=" + String(x); }
+    if (jHas(o, "bri"))  { int x = jInt(o, "bri");  camIsp.setBrightness(x);   line += " bri=" + String(x); }
+    if (jHas(o, "gray")) { int x = jInt(o, "gray"); camIsp.setGrayMode(x);     line += " gray=" + String(x); }
+  } else line += " SDK defaults";
+  Serial.println(line);
+}
+
 void defineSlot(const String& slot) {
   oled.setAll(Sign::Off); oled.update();      // blank the old position's displays before re-pointing the library
   mySlot = slot; N_OWN = 0;
@@ -180,7 +206,8 @@ unsigned long seq = 0, lastSnap = 0;
 bool snapOn = false;                 // the console has a preview open for this board (reply "snap":1)
 char macStr[13];
 
-// tiny helpers for the fixed-shape JSON reply
+// tiny helpers for the fixed-shape JSON reply (jHas: key present, so 0 can be told from "missing")
+bool jHas(const String& s, const char* key) { return s.indexOf(String("\"") + key + "\":") >= 0; }
 String jStr(const String& s, const char* key) {
   int p = s.indexOf(String("\"") + key + "\":\""); if (p < 0) return "";
   p += strlen(key) + 4; int q = s.indexOf('"', p); return q < 0 ? "" : s.substring(p, q);
@@ -323,6 +350,7 @@ void loop() {
     bool blink = jInt(resp, "blink");                                            // "閃燈": current sign blinks
     for (int k = 0; k < N_OWN; k++) oled.setIndex(k, blink && oled.sign(k) == Sign::Off ? Sign::Blocked : oled.sign(k), blink);
     snapOn = jInt(resp, "snap");
+    if (jHas(resp, "ispv")) applyIsp(resp);                                     // FW 2.9: only when "ispv" changed (sent last, so a cut-off reply is skipped)
     if (snapOn && millis() - lastSnap > SNAP_MS) {                                // snapshot only when the console asks
       uint32_t addr = 0, len = 0; Camera.getImage(CH_JPG, &addr, &len);
       if (len) { wdt.refresh(); httpPost(String("/api/dev/") + macStr + "/frame", "image/jpeg", (const uint8_t*)addr, len, SNAP_BUDGET_MS); }
