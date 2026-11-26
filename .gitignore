@@ -7,3 +7,6 @@ __pycache__/
 # OTA images kept by fire_evac_v2/tools/build_hub_node.py, and the banner preview
 fire_evac_v2/tools/ota_out/
 fire_evac_v2/tools/ota_banner_preview.png
+
+# 實拍錄製＋標記的資料（中控台 /label），很大，不進 git
+fire_evac_v2/app/captures/

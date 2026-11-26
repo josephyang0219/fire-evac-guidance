@@ -161,6 +161,7 @@ th{color:var(--muted);font-weight:500}
   <span class="clock" id="clock">00:00</span>
   <span class="note" id="note"></span>
   <span class="spacer"></span>
+  <a href="/label" id="labelLink" style="color:var(--stair);font-size:13px">錄製與標記 →</a>
   <span class="pill"><span class="dot" id="linkdot"></span><span id="linktxt">回放模式</span></span>
   <div class="seg" role="group" aria-label="我的身分" id="roles">
     <button data-role="evacuee" aria-pressed="true">避難人員</button>
@@ -916,7 +917,7 @@ function openDev(mac){
 // ---------- data: live server or embedded replay ----------
 function send(m){ if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify(m)); }
 function boot(){
-  if (EMBED){ const dc = document.getElementById("devCard"); if (dc) dc.hidden = true; S.seq = EMBED.seq; S.images = EMBED.images || {}; stepEl.max = S.seq.length-1; S.me = {floor:2, x:60, y:102}; setStep(0);
+  if (EMBED){ const dc = document.getElementById("devCard"); if (dc) dc.hidden = true; const ll = document.getElementById("labelLink"); if (ll) ll.hidden = true; S.seq = EMBED.seq; S.images = EMBED.images || {}; stepEl.max = S.seq.length-1; S.me = {floor:2, x:60, y:102}; setStep(0);
     document.getElementById("linktxt").textContent = "回放模式（模擬世界）"; document.getElementById("linkdot").className = "dot warn"; return; }
   try {
     const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws"); S.ws = ws;

@@ -1,0 +1,329 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>錄製與標記</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* 錄製＋標記（實拍訓練資料）。配色、字體沿用中控台。 */
+:root{
+  --bg:#eceff1; --panel:#ffffff; --panel2:#f5f7f8; --ink:#14212a; --muted:#5a6873; --line:#d3dadf;
+  --ok:#0a8a4b; --bad:#d4241c; --warn:#e08e00; --acc:#1d6bd0;
+  --display:"Barlow Condensed","Noto Sans TC",system-ui,sans-serif;
+  --body:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1317; --panel:#161d23; --panel2:#1c242b; --ink:#e6ecf0; --muted:#94a2ac; --line:#29343d;
+  --ok:#23c06f; --bad:#ff4a3d; --warn:#ffb020; --acc:#5aa2ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1317; --panel:#161d23; --panel2:#1c242b; --ink:#e6ecf0; --muted:#94a2ac; --line:#29343d;
+  --ok:#23c06f; --bad:#ff4a3d; --warn:#ffb020; --acc:#5aa2ff; color-scheme:dark}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;padding:12px max(16px,env(safe-area-inset-left,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.02em;margin:0}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.top h1{font-size:26px}
+.top a{color:var(--acc)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;border:0;background:transparent;color:var(--ink);padding:6px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.spacer{flex:1}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.card h2{font-size:22px;margin-bottom:8px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row+.row{margin-top:8px}
+.btn{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:5px 12px;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.rec{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+input[type=text],select{font:inherit;border:1px solid var(--line);border-radius:6px;padding:4px 8px;background:var(--panel);color:var(--ink);min-width:0}
+.hint{color:var(--muted);font-size:12px}
+.mono{font-family:var(--mono)}
+.grid2{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:14px;margin-top:14px}
+@media (max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.thumb{position:relative;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#0b0f12;cursor:pointer}
+.thumb img{display:block;width:100%;aspect-ratio:4/3;object-fit:fill}
+.thumb .cap{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:2px 6px;display:flex;justify-content:space-between;gap:4px}
+.thumb.cur{outline:3px solid var(--acc);outline-offset:-3px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--muted)}
+.dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
+.sets{display:flex;flex-direction:column;gap:4px;margin-top:8px;max-height:60vh;overflow:auto}
+.sets button{all:unset;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:6px 8px;border-radius:6px;cursor:pointer;border:1px solid transparent}
+.sets button:hover{background:var(--panel2)}
+.sets button[aria-current="true"]{border-color:var(--acc);background:var(--panel2)}
+.sets .nm{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:4px;border-radius:2px;background:var(--line);grid-column:1/-1;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.editor{position:relative;background:#0b0f12;border-radius:8px;overflow:hidden;touch-action:none;user-select:none;aspect-ratio:4/3;max-height:70vh}
+.editor img,.editor canvas{position:absolute;inset:0;width:100%;height:100%}
+.editor img{object-fit:fill}
+.classes{display:flex;flex-wrap:wrap;gap:6px}
+.classes button{font:inherit;font-size:13px;border:2px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:3px 10px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.classes button i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.classes button[aria-pressed="true"]{border-color:var(--ink)}
+.classes kbd{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.strip{display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.strip .thumb{flex:0 0 110px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.marks{display:flex;flex-wrap:wrap;gap:6px}
+.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:30}
+.keys{font-size:12px;color:var(--muted);margin-top:6px}
+.keys kbd{font-family:var(--mono);border:1px solid var(--line);border-radius:4px;padding:0 4px;background:var(--panel2)}
+</style>
+
+<div class="top">
+  <h1>錄製與標記</h1>
+  <span class="hint">實拍訓練資料：以「組」（一個擺位）為單位錄製，再修正框、匯出成 YOLO 資料集</span>
+  <span class="spacer"></span>
+  <div class="seg" role="tablist" id="tabs"><button data-tab="rec" aria-pressed="true">錄製</button><button data-tab="lab" aria-pressed="false">標記</button></div>
+  <a href="/">回中控台</a>
+</div>
+
+<!-- ======================= 錄製 ======================= -->
+<section id="tab-rec">
+  <div class="grid2">
+    <div class="card">
+      <h2>這一組</h2>
+      <div class="row"><label for="rName">組名</label><input type="text" id="rName" style="flex:1" placeholder="例如 障礙物-07"></div>
+      <div class="row"><label for="rKind">類型</label><select id="rKind"><option value="obstacle">障礙物＋閘門</option><option value="empty">空場景（不用標）</option><option value="smoke">通煙</option><option value="other">其他</option></select>
+        <label for="rLight">燈光</label><select id="rLight"><option>燈全開</option><option>燈一半</option><option>窗戶光</option><option>手電筒</option><option>其他</option></select></div>
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="rShot">抓一輪（每台一張）</button><span class="hint" id="rShotMsg"></span></div>
+      <p class="hint">同一個組名再按一次就加進同一組：擺好道具 → 每種燈光各按一次 → 換擺位時改組名。空場景存下來就算標好了。</p>
+      <hr style="border:0;border-top:1px solid var(--line);margin:12px 0">
+      <h2>連續錄製（通煙）</h2>
+      <div class="row"><label for="rInt">每台每</label><select id="rInt"><option value="2" selected>2 秒</option><option value="4">4 秒</option><option value="10">10 秒</option></select><span>存一張</span>
+        <button class="btn rec" id="rStart">開始錄製</button><button class="btn" id="rStop" disabled>停止</button></div>
+      <div class="row marks" id="rMarks" style="margin-top:8px">
+        <button class="btn" data-mark="點香">點香</button><button class="btn" data-mark="煙碰到天花板">煙碰到天花板</button>
+        <button class="btn" data-mark="換燈光">換燈光（用上面的燈光）</button><button class="btn" data-mark="熄香">熄香</button><button class="btn" data-mark="">自訂…</button>
+      </div>
+      <p class="hint">通煙前先用「抓一輪」把每種燈光的無煙畫面存進同一組（之後煙的自動標註要用）；整次通煙中不要動道具。</p>
+    </div>
+    <div class="card">
+      <h2>目前狀態</h2>
+      <dl class="kv" id="rStatus"></dl>
+      <div class="thumbs" id="rThumbs"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 標記 ======================= -->
+<section id="tab-lab" hidden>
+  <div class="grid2">
+    <div class="card">
+      <h2>組</h2>
+      <div class="row"><label><input type="checkbox" id="lOnlyTodo"> 只看還沒檢查的</label><span class="spacer"></span><button class="btn" id="lExport">匯出訓練資料</button></div>
+      <div class="sets" id="lSets"></div>
+      <p class="hint" id="lExportMsg"></p>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2 id="lTitle">選一組開始</h2><span class="hint" id="lSrc"></span></div>
+      <div class="classes" id="lClasses"></div>
+      <div class="editor" id="lEditor" style="margin-top:8px"><img id="lImg" alt="要標記的畫面"><canvas id="lCv"></canvas></div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="lPrev">← 上一張</button>
+        <button class="btn primary" id="lSave">確認，下一張（Enter）</button>
+        <button class="btn" id="lNext">下一張 →</button>
+        <span class="spacer"></span>
+        <button class="btn" id="lApply" title="擺位沒動時，這台在這組的其他張都用同樣的框">套用到這台整組（A）</button>
+        <button class="btn" id="lEmpty">沒有目標（E）</button>
+        <button class="btn" id="lDel" title="拍壞、手入鏡的張數">刪掉這張</button>
+      </div>
+      <div class="keys">拖曳空白處畫框；點框選取、拖曳移動、拖四角改大小；<kbd>1</kbd>–<kbd>7</kbd> 換類別（選了框就改那個框）；<kbd>Delete</kbd> 刪框；<kbd>Enter</kbd> 確認並下一張；<kbd>←</kbd><kbd>→</kbd> 換張；<kbd>A</kbd> 套用到這台整組；<kbd>E</kbd> 沒有目標；<kbd>Esc</kbd> 取消選取</div>
+      <div class="strip" id="lStrip"></div>
+    </div>
+  </div>
+</section>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const CLS = [["櫃子","#f0a020"],["紙箱","#d9822b"],["桌椅","#2fae62"],["瓦礫","#a066e0"],["閘門","#3d8bfd"],["煙","#9fb3c8"],["人偶","#ff4f7a"]];
+const SLOT = {"1N":"1F 北","1W":"1F 西","1S":"1F 南","1E":"1F 東","2N":"2F 北","2W":"2F 西","2S":"2F 南","2E":"2F 東"};
+const $ = id => document.getElementById(id);
+let toastT = null;
+function toast(m){ const t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); }
+async function api(path, opt = {}){ const r = await fetch(path, {headers:{"Content-Type":"application/json"}, ...opt, body: opt.body && typeof opt.body !== "string" ? JSON.stringify(opt.body) : opt.body}); return r.json(); }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+try { const k = localStorage.getItem("lab.name"); if (k) $("rName").value = k; } catch (e) {}
+
+// ---------- tabs ----------
+for (const b of document.querySelectorAll("#tabs button")) b.onclick = () => {
+  for (const x of document.querySelectorAll("#tabs button")) x.setAttribute("aria-pressed", String(x === b));
+  $("tab-rec").hidden = b.dataset.tab !== "rec"; $("tab-lab").hidden = b.dataset.tab !== "lab";
+  if (b.dataset.tab === "lab") loadSets();
+};
+
+// ---------- 錄製 ----------
+let RS = null;
+async function refreshRec(){
+  try { RS = await api("/api/rec/status"); } catch (e) { return; }
+  const on = RS.boards.filter(b => b.online && b.slot), info = RS.set_info;
+  $("rStatus").innerHTML = `<dt>板子</dt><dd>${on.length} 台在線並已指派${RS.boards.length - on.length ? `（另有 ${RS.boards.length - on.length} 台離線或未指派）` : ""}</dd>
+    <dt>錄製</dt><dd>${RS.on ? `<span class="dot bad"></span> 連續錄製中，每 ${RS.interval} 秒` : "沒有在錄"}</dd>
+    <dt>目前的組</dt><dd>${info ? `${esc(info.name)}（${info.kind_name}）・${info.n} 張・已檢查 ${info.reviewed}` : "—"}</dd>`;
+  $("rStart").disabled = RS.on; $("rStop").disabled = !RS.on;
+  if (info) showRecThumbs(info.id);
+}
+let lastThumbSet = null, lastThumbN = -1;
+async function showRecThumbs(sid){
+  const d = await api(`/api/rec/set/${sid}`); if (sid === lastThumbSet && d.frames.length === lastThumbN) return;
+  lastThumbSet = sid; lastThumbN = d.frames.length;
+  const last = d.frames.slice(-8).reverse();
+  $("rThumbs").innerHTML = last.map(f => `<div class="thumb"><img loading="lazy" src="/api/rec/img/${sid}/${f.file}" alt=""><div class="cap"><span>${SLOT[f.slot] || f.mac.slice(-4)}</span><span>${esc(f.light || "")}</span></div></div>`).join("");
+}
+$("rShot").onclick = async () => {
+  const name = $("rName").value.trim(); if (!name){ toast("先填組名"); $("rName").focus(); return; }
+  try { localStorage.setItem("lab.name", name); } catch (e) {}
+  $("rShot").disabled = true; $("rShotMsg").textContent = "等每台的新快照…（最多 8 秒）";
+  const r = await api("/api/rec/shot", {method:"POST", body:{name, kind:$("rKind").value, light:$("rLight").value}});
+  $("rShot").disabled = false;
+  $("rShotMsg").textContent = r.ok ? `存了 ${r.saved.length} 張${r.missing.length ? `，${r.missing.map(s => SLOT[s] || s).join("、")} 沒拿到新畫面` : ""}` : r.msg;
+  refreshRec();
+};
+$("rStart").onclick = async () => {
+  const name = $("rName").value.trim(); if (!name){ toast("先填組名"); return; }
+  await api("/api/rec/start", {method:"POST", body:{name, kind:$("rKind").value, light:$("rLight").value, interval:+$("rInt").value}});
+  toast("開始連續錄製"); refreshRec();
+};
+$("rStop").onclick = async () => { await api("/api/rec/stop", {method:"POST", body:{}}); toast("已停止"); refreshRec(); };
+for (const b of document.querySelectorAll("#rMarks button")) b.onclick = async () => {
+  let text = b.dataset.mark; if (!text){ text = prompt("標記內容") || ""; if (!text) return; }
+  const r = await api("/api/rec/mark", {method:"POST", body:{text, light: text === "換燈光" ? $("rLight").value : undefined}});
+  toast(r.ok ? `已標記：${text}` : (r.msg || "沒有組"));
+};
+setInterval(() => { if (!$("tab-rec").hidden) refreshRec(); }, 2000); refreshRec();
+
+// ---------- 標記 ----------
+const L = {sets:[], sid:null, frames:[], i:0, boxes:[], sel:-1, cls:0, dirty:false, src:""};
+async function loadSets(){
+  const d = await api("/api/rec/sets"); L.sets = d.sets;
+  $("lSets").innerHTML = d.sets.length ? d.sets.map(s => `<button data-sid="${s.id}" aria-current="${s.id === L.sid}"><span class="nm">${esc(s.name)}</span><span class="hint">${s.reviewed}/${s.n}</span>
+      <span class="hint">${s.kind_name}・${new Date(s.created*1000).toLocaleString("zh-TW", {month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit"})}・${s.boxes} 個框</span><span></span><span class="bar"><i style="width:${s.n ? 100*s.reviewed/s.n : 0}%"></i></span></button>`).join("")
+    : `<p class="hint">還沒有錄過。先到「錄製」抓一輪。</p>`;
+  for (const b of $("lSets").querySelectorAll("button")) b.onclick = () => openSet(b.dataset.sid);
+}
+async function openSet(sid, keepIndex){
+  if (L.dirty) await save(false);
+  const d = await api(`/api/rec/set/${sid}`); L.sid = sid; L.frames = d.frames;
+  for (const b of $("lSets").querySelectorAll("button")) b.setAttribute("aria-current", String(b.dataset.sid === sid));
+  $("lTitle").textContent = `${d.meta.name}（${d.info.kind_name}）`;
+  const first = $("lOnlyTodo").checked ? L.frames.findIndex(f => !f.reviewed) : 0;
+  await go(keepIndex != null ? keepIndex : Math.max(0, first));
+}
+function drawStrip(){
+  $("lStrip").innerHTML = L.frames.map((f, k) => `<div class="thumb ${k === L.i ? "cur" : ""}" data-k="${k}"><img loading="lazy" src="/api/rec/img/${L.sid}/${f.file}" alt=""><div class="cap"><span>${SLOT[f.slot] || f.mac.slice(-4)}</span><span><span class="dot ${f.reviewed ? "ok" : "warn"}"></span> ${f.nbox ?? "預"}</span></div></div>`).join("");
+  for (const t of $("lStrip").querySelectorAll(".thumb")) t.onclick = () => go(+t.dataset.k);
+  const cur = $("lStrip").querySelector(".cur"); if (cur) cur.scrollIntoView({block:"nearest", inline:"center"});
+}
+async function go(k){
+  if (!L.frames.length){ $("lImg").removeAttribute("src"); L.boxes = []; draw(); drawStrip(); return; }
+  if (L.dirty) await save(false);
+  L.i = Math.max(0, Math.min(L.frames.length - 1, k)); const f = L.frames[L.i];
+  const lab = await api(`/api/rec/label/${L.sid}/${f.file}`);
+  L.boxes = lab.boxes.map(b => b.slice(0, 5)); L.sel = -1; L.dirty = false; L.src = lab.source;
+  $("lSrc").textContent = `${L.i + 1}/${L.frames.length}・${SLOT[f.slot] || f.mac.slice(-4)}・${f.light || ""}・` +
+    ({human:"已人工標記", empty:"空場景", v6:"v6 預標（請檢查）", board:"板上模型預標（請檢查）", none:"沒有預標"}[lab.source] || (lab.source.startsWith("copied") ? "從同台套用" : lab.source)) + (lab.reviewed ? "・已確認" : "");
+  $("lImg").src = `/api/rec/img/${L.sid}/${f.file}`;
+  draw(); drawStrip();
+}
+async function save(reviewed = true){
+  if (!L.sid || !L.frames.length) return;
+  const f = L.frames[L.i];
+  const r = await api(`/api/rec/label/${L.sid}/${f.file}`, {method:"PUT", body:{boxes:L.boxes, reviewed}});
+  f.reviewed = r.label.reviewed; f.nbox = r.label.boxes.length; L.dirty = false;
+  return r;
+}
+$("lSave").onclick = async () => { await save(true); next(); };
+function next(){
+  if ($("lOnlyTodo").checked){ const j = L.frames.findIndex((f, k) => k > L.i && !f.reviewed); if (j >= 0) return go(j); }
+  if (L.i < L.frames.length - 1) go(L.i + 1); else { toast("這組最後一張了"); drawStrip(); loadSets(); }
+}
+$("lNext").onclick = () => next();
+$("lPrev").onclick = () => go(L.i - 1);
+$("lEmpty").onclick = async () => { L.boxes = []; L.sel = -1; await save(true); toast("標成沒有目標"); next(); };
+$("lApply").onclick = async () => {
+  if (!L.frames.length) return; await save(true); const f = L.frames[L.i];
+  const r = await api(`/api/rec/apply/${L.sid}/${f.file}`, {method:"POST", body:{}});
+  toast(`這台在這組的其他 ${r.n} 張都套用了`); await openSet(L.sid, L.i); loadSets();
+};
+$("lDel").onclick = async () => {
+  if (!L.frames.length || !confirm("刪掉這張？（移到這組的 _trash 資料夾）")) return;
+  await api(`/api/rec/delete/${L.sid}/${L.frames[L.i].file}`, {method:"POST", body:{}}); L.dirty = false; await openSet(L.sid, L.i); loadSets();
+};
+$("lOnlyTodo").onchange = () => { if (L.sid) openSet(L.sid); };
+$("lExport").onclick = async () => {
+  if (L.dirty) await save(false);
+  const r = await api("/api/rec/export", {method:"POST", body:{}});
+  $("lExportMsg").textContent = `匯出 ${r.images} 張、${r.boxes} 個框（${Object.entries(r.per_class).filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join("、") || "全部是空場景"}）→ ${r.path}`;
+};
+// class buttons
+$("lClasses").innerHTML = CLS.map(([n, c], k) => `<button data-c="${k}" aria-pressed="${k === 0}"><i style="background:${c}"></i>${n}<kbd>${k + 1}</kbd></button>`).join("");
+function setCls(k){ L.cls = k; for (const b of $("lClasses").querySelectorAll("button")) b.setAttribute("aria-pressed", String(+b.dataset.c === k));
+  if (L.sel >= 0){ L.boxes[L.sel][0] = k; L.dirty = true; draw(); } }
+for (const b of $("lClasses").querySelectorAll("button")) b.onclick = () => setCls(+b.dataset.c);
+
+// ---------- canvas editor ----------
+const cv = $("lCv"), ed = $("lEditor");
+function size(){ const r = cv.getBoundingClientRect(), dpr = devicePixelRatio || 1; const w = Math.round(r.width*dpr), h = Math.round(r.height*dpr); if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; } return [w, h, dpr]; }
+function rectOf(b, w, h){ return [(b[1]-b[3]/2)*w, (b[2]-b[4]/2)*h, b[3]*w, b[4]*h]; }
+function draw(){
+  const [w, h, dpr] = size(), g = cv.getContext("2d"); g.clearRect(0, 0, w, h);
+  const fs = Math.max(11, Math.round(h/30)); g.font = `600 ${fs}px "Noto Sans TC",system-ui,sans-serif`; g.textBaseline = "top";
+  L.boxes.forEach((b, k) => { const [x, y, bw, bh] = rectOf(b, w, h), col = (CLS[b[0]] || ["?", "#fff"])[1], sel = k === L.sel;
+    g.lineWidth = (sel ? 3 : 2)*dpr; g.strokeStyle = col; g.setLineDash(sel ? [] : []); g.strokeRect(x, y, bw, bh);
+    if (sel){ g.fillStyle = col + "33"; g.fillRect(x, y, bw, bh); g.fillStyle = col; for (const [hx, hy] of [[x, y], [x+bw, y], [x, y+bh], [x+bw, y+bh]]) g.fillRect(hx-5*dpr, hy-5*dpr, 10*dpr, 10*dpr); }
+    const t = (CLS[b[0]] || ["類別" + b[0]])[0], tw = g.measureText(t).width + 8, ty = y - fs - 4 >= 0 ? y - fs - 4 : y;
+    g.fillStyle = col; g.fillRect(x, ty, tw, fs + 4); g.fillStyle = "#0b0f12"; g.fillText(t, x + 4, ty + 2); });
+  if (DRAG && DRAG.mode === "new"){ const [x0, y0, x1, y1] = DRAG.r; g.setLineDash([6*dpr, 4*dpr]); g.lineWidth = 2*dpr; g.strokeStyle = CLS[L.cls][1]; g.strokeRect(Math.min(x0, x1), Math.min(y0, y1), Math.abs(x1-x0), Math.abs(y1-y0)); g.setLineDash([]); }
+}
+let DRAG = null;
+function pt(e){ const r = cv.getBoundingClientRect(), dpr = devicePixelRatio || 1; return [(e.clientX - r.left)*dpr, (e.clientY - r.top)*dpr]; }
+function hit(px, py){
+  const [w, h, dpr] = size(), tol = 9*dpr;
+  if (L.sel >= 0){ const [x, y, bw, bh] = rectOf(L.boxes[L.sel], w, h);
+    const corners = [[x, y, "nw"], [x+bw, y, "ne"], [x, y+bh, "sw"], [x+bw, y+bh, "se"]];
+    for (const [cx, cy, c] of corners) if (Math.abs(px-cx) < tol && Math.abs(py-cy) < tol) return {k:L.sel, corner:c}; }
+  for (let k = L.boxes.length - 1; k >= 0; k--){ const [x, y, bw, bh] = rectOf(L.boxes[k], w, h); if (px >= x && px <= x+bw && py >= y && py <= y+bh) return {k}; }
+  return null;
+}
+cv.style.pointerEvents = "auto";
+cv.addEventListener("pointerdown", e => {
+  if (!L.frames.length) return; cv.setPointerCapture(e.pointerId); const [px, py] = pt(e), [w, h] = size(), H = hit(px, py);
+  if (H && H.corner){ const [x, y, bw, bh] = rectOf(L.boxes[H.k], w, h); DRAG = {mode:"resize", k:H.k, corner:H.corner, r:[x, y, x+bw, y+bh]}; }
+  else if (H){ L.sel = H.k; setCls(L.boxes[H.k][0]); const [x, y, bw, bh] = rectOf(L.boxes[H.k], w, h); DRAG = {mode:"move", k:H.k, off:[px-x, py-y], wh:[bw, bh]}; }
+  else { L.sel = -1; DRAG = {mode:"new", r:[px, py, px, py]}; }
+  draw();
+});
+cv.addEventListener("pointermove", e => {
+  if (!DRAG) { const H = L.frames.length && hit(...pt(e)); cv.style.cursor = !H ? "crosshair" : H.corner ? (H.corner === "nw" || H.corner === "se" ? "nwse-resize" : "nesw-resize") : "move"; return; }
+  const [px, py] = pt(e), [w, h] = size(), cl = (v, m) => Math.max(0, Math.min(m, v));
+  if (DRAG.mode === "new"){ DRAG.r[2] = cl(px, w); DRAG.r[3] = cl(py, h); }
+  else if (DRAG.mode === "move"){ const x = cl(px - DRAG.off[0], w - DRAG.wh[0]), y = cl(py - DRAG.off[1], h - DRAG.wh[1]); const b = L.boxes[DRAG.k];
+    b[1] = (x + DRAG.wh[0]/2)/w; b[2] = (y + DRAG.wh[1]/2)/h; L.dirty = true; }
+  else if (DRAG.mode === "resize"){ const r = DRAG.r; if (DRAG.corner.includes("w")) r[0] = cl(px, w); else r[2] = cl(px, w); if (DRAG.corner.includes("n")) r[1] = cl(py, h); else r[3] = cl(py, h);
+    const x0 = Math.min(r[0], r[2]), x1 = Math.max(r[0], r[2]), y0 = Math.min(r[1], r[3]), y1 = Math.max(r[1], r[3]); const b = L.boxes[DRAG.k];
+    b[1] = (x0+x1)/2/w; b[2] = (y0+y1)/2/h; b[3] = (x1-x0)/w; b[4] = (y1-y0)/h; L.dirty = true; }
+  draw();
+});
+cv.addEventListener("pointerup", () => {
+  if (DRAG && DRAG.mode === "new"){ const [w, h] = size(), [x0, y0, x1, y1] = DRAG.r;
+    if (Math.abs(x1-x0) > 6 && Math.abs(y1-y0) > 6){ L.boxes.push([L.cls, (x0+x1)/2/w, (y0+y1)/2/h, Math.abs(x1-x0)/w, Math.abs(y1-y0)/h]); L.sel = L.boxes.length - 1; L.dirty = true; } }
+  DRAG = null; draw();
+});
+window.addEventListener("resize", draw);
+document.addEventListener("keydown", e => {
+  if ($("tab-lab").hidden || e.target.matches("input,select,textarea")) return;
+  if (e.key >= "1" && e.key <= "7"){ setCls(+e.key - 1); e.preventDefault(); }
+  else if ((e.key === "Delete" || e.key === "Backspace") && L.sel >= 0){ L.boxes.splice(L.sel, 1); L.sel = -1; L.dirty = true; draw(); e.preventDefault(); }
+  else if (e.key === "Enter"){ $("lSave").click(); e.preventDefault(); }
+  else if (e.key === "ArrowRight"){ next(); e.preventDefault(); }
+  else if (e.key === "ArrowLeft"){ go(L.i - 1); e.preventDefault(); }
+  else if (e.key === "Escape"){ L.sel = -1; draw(); }
+  else if (e.key === "a" || e.key === "A"){ $("lApply").click(); }
+  else if (e.key === "e" || e.key === "E"){ $("lEmpty").click(); }
+});
+</script>

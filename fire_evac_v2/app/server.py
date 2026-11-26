@@ -21,6 +21,7 @@ import uvicorn
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "sim"))
 import evac as E, states as ST
+import dataset as DS                    # 錄製＋標記（實拍訓練資料），網頁 /label
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # legacy: which junction LEDs each camera HUB drives (9 per floor, 2-3 per HUB); only used for the old "leds" field.
@@ -225,6 +226,15 @@ async def _bcast_start():
     asyncio.create_task(bcast_loop())
 
 
+DS.init(DEV)
+app.include_router(DS.router)
+
+
+@app.get("/label")
+async def label_page():
+    return HTMLResponse(open(os.path.join(HERE, "static", "label.html"), encoding="utf-8").read())
+
+
 @app.get("/")
 async def index():
     return HTMLResponse(open(os.path.join(HERE, "static", "index.html"), encoding="utf-8").read())
@@ -266,7 +276,7 @@ async def dev_dets(mac: str, req: Request):
     await broadcast()
     out = hub_leds(slot) if slot else {"leds": [], "junctions": E.junctions(S.get("leds") or {})}
     out.update(slot=slot or "", node=slot[1] if slot else "", blink=int(d.get("blink_until", 0) > now),
-               snap=int(bool(WIZ) or d.get("snap_until", 0) > now))
+               snap=int(bool(WIZ) or d.get("snap_until", 0) > now or DS.wants_snap(mac)))
     out.update(dev_isp_reply(d))
     return JSONResponse(out)
 
@@ -282,7 +292,7 @@ async def dev_frame(mac: str, req: Request):
     body = await req.body(); d = DEV.get(mac)
     if d is None:
         return Response(status_code=404)
-    d["frame"] = body
+    d["frame"] = body; d["frame_t"] = time.time()
     try:
         from PIL import Image, ImageStat
         import io
@@ -291,6 +301,7 @@ async def dev_frame(mac: str, req: Request):
         pass
     if d["slot"]:
         S["frames"][d["slot"]] = body
+    DS.on_frame(mac, d)                             # 連續錄製中：依間隔存進目前的組
     if WIZ and not WIZ.get("cool"):
         wiz_check(mac)
         await broadcast()
