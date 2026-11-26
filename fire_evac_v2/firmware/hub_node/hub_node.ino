@@ -38,6 +38,8 @@
 */
 #include "WiFi.h"
 #include "sys_api.h"                    // sys_reset(): Wi-Fi watchdog reboot
+#include "WDT.h"                        // FW 2.8: hardware watchdog (SDK example Watchdog/SimpleWDT)
+#include "hub_net.h"                    // FW 2.8: HTTP POST with a hard time limit (hub_net.c)
 #include "StreamIO.h"
 #include "VideoStream.h"
 #include "NNObjectDetection.h"
@@ -73,7 +75,7 @@ const char* SSID = WIFI_SSID;
 const char* PASS = WIFI_PASS;
 const char* SERVER = EVAC_SERVER_IP;
 const int   PORT = EVAC_SERVER_PORT;
-const char* FW = "2.6";                 // bump for every OTA release: the OTA server checks it after the reboot
+const char* FW = "2.8";                 // bump for every OTA release: the OTA server checks it after the reboot
 
 // ---------- junction OLEDs: which displays this position drives (EDIT HERE) ----------
 // One row per OLED: slot = console position (1N 1E 1S 1W 2N ...) + an EvacOled SlotConfig whose id is the junction id the
@@ -123,7 +125,14 @@ const unsigned long WIFI_RETRY_MS = 5000;
 const unsigned long REBOOT_MS = 60000;
 unsigned long lastWifiTry = 0;
 const unsigned long POST_MS = 200;     // detections: 5 per second whether or not the console preview is open
-const unsigned long SNAP_MS = 500;     // preview snapshots: at most 2 per second
+const unsigned long SNAP_MS = 2000;    // FW 2.8: preview snapshots at most one every 2 s (was 500 ms)
+// FW 2.8 (2026-11-26): with the camera wall open three of four boards froze for good -- loop() sat in a blocking
+// client.write() of a snapshot (SDK send timeout 30 s, connect has none), so the 60 s reboot below never ran.
+// Now every POST has one hard time limit (hub_net.c) and a hardware watchdog resets the board if loop() stops.
+const uint32_t POST_BUDGET_MS = 1500;  // detections / node info: connect + send + reply
+const uint32_t SNAP_BUDGET_MS = 2000;  // one JPEG (~15 KB): give up and drop this frame after 2 s
+const uint32_t WDT_MS = 10000;         // hardware watchdog: no wdt.refresh() for 10 s -> reset
+WDT wdt(0);                            // 0 = normal watchdog (not the always-on one), default action = reset
 unsigned long lastPost = 0;
 
 #define MAX_OWN 4
@@ -166,7 +175,7 @@ VideoSetting configJPG(VIDEO_VGA, 10, VIDEO_JPEG, 1);
 VideoSetting configNN(NNW, NNH, 10, VIDEO_RGB, 0);
 NNObjectDetection ObjDet;
 StreamIO videoStreamerNN(1, 1);
-WiFiClient client;
+// (FW 2.8: no WiFiClient any more -- POSTs go through hub_net.c)
 unsigned long seq = 0, lastSnap = 0;
 bool snapOn = false;                 // the console has a preview open for this board (reply "snap":1)
 char macStr[13];
@@ -181,20 +190,21 @@ int jInt(const String& s, const char* key) {
   return s.substring(p + strlen(key) + 3).toInt();
 }
 
-String httpPost(const char* host, int port, const String& path, const char* type, const uint8_t* data, uint32_t len) {
-  String resp;
-  if (!client.connect(host, port)) return resp;
-  client.print(String("POST ") + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Type: " + type +
-               "\r\nContent-Length: " + len + "\r\nConnection: close\r\n\r\n");
-  client.write(data, len);
-  unsigned long t0 = millis();
-  while (client.connected() && millis() - t0 < 500) { while (client.available()) resp += (char)client.read(); }
-  client.stop();
-  int b = resp.indexOf("\r\n\r\n");
-  return b < 0 ? resp : resp.substring(b + 4);
+// one POST, never longer than budgetMs (hub_net.c); "" = failed or no reply. Body of the reply only.
+String httpPost(const char* host, int port, const String& path, const char* type, const uint8_t* data, uint32_t len,
+                uint32_t budgetMs = POST_BUDGET_MS) {
+  static char reply[2048];
+  IPAddress ip;
+  if (!WiFi.hostByName(host, ip)) return "";        // our hosts are dotted IPs: no DNS traffic
+  String head = String("POST ") + path + " HTTP/1.1\r\nHost: " + host + "\r\nContent-Type: " + type +
+                "\r\nContent-Length: " + len + "\r\nConnection: close\r\n\r\n";
+  int n = hub_http_post((uint32_t)ip, port, head.c_str(), head.length(), data, len, reply, sizeof(reply), budgetMs);
+  if (n <= 0) return "";
+  const char* b = strstr(reply, "\r\n\r\n");
+  return String(b ? b + 4 : reply);
 }
-String httpPost(const String& path, const char* type, const uint8_t* data, uint32_t len) {
-  return httpPost(SERVER, PORT, path, type, data, len);
+String httpPost(const String& path, const char* type, const uint8_t* data, uint32_t len, uint32_t budgetMs = POST_BUDGET_MS) {
+  return httpPost(SERVER, PORT, path, type, data, len, budgetMs);
 }
 
 #ifdef Arduino_OTA_MODE
@@ -275,9 +285,16 @@ void setup() {
   videoStreamerNN.begin();
   Camera.channelBegin(CH_JPG);
   Camera.channelBegin(CH_NN);
+  // started only now: Wi-Fi join above waits as long as the hotspot is away, and camera / model start-up time is not
+  // bounded by us. From here on loop() refreshes it every pass (also during an OTA download: the SDK threads do the
+  // download, loop() keeps running every 100 ms; a reset mid-download just boots the old image again).
+  wdt.init(WDT_MS);
+  wdt.start();
+  Serial.println("watchdog on (10 s)");
 }
 
 void loop() {
+  wdt.refresh();                        // FW 2.8: loop() stuck for WDT_MS -> hardware reset
 #ifdef Arduino_OTA_MODE
   if (otaInLoop()) { delay(100); return; }    // updating: banner stays, no detections, Wi-Fi left to the download
   sendNodeInfo();
@@ -308,7 +325,7 @@ void loop() {
     snapOn = jInt(resp, "snap");
     if (snapOn && millis() - lastSnap > SNAP_MS) {                                // snapshot only when the console asks
       uint32_t addr = 0, len = 0; Camera.getImage(CH_JPG, &addr, &len);
-      if (len) httpPost(String("/api/dev/") + macStr + "/frame", "image/jpeg", (const uint8_t*)addr, len);
+      if (len) { wdt.refresh(); httpPost(String("/api/dev/") + macStr + "/frame", "image/jpeg", (const uint8_t*)addr, len, SNAP_BUDGET_MS); }
       lastSnap = millis();
     }
   }
@@ -316,6 +333,7 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED && millis() - lastWifiTry > WIFI_RETRY_MS) {    // dropped off the hotspot: rejoin
     lastWifiTry = millis();
     Serial.println("wifi lost, rejoining");
+    wdt.refresh();                      // WiFi.begin() blocks while it tries; longer than WDT_MS = reset, which also rejoins
     WiFi.begin((char*)SSID, (char*)PASS);
   }
   if (millis() - lastReply > REBOOT_MS) {                                        // a minute without the server: start over

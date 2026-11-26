@@ -209,7 +209,7 @@ th{color:var(--muted);font-weight:500}
     <h2>鏡頭牆</h2>
     <span class="hint" id="wallHint">每台板子的即時畫面並排；拖曳畫面到位置上就能指派（或先點畫面、再點位置）。</span>
     <div class="opts">
-      <label><input type="checkbox" id="wallLive" checked> 即時更新</label>
+      <label><input type="checkbox" id="wallLive"> 即時更新</label>
       <label><input type="checkbox" id="wallBoxes" checked> 顯示標示框</label>
       <label for="wallConf">信心 ≥</label><select id="wallConf"><option value="0.25">25%</option><option value="0.4" selected>40%</option><option value="0.6">60%</option></select>
     </div>
@@ -781,7 +781,7 @@ document.getElementById("wizStart").onclick = () => {
 // 每台板子的畫面並排。資料來源：有板子（即時模式）就用 /api/devframe/{mac}.jpg 與 devices[].dets；
 // 沒有板子（回放模式）就用每個位置的 /api/cam/{slot}.jpg 或內嵌圖與 dets[slot]。
 // 標示框：dets 是 [類別, cx, cy, w, h, 信心]，座標以整張畫面為 0–1（板子 NN 用 576×320、快照是 640×480，兩者都是整個視野）。
-const WALL = {live:true, boxes:true, conf:0.4, sel:null, tiles:{}, busy:{}, snapAt:{}, built:false, seen:true};
+const WALL = {live:false, boxes:true, conf:0.4, sel:null, tiles:{}, busy:{}, snapAt:{}, built:false, seen:true};
 function drawBoxes(cv, dets){
   if (!cv) return; const r = cv.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1;
   const w = Math.max(1, Math.round(r.width*dpr)), h = Math.max(1, Math.round(r.height*dpr));
@@ -886,7 +886,7 @@ function updateWall(st){
   document.getElementById("wallHint").textContent = WALL.sel ? "已選取一片板子：點要放的位置（點自己取消）。" : "每台板子的即時畫面並排；拖曳畫面到位置上就能指派（或先點畫面、再點位置）。位置有人就互換。";
 }
 // 即時更新：每 1 秒抓一次在線板子的最新快照（上一張還沒載完就跳過），每 5 秒請板子再上傳 15 秒的快照；
-// 鏡頭牆不在畫面上、分頁在背景時都不抓也不要求（FW 2.6 板子最多每秒上傳 2 張）
+// 鏡頭牆不在畫面上、分頁在背景時都不抓也不要求（FW 2.8 板子最多每 2 秒上傳 1 張；預設不勾，要看再勾）
 setInterval(() => {
   if (!WALL.live || document.hidden || !S.live || !WALL.seen) return;
   const now = Date.now();

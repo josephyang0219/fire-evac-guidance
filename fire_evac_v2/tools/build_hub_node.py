@@ -13,7 +13,7 @@ OTA build compiles a generated copy, <build-path>_sketch/hub_node_ota/hub_node_o
 `ObjDet.modelSelect(... DEFAULT_YOLOV7TINY ...)` line is switched to CUSTOMIZED_YOLOV7TINY (= sd:/NN_MDL/yolov7_tiny.nb).
 It also starts with `#define Arduino_OTA_MODE 1`: the SDK's boards.txt has -DArduino_OTA_MODE in build.ota_mode_flags,
 but no compile recipe uses that property, so without this line every `#ifdef Arduino_OTA_MODE` would be skipped.
-Everything else is the same source; ota_banner.h and a local secrets.h are copied along.
+Everything else is the same source; ota_banner.h, hub_net.h/.c and a local secrets.h are copied along.
 The arduino-cli config must point data at %LOCALAPPDATA%/Arduino15 (see fire_evac_v2/firmware/hub_node/README.md).
 """
 import argparse, os, re, shutil, subprocess, sys, tempfile
@@ -42,7 +42,7 @@ def ota_sketch(build_path):
               "// -DArduino_OTA_MODE in build.ota_mode_flags, but no compile recipe uses it), and the model line reads the SD card.\n"
               "#define Arduino_OTA_MODE 1\n")
     open(os.path.join(d, "hub_node_ota.ino"), "w", encoding="utf-8", newline="\n").write(header + src.replace(DEFAULT_LINE, SD_LINE))
-    for f in ("ota_banner.h", "secrets.h"):
+    for f in ("ota_banner.h", "hub_net.h", "hub_net.c", "secrets.h"):
         if os.path.exists(os.path.join(SKETCH, f)):
             shutil.copy(os.path.join(SKETCH, f), d)
     return d
