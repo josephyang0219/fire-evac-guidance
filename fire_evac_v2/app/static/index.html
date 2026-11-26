@@ -746,6 +746,9 @@ document.getElementById("copyState").onclick = async () => { const st = S.cur; c
 const SLOT_NAMES = {"1N":"1F 北","1W":"1F 西","1S":"1F 南","1E":"1F 東","2N":"2F 北","2W":"2F 西","2S":"2F 南","2E":"2F 東"};
 function renderDevices(st){
   const tb = document.getElementById("devTbl"); if (!tb || !st.devices) return;
+  // state arrives up to 5x/s: rebuilding the table while a slot menu is open (or a name is being typed) closed the menu
+  // at once, so the slot could not be changed by hand. Skip the rebuild while focus is in a menu/input of this table.
+  const ae = document.activeElement; if (ae && tb.contains(ae) && (ae.tagName === "SELECT" || ae.tagName === "INPUT")) return;
   const devs = st.devices;
   if (!devs.length){ tb.innerHTML = `<tr><td colspan="6" class="hint">還沒有板子連線。板子開機連上熱點後會自動出現。</td></tr>`; }
   else tb.innerHTML = devs.map(d => `<tr>
@@ -755,8 +758,8 @@ function renderDevices(st){
       <td class="mono">${d.fw || "—"}</td>
       <td class="mono">${d.lum == null ? "—" : d.lum}</td>
       <td><button class="btn devBlink" data-mac="${d.mac}" ${d.online ? "" : "disabled"}>${d.blink ? "閃燈中…" : "閃燈"}</button> <button class="btn devSnap" data-mac="${d.mac}" ${d.online ? "" : "disabled"}>畫面</button> <button class="btn devForget" data-mac="${d.mac}" title="從清單移除">移除</button></td></tr>`).join("");
-  tb.querySelectorAll(".devSlot").forEach(e => e.onchange = () => send({type:"assign", mac:e.dataset.mac, slot:e.value || null}));
-  tb.querySelectorAll(".devName").forEach(e => e.onchange = () => send({type:"rename", mac:e.dataset.mac, name:e.value}));
+  tb.querySelectorAll(".devSlot").forEach(e => e.onchange = () => { send({type:"assign", mac:e.dataset.mac, slot:e.value || null}); e.blur(); });
+  tb.querySelectorAll(".devName").forEach(e => e.onchange = () => { send({type:"rename", mac:e.dataset.mac, name:e.value}); e.blur(); });
   tb.querySelectorAll(".devBlink").forEach(e => e.onclick = () => send({type:"blink", mac:e.dataset.mac}));
   tb.querySelectorAll(".devForget").forEach(e => e.onclick = () => { if (confirm("從清單移除這片板子？它下次連線會重新出現。")) send({type:"forget", mac:e.dataset.mac}); });
   tb.querySelectorAll(".devSnap").forEach(e => e.onclick = () => { send({type:"snap", mac:e.dataset.mac});
