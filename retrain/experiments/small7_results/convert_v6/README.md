@@ -1,6 +1,6 @@
 # v6（7 類）轉檔包：給 Realtek 線上 AI 模型轉換工具
 
-2026-11-27。用第 6 輪權重 `../weights/small7_v6_best.pt` 做出來的，要轉成板子用的 `.nb`。
+2026-11-27。用第 6 輪權重 `../weights/small7_v6_best.pt` 做出來的，已於 2026-11-28 完成板端 `.nb` 轉檔與檔頭檢查，尚未上板驗證。
 
 | 檔案 | 說明 |
 |---|---|
@@ -36,3 +36,29 @@
 2. 檢查類別數：`python fire_evac_v2/tools/check_sdk_model.py <下載的 .nb> --expect-classes 7`。
 3. 要上板測試時才放進 SD 卡的 `NN_MDL/yolov7_tiny.nb`（記得先備份原本那個），測完換回來。
 4. 注意：v6 只用合成資料訓練，實景誤判仍然會有（11/25 測 2F 西空場景：v6 誤判櫃子 0.51，舊模型誤判煙 0.68）。這版是給大家比較用的，正式上板等實拍重訓。
+
+
+## 2026-11-28：板端模型已整理，待單台實測
+
+- 成品：`yolov7_tiny_v6_576x320.nb`（4,505,536 bytes）。
+- 來源：使用者下載的 `network_binary (2).nb`，整理時保留下載原檔。
+- 檔頭檢查：VeriSilicon NBG（VPMN），輸入寬 576、高 320；三個輸出通道均為 36，對應 7 類。`check_sdk_model.py --expect-classes 7` 通過。
+- SHA-256：`a47fa6995167acce68b90f4f252c8f5cba443de9ac6690a645374cbbd0422eb7`（亦見 `SHA256SUMS.txt`）。
+- 類別順序：0 cabinet、1 boxes、2 furniture、3 rubble、4 gate、5 smoke、6 person。
+- 檢查僅確認檔案格式、尺寸與類別數，不代表已驗證板端載入、量化精度或實景辨識效果；量化設定依前述轉檔設定，檔頭檢查工具未驗證量化型別。
+- 前一次 `network_binary (1).nb` 輸入為 320×576，與現行韌體不符，未納入本轉檔包。
+
+### 單台部署前檢查
+
+從儲存庫根目錄執行：
+
+```bash
+python fire_evac_v2/tools/check_sdk_model.py retrain/experiments/small7_results/convert_v6/yolov7_tiny_v6_576x320.nb --expect-classes 7
+```
+
+1. 先備份測試板 SD 卡上原有的 `NN_MDL/yolov7_tiny.nb`。
+2. 將本檔複製至測試板 SD 卡，部署名稱改為 `NN_MDL/yolov7_tiny.nb`；儲存庫內保留含版本與尺寸的檔名。
+3. 重新開機，確認模型載入、七類輸出、中控台回報與空場景誤判，再測障礙物、煙與人偶。
+4. 記錄板子 MAC、韌體版本、模型雜湊與測試結果。驗證前不替換其他板子的模型。
+
+本次只整理模型與文件，未修改 SD 卡、未燒錄或推送 OTA。

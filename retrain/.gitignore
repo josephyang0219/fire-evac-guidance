@@ -9,3 +9,6 @@ datasets/
 
 # 根目錄的 .gitignore 忽略 tools/（本機工具），這裡的 tools/ 是腳本，要進 git
 !tools/
+
+# Verified v6 board model retained for reproducible deployment
+!experiments/small7_results/convert_v6/yolov7_tiny_v6_576x320.nb
